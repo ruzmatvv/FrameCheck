@@ -57,6 +57,8 @@ writeAtomic("dist/public/_headers", read("src/headers.txt"));
 // Browsers and iOS ask for these two at the root by themselves; as static files they cost nothing and never 404.
 writeAtomic("dist/public/apple-touch-icon.png", Buffer.from(pwa.icons["apple-touch-icon.png"], "base64"));
 writeAtomic("dist/public/favicon.ico", makeIco(32));
+// The picture chat apps and search engines show next to a shared link.
+writeAtomic("dist/public/social.jpg", fs.readFileSync("src/social.jpg"));
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
 const gameNames = "const GAME_NAMES=" + safeJSON(Object.fromEntries(games.map(g => [g.id, g.name]))) + ";\n";

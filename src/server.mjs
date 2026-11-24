@@ -112,12 +112,12 @@ function pageMeta(kind,lang,id,origin,canonicalHost){
  const base=siteBase(origin,canonicalHost),text=PAGE_TEXT[lang],name=kind==="game"?GAME_NAMES[id]:null;
  const pathIn=l=>kind==="game"?gamePath(id,name,l):homePath(l),path=pathIn(lang),url=base+path;
  const title=name?text.gameTitle(name):text.homeTitle,description=name?text.gameDesc(name):text.homeDesc;
- const image=kind==="game"?base+"/img/"+id+".jpg":base+"/icons/icon-512.png";
+ const image=kind==="game"?base+"/img/"+id+".jpg":base+"/social.jpg";
  const ld=name?{"@context":"https://schema.org","@type":"VideoGame",name,url,image,inLanguage:lang,applicationCategory:"Game",operatingSystem:"Windows"}:null;
  const tag=(attr,key,value)=>'<meta '+attr+'="'+key+'" content="'+escapeHtml(value)+'">';
  const alternates=LANGUAGES.map(l=>'<link rel="alternate" hreflang="'+l+'" href="'+escapeHtml(base+pathIn(l))+'">').join("")+'<link rel="alternate" hreflang="x-default" href="'+escapeHtml(base+pathIn("uz"))+'">';
  const tags=['<link rel="canonical" href="'+escapeHtml(url)+'">',alternates,tag("property","og:type","website"),tag("property","og:site_name","Framecheck"),tag("property","og:locale",text.locale),tag("property","og:title",title),tag("property","og:description",description),
-  tag("property","og:url",url),tag("property","og:image",image),tag("name","twitter:card",kind==="game"?"summary_large_image":"summary"),tag("name","twitter:title",title),tag("name","twitter:description",description),tag("name","twitter:image",image),
+  tag("property","og:url",url),tag("property","og:image",image),tag("name","twitter:card","summary_large_image"),tag("name","twitter:title",title),tag("name","twitter:description",description),tag("name","twitter:image",image),
   ld?'<script type="application/ld+json">'+JSON.stringify(ld).replace(/</g,"\\u003c")+'</script>':""].join("");
  return {name,path,url,title,description,tags,lang};
 }
@@ -130,10 +130,10 @@ async function servePage(request,home,env,meta){
  if(typeof HTMLRewriter!=="undefined"){ // on Cloudflare: changes the head while the page streams through
   // the page's own static copy already holds a canonical and alternate links; drop them so there is one set
   return new HTMLRewriter().on("html",{element(e){e.setAttribute("lang",meta.lang)}}).on("title",{element(e){e.setInnerContent(meta.title)}}).on('meta[name="description"]',{element(e){e.setAttribute("content",meta.description)}})
-   .on('link[rel="canonical"], link[rel="alternate"]',{element(e){e.remove()}}).on("head",{element(e){e.append(meta.tags,{html:true})}}).transform(new Response(request.method==="HEAD"?null:source.body,{headers}));
+   .on('link[rel="canonical"], link[rel="alternate"], meta[property^="og:"], meta[name^="twitter:"]',{element(e){e.remove()}}).on("head",{element(e){e.append(meta.tags,{html:true})}}).transform(new Response(request.method==="HEAD"?null:source.body,{headers}));
  }
  const text=(await source.text()).replace(/<html lang="[^"]*"/,()=>'<html lang="'+meta.lang+'"').replace(/<title>[^<]*<\/title>/,()=>"<title>"+escapeHtml(meta.title)+"</title>")
-  .replace(/(<meta name="description" content=")[^"]*(")/,(_,a,b)=>a+escapeHtml(meta.description)+b).replace(/<link rel="(?:canonical|alternate)"[^>]*>/g,"").replace("</head>",()=>meta.tags+"</head>");
+  .replace(/(<meta name="description" content=")[^"]*(")/,(_,a,b)=>a+escapeHtml(meta.description)+b).replace(/<link rel="(?:canonical|alternate)"[^>]*>|<meta (?:property="og:|name="twitter:)[^>]*>/g,"").replace("</head>",()=>meta.tags+"</head>");
  return new Response(request.method==="HEAD"?null:text,{headers});
 }
 async function gamePage(request,home,env,id,lang){

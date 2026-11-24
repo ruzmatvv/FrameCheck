@@ -141,3 +141,13 @@ test("/en and /ru home pages exist; /en without a slash goes to /en/", async () 
   assert.ok(html.includes('rel="canonical" href="https://framecheck.uk/ru/"'));
   assert.equal((await handle(req("/fr/"), HOME, down, {})).status, 404);
 });
+
+test("pages carry exactly one set of share tags (the page's own are replaced, not doubled)", async () => {
+  const withOg = '<html lang="uz"><head><title>x</title><meta name="description" content="old"><meta property="og:title" content="old"><meta name="twitter:card" content="old"></head><body>app</body></html>';
+  const res = await handle(req("/en/"), withOg, down, {CANONICAL_HOST: "framecheck.uk"});
+  const html = await res.text();
+  assert.equal((html.match(/property="og:title"/g) || []).length, 1);
+  assert.equal((html.match(/name="twitter:card"/g) || []).length, 1);
+  assert.ok(html.includes('content="https://framecheck.uk/social.jpg"'));
+  assert.ok(!html.includes('content="old"'.replace("old", "old") + "><meta property"));
+});
