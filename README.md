@@ -72,7 +72,7 @@ email field and the "Forgot password?" link stay hidden. Reset links last 30 min
 Signed-in users can send one FPS measurement per game. It appears for everyone only after an admin approves it.
 
 ## Addresses
-- Main address: **https://framecheck.uk**. `www.framecheck.uk`, `flamecheck.bid` and `www.flamecheck.bid` redirect to it (308).
+- Main address: **https://framecheck.uk**. `www.framecheck.uk` redirects to it (308). The site answers on no other address.
   The list lives in `wrangler.toml` (`CANONICAL_HOST`, `REDIRECT_HOSTS`); the rule is `canonicalRedirect` in `src/server.mjs`.
 - The old `framecheck-samir.ruzmatvv.workers.dev` is switched off (`workers_dev = false`): the Worker is not started for that
   address, so nothing is counted against the free request limit. Set it to `true` to bring it back.

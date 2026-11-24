@@ -11,14 +11,12 @@ preview_urls = false
 routes = [
   { pattern = "framecheck.uk", custom_domain = true },
   { pattern = "www.framecheck.uk", custom_domain = true },
-  { pattern = "flamecheck.bid", custom_domain = true },
-  { pattern = "www.flamecheck.bid", custom_domain = true },
 ]
 
-# framecheck.uk is the main address. The others only redirect to it (see canonicalRedirect in src/server.mjs).
+# framecheck.uk is the main address. www only redirects to it (see canonicalRedirect in src/server.mjs).
 [vars]
 CANONICAL_HOST = "framecheck.uk"
-REDIRECT_HOSTS = "www.framecheck.uk,flamecheck.bid,www.flamecheck.bid"
+REDIRECT_HOSTS = "www.framecheck.uk"
 
 # Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
 [[d1_databases]]
