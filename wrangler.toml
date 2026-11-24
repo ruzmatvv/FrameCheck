@@ -2,6 +2,16 @@ name = "framecheck-samir"
 main = "dist/server/index.js"
 compatibility_date = "2026-11-23"
 
+# Keep the old *.workers.dev address working next to the own domain (adding routes turns it off otherwise).
+workers_dev = true
+preview_urls = false
+
+# Own domain. Cloudflare creates the DNS records and the certificate for a custom domain.
+routes = [
+  { pattern = "flamecheck.bid", custom_domain = true },
+  { pattern = "www.flamecheck.bid", custom_domain = true },
+]
+
 # Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
 [[d1_databases]]
 binding = "DB"
