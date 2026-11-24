@@ -79,6 +79,26 @@ Signed-in users can send one FPS measurement per game. It appears for everyone o
 - Cloudflare creates the DNS records and certificates for the custom domains on deploy. A brand-new `.uk` name can take a few
   minutes before HTTPS answers.
 
+## Protection against the free request limit
+Cloudflare's free plan lets the Worker answer about 100,000 requests a day. Three layers keep the site up:
+
+1. **Static files do not start the Worker.** `build.mjs` writes the page, manifest, service worker, icons and `_headers` to
+   `dist/public`; Cloudflare Static Assets serves them itself (not counted, no daily limit). The Worker bundle is ~45 KB and only
+   answers `/api/*` and `/img/*`. If the Worker's limit is ever used up, the page still opens and shows prices as "check on Steam".
+2. **Edge cache for Steam data** (`cached()` in `src/server.mjs`): prices 10 min, games 15 min, search 10 min, covers a day;
+   a missing game is kept for a minute. Accounts, sync, reports and admin are never cached. The `X-Cache` response header shows
+   `HIT`, `MISS`, `BYPASS`, `SKIP` or `NO-CACHE`.
+3. **Cloudflare rules in the dashboard** (they cannot be set from this repo):
+   - *SSL/TLS → Edge Certificates → Always Use HTTPS*: on. (Static files never reach the Worker's http redirect; the page also
+     redirects itself and HSTS is sent.)
+   - *Caching → Configuration → Browser Cache TTL*: **Respect Existing Headers** (otherwise Cloudflare raises `max-age` to 4 hours).
+   - *Security → WAF → Rate limiting rules → Create*: if `URI Path starts with /api/` or `/img/`, count by IP, more than 50
+     requests per 10 seconds, action Block. Requests stopped here never start the Worker.
+4. Watch *Workers & Pages → framecheck-samir → Metrics* from time to time. A paid plan raises the limit to 10 million a month.
+
+Rollback: `git checkout before-quota-protection` and `npm run deploy` returns to the state before these changes
+(or `npx wrangler rollback` to the previous deployed version).
+
 ## Installable app
 `npm run build` also produces the manifest, icons and `sw.js`. The service worker serves the last copy of the page offline and
 caches covers; `/api` requests are never cached. The version inside `sw.js` follows the page, so every deploy refreshes it.

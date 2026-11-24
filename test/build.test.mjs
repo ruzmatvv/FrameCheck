@@ -22,6 +22,15 @@ test("statik fayllar dist/public ichida tayyor", () => {
   assert.match(sw, /const VERSION = "[0-9a-f]{12}"/);
 });
 
+test("brauzerlar o'zi so'raydigan ildiz fayllari statik tayyor (404 ham, Worker chaqiruvi ham yo'q)", () => {
+  assert.equal(readFileSync(file("public/apple-touch-icon.png")).subarray(0, 4).toString("hex"), "89504e47");
+  const ico = readFileSync(file("public/favicon.ico"));
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0], "ICO sarlavhasi");
+  assert.equal(ico.readUInt32LE(18), 22, "rasm joylashuvi");
+  assert.equal(ico.readUInt32LE(14), ico.length - 22, "rasm hajmi");
+  assert.equal(ico.subarray(22, 26).toString("hex"), "89504e47", "ichida PNG");
+});
+
 test("_headers: xavfsizlik va kesh qoidalari to'g'ri", () => {
   const headers = readFileSync(file("public/_headers"), "utf8");
   for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "frame-ancestors 'none'", "X-Content-Type-Options: nosniff", "Permissions-Policy", "Service-Worker-Allowed: /"]) assert.ok(headers.includes(needle), needle);

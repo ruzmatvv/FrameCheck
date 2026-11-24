@@ -13,18 +13,26 @@ const validId=value=>/^\d{1,10}$/.test(value);
 // random ids cannot make us ask Steam again and again. Nothing about accounts is ever cached.
 async function cached(request,key,seconds,produce,ctx){
  const store=typeof caches!=="undefined"?caches.default:null;
- if(!store||!key||request.method!=="GET")return produce();
+ if(!store||!key||request.method!=="GET"){const r=await produce();return tag(r,store?"SKIP":"NO-CACHE")}
  const cacheKey=new Request(new URL(request.url).origin+"/__cache/"+key);
- try{const hit=await store.match(cacheKey);if(hit)return hit}catch{}
+ try{const hit=await store.match(cacheKey);if(hit)return tag(hit,"HIT")}catch(e){lastCacheError="match: "+e}
  const res=await produce();
  const ttl=res.status===200?seconds:(res.status===404||res.status===422)?60:0;
- if(!ttl)return res;
+ if(!ttl)return tag(res,"BYPASS");
  const headers=new Headers(res.headers),own=headers.get("Cache-Control")||"";
  if(!/max-age/.test(own)||/no-store/.test(own))headers.set("Cache-Control","public, max-age="+Math.min(ttl,300)+", s-maxage="+ttl);
  const final=new Response(res.body,{status:res.status,headers});
- const write=Promise.resolve().then(()=>store.put(cacheKey,final.clone())).catch(()=>{});
+ // The copy for the cache must be taken before the body is handed on: Cloudflare refuses to clone a body that was already passed to another Response.
+ const stored=final.clone();
+ const write=Promise.resolve(store.put(cacheKey,stored)).catch(e=>{lastCacheError="put: "+e});
  if(ctx?.waitUntil)ctx.waitUntil(write);else await write;
- return final;
+ return tag(final,"MISS");
+}
+// X-Cache tells whether an answer came from the edge cache (HIT), was stored now (MISS), skipped it or could not use it.
+let lastCacheError="";
+function tag(res,state){
+ const headers=new Headers(res.headers);headers.set("X-Cache",state);
+ return new Response(res.body,{status:res.status,statusText:res.statusText,headers});
 }
 function priceKey(searchParams){
  const ids=[...new Set((searchParams.get("ids")||"").split(",").filter(Boolean))].sort();

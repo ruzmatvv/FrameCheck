@@ -51,6 +51,16 @@ export function makePng(size, safe = false) {
   ]);
 }
 
+// A .ico file that wraps one PNG picture (all current browsers read it).
+export function makeIco(size = 32) {
+  const png = makePng(size);
+  const head = Buffer.alloc(22);
+  head.writeUInt16LE(1, 2); head.writeUInt16LE(1, 4);               // icon file, one image
+  head[6] = size; head[7] = size; head.writeUInt16LE(1, 10); head.writeUInt16LE(32, 12); // size, planes, bits
+  head.writeUInt32LE(png.length, 14); head.writeUInt32LE(22, 18);   // data size and offset
+  return Buffer.concat([head, png]);
+}
+
 export function manifest() {
   return JSON.stringify({
     name: "Framecheck", short_name: "Framecheck", lang: "uz", id: "/", start_url: "/", scope: "/", display: "standalone",

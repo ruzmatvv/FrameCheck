@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import {buildPwa} from "./src/pwa.mjs";
+import {buildPwa, makeIco} from "./src/pwa.mjs";
 const root = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(root);
 const read = f => fs.readFileSync(f, "utf8");
@@ -42,7 +42,7 @@ const html = read("src/index.html")
 fs.mkdirSync("dist/server", {recursive: true});
 fs.mkdirSync("dist/public/icons", {recursive: true});
 fs.mkdirSync("dist/.openai", {recursive: true});
-fs.copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
+writeAtomic("dist/.openai/hosting.json", fs.readFileSync(".openai/hosting.json"));
 
 // Static files (page, manifest, service worker, icons). Cloudflare serves these itself ("Static Assets") without
 // starting the Worker, so they do not count against the free request limit, and the page still opens when the
@@ -53,6 +53,9 @@ writeAtomic("dist/public/manifest.webmanifest", pwa.manifest);
 writeAtomic("dist/public/sw.js", pwa.sw);
 for (const [name, base64] of Object.entries(pwa.icons)) writeAtomic("dist/public/icons/" + name, Buffer.from(base64, "base64"));
 writeAtomic("dist/public/_headers", read("src/headers.txt"));
+// Browsers and iOS ask for these two at the root by themselves; as static files they cost nothing and never 404.
+writeAtomic("dist/public/apple-touch-icon.png", Buffer.from(pwa.icons["apple-touch-icon.png"], "base64"));
+writeAtomic("dist/public/favicon.ico", makeIco(32));
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
 const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");

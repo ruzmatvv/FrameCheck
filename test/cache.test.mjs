@@ -87,10 +87,13 @@ test("hisob, sinxron, o'lchov va admin yo'llari hech qachon keshlanmaydi", withC
 test("ctx.waitUntil bor bo'lsa yozish javobni kutdirmaydi", withCache(async store => {
   const waits = [];
   const {fetchSteam} = steamCounter(() => json({response: {store_items: []}}));
-  await handle(req("/api/prices?ids=1"), null, fetchSteam, {}, {}, {waitUntil: p => waits.push(p)});
+  const res = await handle(req("/api/prices?ids=1"), null, fetchSteam, {}, {}, {waitUntil: p => waits.push(p)});
   assert.equal(waits.length, 1);
+  assert.equal(store.size, 1, "yozish javob qaytishidan oldin boshlangan (tana uzatilishidan oldin nusxa olingan)");
+  assert.deepEqual((await res.json()).response, {store_items: []}, "mijozga ketgan javob o'qiladi");
   await Promise.all(waits);
-  assert.equal(store.size, 1);
+  const [saved] = [...store.values()];
+  assert.deepEqual((await saved.json()).response, {store_items: []}, "keshdagi nusxa ham o'qiladi");
 }));
 
 test("kesh bo'lmasa (mahalliy ishga tushirish, testlar) hammasi avvalgidek ishlaydi", async () => {
