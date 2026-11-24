@@ -99,7 +99,7 @@ function installAsset(pathname,assets){
 const PAGE_SECURITY={"X-Frame-Options":"DENY","Content-Security-Policy":"frame-ancestors 'none'","Permissions-Policy":"camera=(), microphone=(), geolocation=(), payment=()"};
 const escapeHtml=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const PAGE_TEXT={
- uz:{locale:"uz_UZ",homeTitle:"Framecheck — O‘yin tekshiruvi",homeDesc:"Qurilmangiz uchun o‘yin talablarini taqqosla, taxminiy FPS va mos grafik sozlamalarini ko‘r.",
+ uz:{locale:"uz_UZ",homeTitle:"Framecheck — O‘yin tekshiruvi",homeDesc:"Qurilmangiz uchun o‘yin talablarini taqqoslang, taxminiy FPS va mos grafik sozlamalarini ko‘ring.",
   gameTitle:n=>n+" — Framecheck",gameDesc:n=>n+": tizim talablari va sizning qurilmangizda taxminiy FPS. Framecheck o‘yin kompyuteringizda ishlashini tekshiradi."},
  ru:{locale:"ru_RU",homeTitle:"Framecheck — проверка игр для вашего ПК",homeDesc:"Сравните системные требования игр с вашим устройством, узнайте примерный FPS и подходящие настройки графики.",
   gameTitle:n=>n+" — Framecheck",gameDesc:n=>n+": системные требования и примерный FPS на вашем устройстве. Framecheck проверяет, пойдёт ли игра на вашем компьютере."},

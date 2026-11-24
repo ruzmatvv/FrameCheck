@@ -165,7 +165,7 @@ function benchGpu(s,kind){
  const integrated=/radeon\s+(?:680|780|890)m|rx\s+\d+m/i.test(s);
  return m[1].replace(/\s+/g,"")+(integrated?"":mobile?":laptop":fixed?":desktop":":unspecified");
 }
-export const baseNotes={play:"Talablar qurilmaga mos. Standart sozlamada boshlab, o‘yinning ichki sinovida tekshir.",adjust:"Past grafik sozlamasidan boshla. Sotib olishdan oldin demo bo‘lsa, uni sinab ko‘r.",avoid:"Bir yoki bir nechta minimal talab bajarilmadi. Shu qurilma uchun xaridni tavsiya etmaymiz.",unknown:"Xarid qilishdan oldin jadvaldagi noma’lum bandlarni tekshir."};
+export const baseNotes={play:"Talablar qurilmaga mos. Standart sozlamada boshlab, o‘yinning ichki sinovida tekshiring.",adjust:"Past grafik sozlamasidan boshlang. Sotib olishdan oldin demo bo‘lsa, uni sinab ko‘ring.",avoid:"Bir yoki bir nechta minimal talab bajarilmadi. Shu qurilma uchun xaridni tavsiya etmaymiz.",unknown:"Xarid qilishdan oldin jadvaldagi noma’lum bandlarni tekshiring."};
 export function evaluateGame(raw,p,benches=[]){
  const result=evaluateCompatibility(raw,p,benches);
  return fillFrameRate(result,raw,p,{gpuClass,cpuClass,splitModels});
@@ -180,19 +180,19 @@ function evaluateCompatibility(raw,p,benches){
  if(personal){const gr={1815780:"ok",1222680:"low",2824660:"ok",1551360:"low",227300:"ok",2707900:"low",690790:"near",2737300:"ok",271590:"ok",635260:"low",3241660:"low",2379780:"ok",813230:"ok",1643320:"low",244210:"ok"}[g.id];if(gr)r.gpu=gr;r.cpu="ok"}
  let verdict=Object.values(r).includes("low")?"avoid":Object.values(r).includes("na")?"unknown":Object.values(r).some(x=>["edge","near"].includes(x))?"adjust":"play";
  if(personal&&r.os==="ok"&&r.ram!=="low")verdict=g.verdict||verdict;
- const custom={...g,ratings:r,verdict,observedFps:null,fps:null,referenceFps:null,perfSource:null,note:baseNotes[verdict],preset:verdict==="play"?"Standartdan boshla":verdict==="adjust"?"Pastdan boshla":"Aniqlanmagan",resolution:["play","adjust"].includes(verdict)?"1280 × 720":"—",basis:"Baho minimal talablar va qurilma profiliga asoslangan. CPU va GPU modellari taxminiy unumdorlik sinflari bo‘yicha solishtiriladi."};
+ const custom={...g,ratings:r,verdict,observedFps:null,fps:null,referenceFps:null,perfSource:null,note:baseNotes[verdict],preset:verdict==="play"?"Standartdan boshlang":verdict==="adjust"?"Pastdan boshlang":"Aniqlanmagan",resolution:["play","adjust"].includes(verdict)?"1280 × 720":"—",basis:"Baho minimal talablar va qurilma profiliga asoslangan. CPU va GPU modellari taxminiy unumdorlik sinflari bo‘yicha solishtiriladi."};
  if(assumed.length&&!personal)custom.basis=[custom.basis,...assumed.map(a=>tr(a))].join(" ");
  custom.unknownParts=Object.keys(r).filter(k=>r[k]==="na");
  if(verdict==="avoid"){
   if(r.ram==="low")custom.note=tr("O‘yin kamida {0} GB RAM talab qiladi. Qurilmada {1} GB bor. Bu qurilma uchun xaridni tavsiya etmaymiz.",g.min.ram,p.ram);
-  else if(r.gpu==="low")custom.note=tr("Videokartang {0} uchun ko‘rsatilgan minimal grafik talabdan past. Sotib olishdan oldin shu GPU bilan o‘tkazilgan o‘yin sinovini tekshir.",g.name);
+  else if(r.gpu==="low")custom.note=tr("Videokartangiz {0} uchun ko‘rsatilgan minimal grafik talabdan past. Sotib olishdan oldin shu GPU bilan o‘tkazilgan o‘yin sinovini tekshiring.",g.name);
   else if(r.cpu==="low")custom.note=tr("Protsessor minimal talabdan past. {0} uchun barqaror kadr tezligini kutishga asos yetarli emas.",g.name);
  }else if(verdict==="adjust"&&r.ram==="edge"){
-  custom.note=tr("Qurilmadagi {0} GB RAM o‘yinning minimal hajmiga teng. Ortiqcha ilovalarni yopib, past sozlamada sinab ko‘r.",p.ram);
+  custom.note=tr("Qurilmadagi {0} GB RAM o‘yinning minimal hajmiga teng. Ortiqcha ilovalarni yopib, past sozlamada sinab ko‘ring.",p.ram);
  }else if(verdict==="unknown"){
   const names={cpu:"protsessor",gpu:"videokarta",ram:"RAM hajmi",os:"tizim"};
   const unresolved=Object.keys(r).filter(k=>r[k]==="na").map(k=>names[k]);
-  if(unresolved.length)custom.note=tr("Xarid qilishdan oldin aniqlashtirilishi kerak bo‘lgan bandlar — {0}. Qurilma ma’lumotini to‘ldir yoki Steam talablarini qayta tekshir.",unresolved.map(k=>tr(k)).join(", "));
+  if(unresolved.length)custom.note=tr("Xarid qilishdan oldin aniqlashtirilishi kerak bo‘lgan bandlar — {0}. Qurilma ma’lumotini to‘ldiring yoki Steam talablarini qayta tekshiring.",unresolved.map(k=>tr(k)).join(", "));
  }
  if(["ios","android","chrome"].includes(fam)){
   return {...custom,ratings:{cpu:"na",gpu:"na",ram:"na",os:"low"},note:tr("Bu Steam’dagi kompyuter versiyasi. Uni {0} qurilmasiga bevosita o‘rnatib bo‘lmaydi.",p.os),basis:"Baho Steam versiyasini qurilmada bevosita ishga tushirishga tegishli."};

@@ -49,7 +49,7 @@ function createScorePanel(ctx) {
     if (s.score == null) {
       root.className = "score-panel is-empty";
       root.innerHTML = '<div class="score-body"><span class="score-kicker">' + E(tr("QURILMA BALI")) + '</span><h2>' + E(tr("Ball uchun ma’lumot yetishmaydi")) + '</h2><p class="hint">'
-        + E(tr("Quyidagilarni to‘ldir: {0}.", s.missing.map(partName).join(", "))) + '</p><div class="row-actions"><button type="button" class="primary" data-device>' + E(tr("Qurilmani sozlash")) + '</button></div></div>';
+        + E(tr("Quyidagilarni to‘ldiring: {0}.", s.missing.map(partName).join(", "))) + '</p><div class="row-actions"><button type="button" class="primary" data-device>' + E(tr("Qurilmani sozlash")) + '</button></div></div>';
       shownScore = 0;
       return;
     }
@@ -90,7 +90,7 @@ function createScorePanel(ctx) {
     const url = URL.createObjectURL(blob), a = document.createElement("a");
     a.href = url; a.download = file.name; document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    ctx.notify(tr("Rasm yuklab olindi. Uni do‘stlaringga yubor."));
+    ctx.notify(tr("Rasm yuklab olindi. Uni do‘stlaringizga yuboring."));
   }
   root.addEventListener("click", e => { if (e.target.closest("[data-score-share]")) share(); });
   window.addEventListener("framecheck:language", () => { lastKey = ""; update(); });

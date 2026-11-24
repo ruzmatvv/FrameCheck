@@ -68,7 +68,7 @@ function enhanceDeviceForm(form, ctx) {
         + '<div class="combo-list" id="' + panel.id + '-list" role="listbox">' + (options.length ? options.map((o, i) =>
           '<div class="combo-option" role="option" id="' + panel.id + '-' + i + '" data-index="' + i + '" aria-selected="' + (i === active) + '"><span>' + E(o.name) + '</span>'
           + (o.detected ? '<small>' + E(tr("Aniqlangan")) + '</small>' : o.laptop ? '<small>' + E(tr("Noutbuk")) + '</small>' : '') + '</div>').join("")
-          : '<p class="combo-empty">' + E(tr("Hech narsa topilmadi. Nomni o‘zing yozib qo‘y.")) + '</p>') + '</div>';
+          : '<p class="combo-empty">' + E(tr("Hech narsa topilmadi. Nomni o‘zingiz yozib qo‘ying.")) + '</p>') + '</div>';
       if (active >= 0) input.setAttribute("aria-activedescendant", panel.id + "-" + active); else input.removeAttribute("aria-activedescendant");
     }
     function open() { panel.hidden = false; input.setAttribute("aria-expanded", "true"); render(); }

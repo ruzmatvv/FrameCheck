@@ -118,8 +118,8 @@
     const scenario = match.rival
       ? `<strong>${tr(round.name)} · ${tr(round.detail)}</strong>`
       : `<label class="fc-duel-select"><span class="sr">${tr("Duel vazifasi")}</span><select data-duel-round>${rounds.map((r,i) => `<option value="${i}" ${i===match.roundId ? "selected" : ""}>${tr(r.name)} · ${tr(r.detail)}</option>`).join("")}</select></label>`;
-    return `<div class="fc-duel-mission"><span class="fc-duel-kicker">${match.rival ? tr("RAQIBNING VAZIFASI") : tr("VAZIFANI TANLA")}</span>${scenario}<p class="fc-duel-brief">${tr(round.note)}</p></div>
-      <p class="fc-duel-instruction">${tr("15 mln virtual so‘mga eng ko‘p ball yig‘adigan kompyuterni tuz. Har qatordan bitta detal tanla.")}</p>
+    return `<div class="fc-duel-mission"><span class="fc-duel-kicker">${match.rival ? tr("RAQIBNING VAZIFASI") : tr("VAZIFANI TANLANG")}</span>${scenario}<p class="fc-duel-brief">${tr(round.note)}</p></div>
+      <p class="fc-duel-instruction">${tr("15 mln virtual so‘mga eng ko‘p ball yig‘adigan kompyuterni tuzing. Har qatordan bitta detal tanlang.")}</p>
       <div class="fc-duel-base"><strong>${tr("Tayyor platforma")}</strong><span>${tr("B550 plata · 1 TB SSD · 750 W · korpus va sovitgich")}</span><b>3 600 000</b></div>
       <div class="fc-duel-groups">${groups.map((group,i) => `<fieldset><legend>${svg(group.short)}${tr(group.name)}</legend><div class="fc-duel-options">${group.parts.map(([name, price],j) =>
         `<label class="fc-duel-part"><input type="radio" name="duel-part-${i}" data-duel-part="${i}" value="${j}" ${match.build[i]===j ? "checked" : ""}><span><strong>${name}</strong><small>${formatMoney(price)}</small></span></label>`).join("")}</div></fieldset>`).join("")}</div>
@@ -141,12 +141,12 @@
     const ours = score(match.roundId, match.build);
     const other = match.rival && score(match.roundId, match.rival);
     const diff = other ? compare(ours, other) : 0;
-    const title = !other ? tr("Yig‘mang tayyor") : diff > 0 ? tr("Sen yutding!") : diff < 0 ? tr("Raqib yutdi") : tr("Durrang!");
+    const title = !other ? tr("Yig‘mang tayyor") : diff > 0 ? tr("Siz yutdingiz!") : diff < 0 ? tr("Raqib yutdi") : tr("Durrang!");
     const descriptions = {CPU:tr("Bu vazifada kuchliroq protsessor foyda beradi."), GPU:tr("Bu vazifada kuchliroq videokarta foyda beradi."), RAM:tr("Bu vazifada kattaroq tezkor xotira foyda beradi.")};
     const shareable = /^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
     return `<div class="fc-duel-result"><span class="fc-duel-kicker">${tr(rounds[match.roundId].name).toLocaleUpperCase(locale())}</span><h3>${title}</h3>
       ${other && ours.points === other.points && diff !== 0 ? (`<p>${tr("Ball teng. Kamroq sarflagan o‘yinchi g‘olib bo‘ldi.")}</p>`) : ""}</div>
-      <div class="fc-duel-scores">${scorecard(tr("Sening yig‘mang"),match.build)}${other ? scorecard(tr("Raqib yig‘masi"),match.rival) : ""}</div>
+      <div class="fc-duel-scores">${scorecard(tr("Sizning yig‘mangiz"),match.build)}${other ? scorecard(tr("Raqib yig‘masi"),match.rival) : ""}</div>
       <p class="fc-duel-tip"><b>${ours.limit}</b> ${descriptions[ours.limit]}</p><p class="fc-duel-model">${tr("Ball o‘yin ichidagi CPU, GPU va RAM modeli bo‘yicha hisoblanadi. Narxlar virtual. Raqib ham shu vazifa va shu narxlar bilan o‘ynaydi.")}</p>
       <div class="fc-duel-actions">${other ? (`<button type="button" class="fc-duel-primary" data-duel-action="new">${tr("Yangi duel")}</button>`) : (`<button type="button" class="fc-duel-primary" data-duel-action="pass">${tr("Ikkinchi o‘yinchiga berish")}</button><button type="button" data-duel-action="edit">${tr("Yig‘mani o‘zgartirish")}</button>`)}${shareable ? (`<button type="button" data-duel-action="share">${tr("Duel havolasini nusxalash")}</button>`) : ""}</div>
       <div id="fc-duel-share" role="status"></div>`;
@@ -158,12 +158,12 @@
     const box = dialog.querySelector("#fc-duel-share");
     try {
       await navigator.clipboard.writeText(url.href);
-      box.textContent = tr("Duel havolasi nusxalandi. Uni do‘stingga yubor.");
+      box.textContent = tr("Duel havolasi nusxalandi. Uni do‘stingizga yuboring.");
     } catch {
       const field = document.createElement("input");
       field.type = "text"; field.readOnly = true; field.value = url.href;
       field.setAttribute("aria-label",tr("Duel havolasi"));
-      box.replaceChildren(document.createTextNode(tr("Duel havolasini nusxala:")+" "),field);
+      box.replaceChildren(document.createTextNode(tr("Duel havolasini nusxalang:")+" "),field);
       field.focus(); field.select();
     }
   }

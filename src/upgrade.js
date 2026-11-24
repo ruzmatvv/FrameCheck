@@ -28,8 +28,8 @@ function createUpgrade(ctx) {
   const range = g => g.referenceFps || (Array.isArray(g.fps) ? g.fps.join("–") : null);
   function summary(values) {
     const r = compute(values);
-    if (!r.ready) return '<p>' + E(tr("Avval qurilma xususiyatlarini (protsessor, videokarta, RAM) to‘ldir, shunda natija chiqadi.")) + '</p>';
-    if (!values.ram && !values.gpu && !values.cpu) return '<p class="hint">' + E(tr("Yuqoridan almashtirmoqchi bo‘lgan qismni tanla.")) + '</p>';
+    if (!r.ready) return '<p>' + E(tr("Avval qurilma xususiyatlarini (protsessor, videokarta, RAM) to‘ldiring, shunda natija chiqadi.")) + '</p>';
+    if (!values.ram && !values.gpu && !values.cpu) return '<p class="hint">' + E(tr("Yuqoridan almashtirmoqchi bo‘lgan qismni tanlang.")) + '</p>';
     const line = (label, key) => '<tr><th scope="row">' + E(tr(label)) + '</th><td>' + r.before[key] + '</td><td><strong>' + r.after[key] + '</strong></td></tr>';
     const verdicts = {play: "Bemalol o‘ynaladi", adjust: "Sozlamani pasaytirish kerak", avoid: "Tavsiya etilmaydi"};
     return '<div class="table-box"><table class="upgrade-table"><thead><tr><th></th><th>' + E(tr("Hozir")) + '</th><th>' + E(tr("Yangilangandan keyin")) + '</th></tr></thead><tbody>'
@@ -45,13 +45,13 @@ function createUpgrade(ctx) {
   function open() {
     const p = ctx.profile();
     ctx.show(tr("Qurilmani yangilasam?"),
-      '<p class="hint">' + E(tr("Qismni almashtirsang, qaysi o‘yinlar ochilishini ko‘r. Baho talablarga qarab taxminiy hisoblanadi.")) + '</p>'
+      '<p class="hint">' + E(tr("Qismni almashtirsangiz, qaysi o‘yinlar ochilishini ko‘ring. Baho talablarga qarab taxminiy hisoblanadi.")) + '</p>'
       + '<form id="upgrade-form" class="account-fields">'
       + choice("RAM", tr("Hozirgi: {0}", p.ram ? ctx.memorySize(p.ram) : "—"), RAM.filter(n => !p.ram || n > p.ram).map(String))
       + choice("Videokarta", tr("Hozirgi: {0}", p.gpu || "—"), GPUS)
       + choice("Protsessor", tr("Hozirgi: {0}", p.cpu || "—"), CPUS)
       + '</form><div id="upgrade-result" aria-live="polite"></div>'
-      + (p.kind === "laptop" ? '<p class="hint">' + E(tr("Ko‘p noutbuklarda RAM va videokartani almashtirib bo‘lmaydi. Xarid qilishdan oldin ishlab chiqaruvchi texnik tavsifini tekshir.")) + '</p>' : ''));
+      + (p.kind === "laptop" ? '<p class="hint">' + E(tr("Ko‘p noutbuklarda RAM va videokartani almashtirib bo‘lmaydi. Xarid qilishdan oldin ishlab chiqaruvchi texnik tavsifini tekshiring.")) + '</p>' : ''));
     const form = $("#upgrade-form"), out = $("#upgrade-result");
     const update = () => { out.innerHTML = summary({ram: form.elements.ram.value, gpu: form.elements.videokarta.value, cpu: form.elements.protsessor.value}); };
     form.addEventListener("change", update); update();

@@ -30,7 +30,7 @@ export function fillFrameRate(result,raw,device,{gpuClass,cpuClass,splitModels})
  const gpuRank=gpuClass(device.gpu||"",device);
  const fallback=family!=="windows"||!device.cpu||!gpuRank||!device.ram||raw.platforms?.windows===false;
  const p=fallback?vivobookProfile:device;
- const reference=fallback?("ASUS Vivobook · Core 7 150U, Intel Graphics, "+memorySize(8)):(p.name||tr("Qurilmang"));
+ const reference=fallback?("ASUS Vivobook · Core 7 150U, Intel Graphics, "+memorySize(8)):(p.name||tr("Qurilmangiz"));
  const baseline=/\b150u\b/i.test(p.cpu)&&/intel.*graphics/i.test(p.gpu)&&!/\barc\b/i.test(p.gpu);
  const caption=fallback?"Vivobook uchun taxmin":"Taxminiy";
  function finish(values,basis){

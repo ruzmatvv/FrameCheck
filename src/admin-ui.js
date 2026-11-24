@@ -14,7 +14,7 @@ function createAdminPanel(ctx) {
       const [overview, pending] = await Promise.all([ctx.account.call("GET", "admin/overview"), ctx.account.call("GET", "admin/fps?status=pending")]);
       if (overview.status !== 200) { body.innerHTML = '<p>' + E(tr("Bu bo‘lim faqat sayt egasi uchun.")) + '</p>'; return; }
       render(body, overview.json, pending.json.reports || []);
-    } catch { body.innerHTML = '<p>' + E(tr("Serverga ulanib bo‘lmadi. Internetni tekshir.")) + '</p>'; }
+    } catch { body.innerHTML = '<p>' + E(tr("Serverga ulanib bo‘lmadi. Internetni tekshiring.")) + '</p>'; }
   }
 
   function render(body, o, pending) {
@@ -41,15 +41,15 @@ function createAdminPanel(ctx) {
       const note = $("#admin-note");
       if (b.dataset.adminReview) {
         const r = await ctx.account.call("POST", "admin/fps", {id: Number(b.dataset.adminReview), action: b.dataset.action});
-        if (r.status === 200) open(); else note.textContent = tr("Amal bajarilmadi. Keyinroq qayta urin.");
+        if (r.status === 200) open(); else note.textContent = tr("Amal bajarilmadi. Keyinroq qayta urinib ko‘ring.");
       } else if (b.dataset.adminTemp) {
         if (!window.confirm(tr("{0} uchun yangi vaqtincha parol berilsin? Eski parol va sessiyalar bekor bo‘ladi.", b.dataset.adminTemp))) return;
         const r = await ctx.account.call("POST", "admin/user/password", {username: b.dataset.adminTemp});
-        note.textContent = r.status === 200 ? tr("{0} uchun vaqtincha parol (faqat hozir ko‘rinadi): {1}", r.json.username, r.json.password) : tr("Amal bajarilmadi. Keyinroq qayta urin.");
+        note.textContent = r.status === 200 ? tr("{0} uchun vaqtincha parol (faqat hozir ko‘rinadi): {1}", r.json.username, r.json.password) : tr("Amal bajarilmadi. Keyinroq qayta urinib ko‘ring.");
       } else if (b.dataset.adminDelete) {
         if (!window.confirm(tr("{0} hisobi va uning hamma ma’lumoti o‘chirilsinmi? Buni qaytarib bo‘lmaydi.", b.dataset.adminDelete))) return;
         const r = await ctx.account.call("POST", "admin/user/delete", {username: b.dataset.adminDelete});
-        if (r.status === 200) open(); else note.textContent = tr("Amal bajarilmadi. Keyinroq qayta urin.");
+        if (r.status === 200) open(); else note.textContent = tr("Amal bajarilmadi. Keyinroq qayta urinib ko‘ring.");
       }
     };
   }

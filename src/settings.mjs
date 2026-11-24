@@ -34,7 +34,7 @@ export function parseHeight(text) {
   const m = String(text || "").match(/(\d{3,4})\s*[×x]\s*(\d{3,4})/i);
   return m ? Math.min(Number(m[1]), Number(m[2])) : null;
 }
-// "Yuqori (130 W TGP)" -> "high". Texts that only advise ("Pastdan boshla") are fine: they carry no numbers to convert.
+// "Yuqori (130 W TGP)" -> "high". Texts that only advise ("Pastdan boshlang") are fine: they carry no numbers to convert.
 export function parsePreset(text) {
   const t = String(text || "").toLowerCase();
   if (/ultra|ekstremal|maks|max/.test(t)) return "ultra";

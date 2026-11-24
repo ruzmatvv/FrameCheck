@@ -17,7 +17,7 @@ function createDeals(ctx) {
     if (strip) {
       strip.hidden = !(ctx.view() === "saved" && deals.length);
       if (!strip.hidden) {
-        strip.innerHTML = '<h3>' + E(tr("Saqlanganlaringdan chegirmadagilari")) + '</h3><ul>' + deals.map(({id, offer}) => {
+        strip.innerHTML = '<h3>' + E(tr("Saqlanganlaringizdan chegirmadagilari")) + '</h3><ul>' + deals.map(({id, offer}) => {
           const g = ctx.game(id);
           return g ? '<li><button class="link-btn" data-open="' + id + '">' + E(g.name) + '</button><span class="price-discount">−' + offer.discount + '%</span><strong>' + E(offer.price) + '</strong>'
             + (offer.original ? '<del>' + E(offer.original) + '</del>' : '')
@@ -28,7 +28,7 @@ function createDeals(ctx) {
     // Tell the user once per visit, after fresh prices have arrived.
     if (!announced && deals.length && ctx.fresh(deals.map(d => d.id))) {
       announced = true;
-      ctx.notify(tr("Saqlanganlaringdan {0} tasi chegirmada: {1}", deals.length, ctx.game(deals[0].id).name + " −" + deals[0].offer.discount + "%"));
+      ctx.notify(tr("Saqlanganlaringizdan {0} tasi chegirmada: {1}", deals.length, ctx.game(deals[0].id).name + " −" + deals[0].offer.discount + "%"));
     }
   }
   ctx.prices.onChange(update);

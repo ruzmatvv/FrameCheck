@@ -44,7 +44,7 @@ function createCompare(ctx) {
       + '<br><small class="badge ' + ({ok: "play", low: "avoid", near: "adjust", edge: "adjust", na: "unknown"}[r]) + '">' + E(tr(ctx.labels[r])) + '</small></td>';
   };
   function open() {
-    if (picked.length < 2) { ctx.notify(tr("Solishtirish uchun kamida 2 ta o‘yin tanla.")); return; }
+    if (picked.length < 2) { ctx.notify(tr("Solishtirish uchun kamida 2 ta o‘yin tanlang.")); return; }
     const games = picked.map(ctx.game).filter(Boolean);
     if (games.length < 2) return;
     const row = (title, fn) => '<tr><th scope="row">' + E(tr(title)) + '</th>' + games.map(fn).join("") + '</tr>';

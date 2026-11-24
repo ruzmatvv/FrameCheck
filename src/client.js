@@ -54,17 +54,17 @@ function render(){
  const mobile=["ios","android","chrome"].includes(osFamily(profile.os));
  const need=[!profile.cpu?"CPU":null,!profile.gpu?"GPU":null,!profile.ram?"RAM":null,!profile.os||profile.os==="Windows"?tr("tizim versiyasi"):null].filter(Boolean);
  const odd=[profile.cpu&&cpuClass(profile.cpu)==null?tr("Protsessor"):null,profile.gpu&&gpuClass(profile.gpu,profile)==null?tr("Videokarta"):null].filter(Boolean);
- $("#profile-note").textContent=profileBusy?tr("Qurilma xususiyatlari o‘qilmoqda…"):mobile?tr("Bu qurilmada Steam’ning PC versiyalari uchun platforma mosligi tekshiriladi."):need.length?tr("Aniqroq baho uchun {0} ma’lumotini to‘ldir.",need.join(", ")):odd.length?tr("{0} modeli tanilmadi. Nomni tekshir, aks holda baho aniq chiqmaydi.",odd.join(", ")):tr("Baholar shu qurilma xususiyatlariga hisoblandi.");
+ $("#profile-note").textContent=profileBusy?tr("Qurilma xususiyatlari o‘qilmoqda…"):mobile?tr("Bu qurilmada Steam’ning PC versiyalari uchun platforma mosligi tekshiriladi."):need.length?tr("Aniqroq baho uchun {0} ma’lumotini to‘ldiring.",need.join(", ")):odd.length?tr("{0} modeli tanilmadi. Nomni tekshiring, aks holda baho aniq chiqmaydi.",odd.join(", ")):tr("Baholar shu qurilma xususiyatlariga hisoblandi.");
  $("#library-search").hidden=view==="home"||!ids.length;$("#catalog-query").value=localQuery;
  $("#catalog-count").textContent=gameCount(filtered.length)+(view==="home"||view==="catalog"?" · "+tr("Katalogda jami {0} ta",known.size):"");
  $("#frame-lab").hidden=$("#hero").hidden=$("#rig").hidden=view!=="home";$("#settings-panel").hidden=!(view==="home"||view==="catalog");$("#collection").classList.toggle("solo",view!=="home");
- $("#section-title").textContent=view==="home"?tr("O‘yinlarni tanla"):tr(texts[view]);$("#section-kicker").textContent=view==="home"||view==="catalog"?tr("KATALOG"):tr("SHAXSIY TO‘PLAM");
+ $("#section-title").textContent=view==="home"?tr("O‘yinlarni tanlang"):tr(texts[view]);$("#section-kicker").textContent=view==="home"||view==="catalog"?tr("KATALOG"):tr("SHAXSIY TO‘PLAM");
  $("#all-games").hidden=view!=="home";$("#crumb").textContent=tr(texts[view]);document.title=tr(texts[view])+" · Framecheck";
  document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")});
  $("#savedCount").textContent=data.saved.length||"";$("#verdict-filter").value=verdict;document.querySelector('[data-f="recent"]').title=tr("{0}–{1} yillarda Steam’da chiqqan o‘yinlar",recent,new Date().getFullYear());
  document.querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f==="all"?!filter.size:filter.has(b.dataset.f))));
  $("#results-summary").textContent=gameCount(filtered.length);$("#catalog-tools").hidden=(view==="saved"||view==="history")&&!ids.length;
- $("#cards").innerHTML=filtered.length?filtered.slice(0,limit).map(card).join(""):'<div class="empty">'+I(view==="history"?"history":view==="saved"?"bookmark":"search")+'<p>'+(!ids.length&&view==="saved"?tr("Saqlangan o‘yinlar shu yerda ko‘rinadi. Kartadagi xatcho‘pni bos."):!ids.length&&view==="history"?tr("Birinchi o‘yinni tekshirganingda natija shu yerga yoziladi."):tr("Bu filtrlarga mos o‘yin topilmadi."))+'</p><button class="subtle-btn" data-reset>'+(!ids.length?tr("O‘yinlarni ko‘rish"):tr("Filtrlarni tozalash"))+'</button></div>';
+ $("#cards").innerHTML=filtered.length?filtered.slice(0,limit).map(card).join(""):'<div class="empty">'+I(view==="history"?"history":view==="saved"?"bookmark":"search")+'<p>'+(!ids.length&&view==="saved"?tr("Saqlangan o‘yinlar shu yerda ko‘rinadi. Kartadagi xatcho‘pni bosing."):!ids.length&&view==="history"?tr("Birinchi o‘yinni tekshirganingizda natija shu yerga yoziladi."):tr("Bu filtrlarga mos o‘yin topilmadi."))+'</p><button class="subtle-btn" data-reset>'+(!ids.length?tr("O‘yinlarni ko‘rish"):tr("Filtrlarni tozalash"))+'</button></div>';
  prices.sync();
  compare?.syncButtons();deals?.update();scorePanel?.update();
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
@@ -88,7 +88,7 @@ function detail(g,record=true,msg=""){if(!g)return;detailId=g.id;if(record)remem
  if(range.length){
   const mean=range.slice(0,2).reduce((sum,n)=>sum+n,0)/Math.min(2,range.length);
   const rate=[25,30,60].reduce((best,n)=>Math.abs(n-mean)<Math.abs(best-mean)?n:best);
-  const button=document.createElement("button");button.type="button";button.className="subtle-btn fps-inline";button.dataset.fpsDemo=rate;button.textContent=tr("{0} FPS’ni ko‘r",rate);$(".metrics").after(button);
+  const button=document.createElement("button");button.type="button";button.className="subtle-btn fps-inline";button.dataset.fpsDemo=rate;button.textContent=tr("{0} FPS’ni ko‘ring",rate);$(".metrics").after(button);
  }
  render();document.title=g.name+" · Framecheck"}
 async function api(path,params){if(location.protocol==="file:")throw Error("local");const url=new URL("/api/"+path,location.origin);for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);if(path==="search")url.searchParams.set("lang",document.documentElement.lang);const res=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(14000)});const json=await res.json();if(!res.ok)throw Error(json.code||"offline");return json}
@@ -98,17 +98,17 @@ async function readGame(id,refresh=false){
  detailId=id; if(refresh&&$("#check-state")){const button=$("[data-refresh]");if(button)button.disabled=true;$("#check-state").textContent=tr("Steam’dagi hozirgi talablar tekshirilmoqda…")}else show(tr("O‘yin tekshirilmoqda"),(`<p>${tr("Steam’dan tizim talablari olinmoqda…")}</p>`));
  try {const raw=await api("game",{id});if(ticket!==generation||!$("#modal").open)return;
  const g=combineGame(known.get(id),buildGame(raw));g.checkedAt=new Date().toISOString();data.games[id]=g;persist();detail(game(id),true)
- } catch(e){if(ticket!==generation||!$("#modal").open)return;const msg=e.message==="local"?tr("Jonli tekshiruv uchun Framecheck serverli nusxasini och."):e.message==="not_game"?tr("Bu Steam sahifasi asosiy o‘yinga tegishli emas."):e.message==="not_found"?tr("O‘yin shu Steam manzilida topilmadi."):tr("Steam’dan yangi ma’lumot olinmadi. Keyinroq qayta urin.");if(baseGame){detail(game(id),false,msg+" "+tr("Saqlangan natija ko‘rsatildi."))}else show(tr("Tekshiruv yakunlanmadi"),'<p>'+E(msg)+'</p><a class="source" target="_blank" rel="noreferrer" href="https://store.steampowered.com/app/'+id+(`/">${tr("Steam sahifasini ochish")}</a>`))}
+ } catch(e){if(ticket!==generation||!$("#modal").open)return;const msg=e.message==="local"?tr("Jonli tekshiruv uchun Framecheck serverli nusxasini oching."):e.message==="not_game"?tr("Bu Steam sahifasi asosiy o‘yinga tegishli emas."):e.message==="not_found"?tr("O‘yin shu Steam manzilida topilmadi."):tr("Steam’dan yangi ma’lumot olinmadi. Keyinroq qayta urinib ko‘ring.");if(baseGame){detail(game(id),false,msg+" "+tr("Saqlangan natija ko‘rsatildi."))}else show(tr("Tekshiruv yakunlanmadi"),'<p>'+E(msg)+'</p><a class="source" target="_blank" rel="noreferrer" href="https://store.steampowered.com/app/'+id+(`/">${tr("Steam sahifasini ochish")}</a>`))}
 }
 function choices(q,items,local=false){prices.sync();detailId=null;const options=items.map(g=>'<button class="selection" data-choose="'+g.id+'"><span>'+E(g.name)+'</span>'+prices.slot(g.id)+I("scan")+'</button>').join("");show(tr("Qidiruv natijalari"),'<p class="hint">“'+E(q)+'”</p>'+(options||(`<p>${tr("Bu nom bilan o‘yin topilmadi.")}</p>`))+(local?(`<button class="subtle-btn" style="margin-top:12px" data-external>${tr("Steam’dan ham qidirish")}</button>`):''))}
 async function search(q,external=false){
  q=q.trim();if(!q)return;const request=++searchSerial;$("#search-msg").textContent="";
  const id=steamId(q);if(id){await readGame(id);return}
- if(/^(?:https?:\/\/|(?:www\.)?store\.steampowered\.com\/)/i.test(q)){show(tr("Steam havolasini tekshir"),(`<p>${tr("O‘yinning Steam do‘konidagi /app/ raqami bor havolasini kirit.")}</p>`));return}
+ if(/^(?:https?:\/\/|(?:www\.)?store\.steampowered\.com\/)/i.test(q)){show(tr("Steam havolasini tekshiring"),(`<p>${tr("O‘yinning Steam do‘konidagi /app/ raqami bor havolasini kiriting.")}</p>`));return}
  const matches=lookup(q,[...new Set([...known.keys(),...Object.keys(data.games).map(Number)])].map(game));
  if(matches.length&&!external){const direct=matches.find(g=>isDirectMatch(q,g));if(direct){detail(direct);return}choices(q,matches,true);return}
  detailId=null;show(tr("Steam’dan qidirilmoqda"),(`<p>${tr("O‘yinlar ro‘yxati olinmoqda…")}</p>`));try{const result=await api("search",{q});if(request!==searchSerial||!$("#modal").open)return;choices(q,result.items||[])}
- catch(e){if(request!==searchSerial||!$("#modal").open)return;show(tr("Qidiruv tugallanmadi"),'<p>'+(e.message==="local"?tr("Bu nom mahalliy katalogda yo‘q. Steam’dan izlash uchun serverli nusxani och."):tr("Steam qidiruviga hozir ulanib bo‘lmadi. Katalogdagi o‘yinlarni tekshirishingiz mumkin."))+'</p><a class="source" href="https://store.steampowered.com/search/?term='+encodeURIComponent(q)+(`" rel="noreferrer" target="_blank">${tr("Steam’da qidirish")}</a>`))}}
+ catch(e){if(request!==searchSerial||!$("#modal").open)return;show(tr("Qidiruv tugallanmadi"),'<p>'+(e.message==="local"?tr("Bu nom mahalliy katalogda yo‘q. Steam’dan izlash uchun serverli nusxani oching."):tr("Steam qidiruviga hozir ulanib bo‘lmadi. Katalogdagi o‘yinlarni tekshirishingiz mumkin."))+'</p><a class="source" href="https://store.steampowered.com/search/?term='+encodeURIComponent(q)+(`" rel="noreferrer" target="_blank">${tr("Steam’da qidirish")}</a>`))}}
 function profileData(values){
  const fields=["cpu","gpu","ram","name"],detected=Object.fromEntries(fields.filter(k=>automatic[k]).map(k=>[k,automatic[k]]));
  return {family:osFamily(automatic.os),detected,values};
@@ -134,8 +134,8 @@ function device(again=false){
  const kind=(`<label class="spec-field"><span>${tr("Kompyuter turi")}</span><select name="kind">`)+[["",tr("Noma’lum")],["laptop",tr("Noutbuk")],["desktop",tr("Stol kompyuteri")]].map(([k,v])=>'<option value="'+k+'" '+(profile.kind===k?'selected':'')+'>'+v+'</option>').join("")+'</select></label>';
  const osList=["Windows 11","Windows 11 Pro","Windows 10","macOS","Linux","Android","iOS","iPadOS","ChromeOS"];
  const list=(id,items)=>'<datalist id="'+id+'">'+items.map(x=>'<option value="'+E(x)+'"></option>').join("")+'</datalist>';
- const message=automatic.sources.os==="Windows"?tr("Windows ushbu kompyuterning qismlarini o‘qidi. Zarur bo‘lsa, o‘yin ishlatadigan videokartani tanla."):tr("Brauzer ko‘rsata olgan qismlar to‘ldirildi. Yetishmagan model yoki RAM hajmini kiritsang, o‘yin bahosi yangilanadi.");
- show(tr("Qurilma xususiyatlari"),'<p>'+message+(`</p><div class="device-import"><p><strong>${tr("Windows hisobotidan to‘ldirish")}</strong></p><label class="subtle-btn file-trigger">${tr("DxDiag faylini tanlash")}<input type="file" id="dx-file" accept=".xml,.txt" aria-label="${tr("DxDiag faylini tanlash")}"></label><small>${tr("Win + R tugmalarini bos, dxdiag deb yoz va Enter bos. Barcha ma’lumotlarni faylga saqla va shu yerda tanla. Hisobot faqat brauzeringda o‘qiladi.")}</small><output id="dx-status" aria-live="polite"></output></div><form id="device-form"><div class="spec-fields">`)+input("name",tr("Qurilma nomi"),tr("Ixtiyoriy"))+input("os",tr("Operatsion tizim"),tr("Masalan, Windows 11"),"os-choices")+input("cpu",tr("Protsessor"),tr("Masalan, Intel Core i5-12400F"))+input("gpu",tr("Videokarta"),tr("Masalan, GeForce RTX 3060 Laptop GPU"),"gpu-choices")+ram+kind+'</div><output id="spec-hint" class="hint" aria-live="polite"></output>'+list("os-choices",osList)+list("gpu-choices",automatic.gpus||[])+(`<div class="row-actions"><button type="submit" class="primary">${tr("Saqlash va baholash")}</button><button type="button" class="subtle-btn" data-clear-profile>${tr("Avtomatik ma’lumotga qaytish")}</button></div></form><p class="hint">${tr("Profil shu brauzerda saqlanadi. CPU modeli yoki aniq RAM brauzerda ko‘rinmasa, Windows’da Framecheck.cmd orqali ochishingiz mumkin.")}</p>`)+(osFamily(automatic.os)==="windows"?(`<button class="subtle-btn" data-vivobook>${tr("ASUS Vivobook (Core 7 150U) profilini tanlash")}</button>`):''));
+ const message=automatic.sources.os==="Windows"?tr("Windows ushbu kompyuterning qismlarini o‘qidi. Zarur bo‘lsa, o‘yin ishlatadigan videokartani tanlang."):tr("Brauzer ko‘rsata olgan qismlar to‘ldirildi. Yetishmagan model yoki RAM hajmini kiritsangiz, o‘yin bahosi yangilanadi.");
+ show(tr("Qurilma xususiyatlari"),'<p>'+message+(`</p><div class="device-import"><p><strong>${tr("Windows hisobotidan to‘ldirish")}</strong></p><label class="subtle-btn file-trigger">${tr("DxDiag faylini tanlash")}<input type="file" id="dx-file" accept=".xml,.txt" aria-label="${tr("DxDiag faylini tanlash")}"></label><small>${tr("Win + R tugmalarini bosing, dxdiag deb yozing va Enter bosing. Barcha ma’lumotlarni faylga saqlang va shu yerda tanlang. Hisobot faqat brauzeringizda o‘qiladi.")}</small><output id="dx-status" aria-live="polite"></output></div><form id="device-form"><div class="spec-fields">`)+input("name",tr("Qurilma nomi"),tr("Ixtiyoriy"))+input("os",tr("Operatsion tizim"),tr("Masalan, Windows 11"),"os-choices")+input("cpu",tr("Protsessor"),tr("Masalan, Intel Core i5-12400F"))+input("gpu",tr("Videokarta"),tr("Masalan, GeForce RTX 3060 Laptop GPU"),"gpu-choices")+ram+kind+'</div><output id="spec-hint" class="hint" aria-live="polite"></output>'+list("os-choices",osList)+list("gpu-choices",automatic.gpus||[])+(`<div class="row-actions"><button type="submit" class="primary">${tr("Saqlash va baholash")}</button><button type="button" class="subtle-btn" data-clear-profile>${tr("Avtomatik ma’lumotga qaytish")}</button></div></form><p class="hint">${tr("Profil shu brauzerda saqlanadi. CPU modeli yoki aniq RAM brauzerda ko‘rinmasa, Windows’da Framecheck.cmd orqali ochishingiz mumkin.")}</p>`)+(osFamily(automatic.os)==="windows"?(`<button class="subtle-btn" data-vivobook>${tr("ASUS Vivobook (Core 7 150U) profilini tanlash")}</button>`):''));
  const form=$("#device-form"),fileInput=$("#dx-file");
  // Friendly, translated feedback for wrong entries (the browser's own messages follow the OS language).
  const ramField=form.elements.ram;
@@ -143,7 +143,7 @@ function device(again=false){
  ramField.addEventListener("input",checkRam);ramField.addEventListener("invalid",checkRam);
  const checkSpecs=()=>{const cpu=form.elements.cpu.value.trim(),gpu=form.elements.gpu.value.trim();
   const odd=[cpu&&cpuClass(cpu)==null?tr("Protsessor"):null,gpu&&gpuClass(gpu,{cpu})==null?tr("Videokarta"):null].filter(Boolean);
-  $("#spec-hint").textContent=odd.length?tr("{0} modeli tanilmadi. Nomni tekshir, aks holda baho aniq chiqmaydi.",odd.join(", ")):""};
+  $("#spec-hint").textContent=odd.length?tr("{0} modeli tanilmadi. Nomni tekshiring, aks holda baho aniq chiqmaydi.",odd.join(", ")):""};
  form.elements.cpu.addEventListener("input",checkSpecs);form.elements.gpu.addEventListener("input",checkSpecs);checkSpecs();
  enhanceDeviceForm(form,{tr,E});
  const imported=new Map((profile.reportFields||[]).map(k=>[k,String(profile[k])]));
@@ -158,10 +158,10 @@ function device(again=false){
    if(adapters.length>1){
     $("#gpu-choices").replaceChildren(...adapters.map(name=>new Option(name,name)));
     const gpu=form.elements.gpu;
-    if(!adapters.includes(gpu.value)){gpu.value="";gpu.placeholder=tr("Ro‘yxatdan GPU tanla")}
+    if(!adapters.includes(gpu.value)){gpu.value="";gpu.placeholder=tr("Ro‘yxatdan GPU tanlang")}
     gpu.required=true;
    }
-   status.textContent=[tr("O‘qilgan maydonlar: {0}.",Object.keys(fields).length),adapters.length>1?tr("Bir nechta GPU topildi. O‘yin ishlatadigan modelni tanla."):"",tr("Tekshir va saqla.")].filter(Boolean).join(" ");
+   status.textContent=[tr("O‘qilgan maydonlar: {0}.",Object.keys(fields).length),adapters.length>1?tr("Bir nechta GPU topildi. O‘yin ishlatadigan modelni tanlang."):"",tr("Tekshiring va saqlang.")].filter(Boolean).join(" ");
   }catch(err){status.textContent=err.message}finally{fileInput.value=""}
  });
  $("#device-form").addEventListener("submit",event=>{
@@ -205,7 +205,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  }
  window.addEventListener("framecheck:language",()=>{render();$("#toast").textContent="";if($("#modal").open&&detailId&&game(detailId))detail(game(detailId),false)});
  const searchField=$("#game-q");
- searchField.addEventListener("invalid",()=>{if(searchField.validity.valueMissing)searchField.setCustomValidity(tr("O‘yin nomi yoki Steam havolasini kirit."))});
+ searchField.addEventListener("invalid",()=>{if(searchField.validity.valueMissing)searchField.setCustomValidity(tr("O‘yin nomi yoki Steam havolasini kiriting."))});
  searchField.addEventListener("input",()=>searchField.setCustomValidity(""));
  window.addEventListener("framecheck:language",()=>searchField.setCustomValidity(""));
  const refreshProfile=()=>{profile=activeProfile(automatic,readOverrides(storedSettings,automatic))};

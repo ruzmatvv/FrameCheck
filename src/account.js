@@ -107,31 +107,31 @@ function createAccount(ctx) {
       avatar.textContent = user[0].toUpperCase(); name.textContent = user; sub.textContent = statusText();
       label.textContent = user; pill.setAttribute("aria-label", tr("Hisob") + ": " + user);
     } else {
-      avatar.innerHTML = I("user"); name.textContent = tr("Kirish"); sub.textContent = tr("Ma’lumotlarni boshqa qurilmada ham ko‘r");
+      avatar.innerHTML = I("user"); name.textContent = tr("Kirish"); sub.textContent = tr("Ma’lumotlarni boshqa qurilmada ham ko‘ring");
       label.textContent = tr("Kirish"); pill.setAttribute("aria-label", tr("Kirish"));
     }
   }
-  const statusLine = () => status === "syncing" ? tr("Sinxronlanmoqda…") : status === "error" ? tr("Sinxronlanmadi. Internetni tekshir va qayta urin.")
+  const statusLine = () => status === "syncing" ? tr("Sinxronlanmoqda…") : status === "error" ? tr("Sinxronlanmadi. Internetni tekshiring va qayta urinib ko‘ring.")
     : lastSync ? tr("Oxirgi sinxronlash: {0}", ctx.time(lastSync)) : tr("Hali sinxronlanmagan.");
 
   // ---- messages
   function errorText(r) {
     const code = r.json?.code;
     return code === "bad_credentials" ? tr("Login yoki parol noto‘g‘ri.")
-      : code === "username_taken" ? tr("Bu login band. Boshqasini tanla.")
+      : code === "username_taken" ? tr("Bu login band. Boshqasini tanlang.")
       : code === "username_invalid" ? tr("Login 3–24 belgidan iborat bo‘lsin: harf, raqam, nuqta, pastki chiziq yoki chiziqcha.")
       : code === "password_short" ? tr("Parol kamida 8 belgidan iborat bo‘lsin.")
       : code === "password_long" ? tr("Parol 128 belgidan oshmasin.")
-      : code === "password_weak" ? tr("Parol juda oddiy. Boshqa parol tanla.")
-      : code === "rate_limited" ? tr("Urinishlar ko‘p. {0} daqiqadan keyin qayta urin.", Math.max(1, Math.ceil((r.json.retryAfter || 60) / 60)))
-      : code === "accounts_unavailable" ? tr("Hisoblar hozir ishlamayapti. Keyinroq qayta urin.")
+      : code === "password_weak" ? tr("Parol juda oddiy. Boshqa parol tanlang.")
+      : code === "rate_limited" ? tr("Urinishlar ko‘p. {0} daqiqadan keyin qayta urinib ko‘ring.", Math.max(1, Math.ceil((r.json.retryAfter || 60) / 60)))
+      : code === "accounts_unavailable" ? tr("Hisoblar hozir ishlamayapti. Keyinroq qayta urinib ko‘ring.")
       : code === "email_invalid" ? tr("Email manzili noto‘g‘ri yozilgan.")
       : code === "token_invalid" ? tr("Havola eskirgan yoki ishlatilgan. Yangisini so‘ra.")
       : code === "recovery_unavailable" ? tr("Parolni tiklash hozir ishlamayapti.")
-      : tr("Amal bajarilmadi. Keyinroq qayta urin.");
+      : tr("Amal bajarilmadi. Keyinroq qayta urinib ko‘ring.");
   }
   const passwordError = r => r.json?.code === "bad_credentials" ? tr("Parol noto‘g‘ri.") : errorText(r);
-  const offlineText = () => tr("Serverga ulanib bo‘lmadi. Internetni tekshir.");
+  const offlineText = () => tr("Serverga ulanib bo‘lmadi. Internetni tekshiring.");
   const validName = v => /^[A-Za-z0-9][A-Za-z0-9_.-]{2,23}$/.test(v);
 
   // ---- dialogs
@@ -147,20 +147,20 @@ function createAccount(ctx) {
       '<div class="row-actions account-switch" role="group" aria-label="' + E(tr("Kirish usuli")) + '">'
       + '<button type="button" class="subtle-btn" data-account-mode="login" aria-pressed="' + !register + '">' + E(tr("Kirish")) + '</button>'
       + '<button type="button" class="subtle-btn" data-account-mode="register" aria-pressed="' + register + '">' + E(tr("Ro‘yxatdan o‘tish")) + '</button></div>'
-      + '<p class="hint">' + E(register ? tr("Hisob ochsang, saqlangan o‘yinlar, tekshiruv tarixi va qurilma xususiyatlari boshqa telefon yoki kompyuterda ham ko‘rinadi.") : tr("Login va parol bilan kirsang, saqlangan o‘yinlar, tarix va qurilma xususiyatlari shu qurilmaga ham tushadi.")) + '</p>'
+      + '<p class="hint">' + E(register ? tr("Hisob ochsangiz, saqlangan o‘yinlar, tekshiruv tarixi va qurilma xususiyatlari boshqa telefon yoki kompyuterda ham ko‘rinadi.") : tr("Login va parol bilan kirsangiz, saqlangan o‘yinlar, tarix va qurilma xususiyatlari shu qurilmaga ham tushadi.")) + '</p>'
       + '<form id="account-form" novalidate><div class="account-fields">'
       + field("username", tr("Login"), 'autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="24" required value="' + E(keepName) + '"')
       + field("password", tr("Parol"), 'type="password" autocomplete="' + (register ? "new-password" : "current-password") + '" maxlength="128" required')
-      + (register ? field("again", tr("Parolni takrorla"), 'type="password" autocomplete="new-password" maxlength="128" required') : '')
+      + (register ? field("again", tr("Parolni takrorlang"), 'type="password" autocomplete="new-password" maxlength="128" required') : '')
       + (register && recovery ? field("email", tr("Email (ixtiyoriy, faqat parolni tiklash uchun)"), 'type="email" autocomplete="email" maxlength="254"') : '')
       + '</div><label class="check-line"><input type="checkbox" id="show-password"> ' + E(tr("Parolni ko‘rsat")) + '</label>'
       + '<output id="account-error" class="form-error" role="alert"></output>'
       + '<div class="row-actions"><button type="submit" class="primary">' + E(register ? tr("Hisob ochish") : tr("Kirish")) + '</button></div></form>'
       + '<p class="hint">' + E(register
-          ? (recovery ? tr("Parol shifrlangan holda saqlanadi, uni hech kim ko‘ra olmaydi. Email qo‘shsang, parolni unutganda tiklay olasan.") : tr("Parol shifrlangan holda saqlanadi, uni hech kim ko‘ra olmaydi. Parolni tiklab bo‘lmaydi: uni eslab qol."))
-          : (recovery ? tr("Hisobing yo‘qmi? “Ro‘yxatdan o‘tish” ni tanla.") : tr("Hisobing yo‘qmi? “Ro‘yxatdan o‘tish” ni tanla. Parolni tiklab bo‘lmaydi."))) + '</p>'
-      + (!register && recovery ? '<p><button type="button" class="link-btn" id="forgot-link">' + E(tr("Parolni unutdingmi?")) + '</button></p>' : '')
-      + '<p class="hint">' + E(tr("Davom etib, maxfiylik izohiga rozilik bildirasan.")) + ' <button type="button" class="link-btn" data-privacy>' + E(tr("Maxfiylik izohi")) + '</button></p>');
+          ? (recovery ? tr("Parol shifrlangan holda saqlanadi, uni hech kim ko‘ra olmaydi. Email qo‘shsangiz, parolni unutganda tiklay olasiz.") : tr("Parol shifrlangan holda saqlanadi, uni hech kim ko‘ra olmaydi. Parolni tiklab bo‘lmaydi: uni eslab qoling."))
+          : (recovery ? tr("Hisobingiz yo‘qmi? “Ro‘yxatdan o‘tish” ni tanlang.") : tr("Hisobingiz yo‘qmi? “Ro‘yxatdan o‘tish” ni tanlang. Parolni tiklab bo‘lmaydi."))) + '</p>'
+      + (!register && recovery ? '<p><button type="button" class="link-btn" id="forgot-link">' + E(tr("Parolni unutdingizmi?")) + '</button></p>' : '')
+      + '<p class="hint">' + E(tr("Davom etib, maxfiylik izohiga rozilik bildirasiz.")) + ' <button type="button" class="link-btn" data-privacy>' + E(tr("Maxfiylik izohi")) + '</button></p>');
     const form = $("#account-form"), err = $("#account-error");
     $("#forgot-link")?.addEventListener("click", () => showForgot(form.elements.username.value));
     form.elements.username.focus();
@@ -189,18 +189,18 @@ function createAccount(ctx) {
       + '<p class="hint">' + E(tr("Saqlanganlar, tekshiruv tarixi va qurilma xususiyatlari hisobingizda saqlanadi va boshqa qurilmalarda ham ko‘rinadi.")) + '</p>'
       + '<div class="row-actions"><button type="button" class="subtle-btn" id="sync-now">' + I("refresh") + E(tr("Hozir sinxronlash")) + '</button>'
       + '<button type="button" class="subtle-btn" id="sign-out">' + E(tr("Chiqish")) + '</button></div>'
-      + '<p class="hint">' + E(tr("Chiqsang, bu qurilmadagi saqlanganlar va tarix tozalanadi. Ular hisobingizda qoladi.")) + '</p>'
+      + '<p class="hint">' + E(tr("Chiqsangiz, bu qurilmadagi saqlanganlar va tarix tozalanadi. Ular hisobingizda qoladi.")) + '</p>'
       + (admin ? '<div class="row-actions"><button type="button" class="primary" id="open-admin">' + E(tr("Admin panel")) + '</button></div>' : '')
       + (recovery ? '<details class="account-section"><summary>' + E(tr("Parolni tiklash uchun email")) + ' · ' + E(hasEmail ? tr("ulangan") : tr("yo‘q")) + '</summary><form id="email-form" novalidate><div class="account-fields">'
-        + field("email", tr("Email"), 'type="email" autocomplete="email" maxlength="254" placeholder="' + E(tr("Bo‘sh qoldirsang, email o‘chiriladi")) + '"')
-        + field("password", tr("Parolni tasdiqla"), 'type="password" autocomplete="current-password" maxlength="128" required')
+        + field("email", tr("Email"), 'type="email" autocomplete="email" maxlength="254" placeholder="' + E(tr("Bo‘sh qoldirsangiz, email o‘chiriladi")) + '"')
+        + field("password", tr("Parolni tasdiqlang"), 'type="password" autocomplete="current-password" maxlength="128" required')
         + '</div><output class="form-error" role="alert"></output><div class="row-actions"><button type="submit" class="subtle-btn">' + E(tr("Saqlash")) + '</button></div></form></details>' : '')
       + '<details class="account-section"><summary>' + E(tr("Parolni o‘zgartirish")) + '</summary><form id="password-form" novalidate><div class="account-fields">'
       + field("current", tr("Hozirgi parol"), 'type="password" autocomplete="current-password" maxlength="128" required')
       + field("next", tr("Yangi parol"), 'type="password" autocomplete="new-password" maxlength="128" required')
       + '</div><output class="form-error" role="alert"></output><div class="row-actions"><button type="submit" class="subtle-btn">' + E(tr("Parolni almashtirish")) + '</button></div></form></details>'
       + '<details class="account-section danger"><summary>' + E(tr("Hisobni o‘chirish")) + '</summary><p class="hint">' + E(tr("Hisob va undagi hamma ma’lumot butunlay o‘chadi. Buni qaytarib bo‘lmaydi.")) + '</p><form id="delete-form" novalidate><div class="account-fields">'
-      + field("password", tr("Parolni tasdiqla"), 'type="password" autocomplete="current-password" maxlength="128" required')
+      + field("password", tr("Parolni tasdiqlang"), 'type="password" autocomplete="current-password" maxlength="128" required')
       + '</div><output class="form-error" role="alert"></output><div class="row-actions"><button type="submit" class="subtle-btn danger-btn">' + E(tr("Hisobni butunlay o‘chirish")) + '</button></div></form></details>'
       + '<p class="hint"><button type="button" class="link-btn" data-privacy>' + E(tr("Maxfiylik izohi")) + '</button></p>');
     $("#open-admin")?.addEventListener("click", () => ctx.openAdmin());
@@ -225,7 +225,7 @@ function createAccount(ctx) {
       else err.textContent = passwordError(r);
     });
     run($("#delete-form"), async (err, f) => {
-      if (!window.confirm(tr("Hisob va hamma ma’lumot butunlay o‘chadi. Davom etasanmi?"))) return;
+      if (!window.confirm(tr("Hisob va hamma ma’lumot butunlay o‘chadi. Davom etasizmi?"))) return;
       const r = await call("POST", "auth/delete", {password: String(f.get("password"))});
       if (r.status === 204) { ctx.wipe(); user = null; resetMeta(); stopTimers(); $("#modal").close(); renderChrome(); ctx.notify(tr("Hisob o‘chirildi.")); }
       else err.textContent = passwordError(r);
@@ -235,22 +235,22 @@ function createAccount(ctx) {
   // ---- forgotten password
   function showForgot(name = "") {
     ctx.show(tr("Parolni tiklash"),
-      '<p class="hint">' + E(tr("Loginingni yoz. Hisobingga email ulangan bo‘lsa, parolni yangilash havolasi yuboriladi (30 daqiqa amal qiladi).")) + '</p>'
+      '<p class="hint">' + E(tr("Loginingizni yozing. Hisobingizga email ulangan bo‘lsa, parolni yangilash havolasi yuboriladi (30 daqiqa amal qiladi).")) + '</p>'
       + '<form id="forgot-form" novalidate><div class="account-fields">' + field("username", tr("Login"), 'autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="24" required value="' + E(name) + '"')
       + '</div><output id="forgot-note" class="form-error" role="status"></output><div class="row-actions"><button type="submit" class="primary">' + E(tr("Havola yuborish")) + '</button>'
       + '<button type="button" class="subtle-btn" id="forgot-back">' + E(tr("Orqaga")) + '</button></div></form>'
-      + '<p class="hint">' + E(tr("Email ulanmagan bo‘lsa, parolni tiklab bo‘lmaydi. Sayt egasiga murojaat qil.")) + '</p>');
+      + '<p class="hint">' + E(tr("Email ulanmagan bo‘lsa, parolni tiklab bo‘lmaydi. Sayt egasiga murojaat qiling.")) + '</p>');
     const form = $("#forgot-form"), note = $("#forgot-note");
     form.elements.username.focus();
     $("#forgot-back").addEventListener("click", () => showForm(form.elements.username.value));
     form.addEventListener("submit", async e => {
       e.preventDefault();
       const username = form.elements.username.value.trim(), button = form.querySelector("button[type=submit]");
-      if (!username) { note.textContent = tr("Loginni yoz."); return; }
+      if (!username) { note.textContent = tr("Loginni yozing."); return; }
       button.disabled = true; note.textContent = "";
       try {
         const r = await call("POST", "auth/forgot", {username});
-        note.textContent = r.status === 200 ? tr("Agar bu hisobga email ulangan bo‘lsa, havola yuborildi. Pochtangni tekshir.") : errorText(r);
+        note.textContent = r.status === 200 ? tr("Agar bu hisobga email ulangan bo‘lsa, havola yuborildi. Pochtangizni tekshiring.") : errorText(r);
       } catch { note.textContent = offlineText(); }
       finally { button.disabled = false; }
     });
@@ -259,7 +259,7 @@ function createAccount(ctx) {
     ctx.show(tr("Yangi parol qo‘yish"),
       '<form id="reset-form" novalidate><div class="account-fields">'
       + field("password", tr("Yangi parol"), 'type="password" autocomplete="new-password" maxlength="128" required')
-      + field("again", tr("Parolni takrorla"), 'type="password" autocomplete="new-password" maxlength="128" required')
+      + field("again", tr("Parolni takrorlang"), 'type="password" autocomplete="new-password" maxlength="128" required')
       + '</div><output class="form-error" role="alert"></output><div class="row-actions"><button type="submit" class="primary">' + E(tr("Parolni saqlash")) + '</button></div></form>');
     const form = $("#reset-form"), err = form.querySelector(".form-error");
     form.elements.password.focus();
@@ -271,7 +271,7 @@ function createAccount(ctx) {
       button.disabled = true; err.textContent = "";
       try {
         const r = await call("POST", "auth/reset", {token, password});
-        if (r.status === 200) { mode = "login"; showForm(); ctx.notify(tr("Parol yangilandi. Yangi parol bilan kir.")); }
+        if (r.status === 200) { mode = "login"; showForm(); ctx.notify(tr("Parol yangilandi. Yangi parol bilan kiring.")); }
         else err.textContent = errorText(r);
       } catch { err.textContent = offlineText(); }
       finally { button.disabled = false; }
@@ -292,7 +292,7 @@ function createAccount(ctx) {
     user = name; meta.user = name; saveMeta(); startTimers();
     try { const r = await call("GET", "auth/me"); admin = Boolean(r.json.user?.admin); hasEmail = Boolean(r.json.user?.hasEmail); recovery = Boolean(r.json.recovery); } catch {}
     $("#modal").close(); renderChrome();
-    ctx.notify(created ? tr("Hisob yaratildi. Ma’lumotlaring saqlanadi.") : tr("{0}, xush kelibsiz!", name));
+    ctx.notify(created ? tr("Hisob yaratildi. Ma’lumotlaringiz saqlanadi.") : tr("{0}, xush kelibsiz!", name));
     await sync();
   }
   async function signOut() {

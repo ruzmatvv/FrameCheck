@@ -32,7 +32,7 @@ function parseDxDiag(text) {
  return {fields,adapters};
 }
 export async function readDxDiag(file) {
- if(!file || file.size>8*1024*1024) throw Error(tr("8 MB gacha bo‘lgan DxDiag hisobotini tanla."));
+ if(!file || file.size>8*1024*1024) throw Error(tr("8 MB gacha bo‘lgan DxDiag hisobotini tanlang."));
  const bytes=new Uint8Array(await file.arrayBuffer());
  const enc=bytes[0]===255&&bytes[1]===254 || bytes[1]===0?"utf-16le":bytes[0]===254&&bytes[1]===255?"utf-16be":"utf-8";
  let text=new TextDecoder(enc).decode(bytes);

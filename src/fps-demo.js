@@ -182,10 +182,10 @@
     dialog = document.createElement("dialog");
     dialog.className = "fc-fps";
     dialog.setAttribute("aria-labelledby","fc-fps-title");
-    dialog.innerHTML = `<div class="fc-fps-head"><div><small>FRAMECHECK / FPS SINOVI</small><h2 id="fc-fps-title">FPS’ni his qilib ko‘r</h2></div><button type="button" data-fps-close aria-label="Yopish">×</button></div>
+    dialog.innerHTML = `<div class="fc-fps-head"><div><small>FRAMECHECK / FPS SINOVI</small><h2 id="fc-fps-title">FPS’ni his qilib ko‘ring</h2></div><button type="button" data-fps-close aria-label="Yopish">×</button></div>
       <div class="fc-fps-stage"><canvas role="img" aria-label="Tog‘ trassasida ketayotgan sport avtomobili"></canvas><span data-fps-display></span></div>
       <div class="fc-fps-panel"><div class="fc-fps-controls"><div class="fc-fps-rates" role="group" aria-label="Namoyish FPS’i">${rates.map(n=>`<button type="button" data-fps-rate="${n}" aria-pressed="false">${n} FPS</button>`).join("")}</div><div class="fc-fps-actions"><button type="button" data-fps-play>Pauza</button><button type="button" data-fps-replay>Boshidan</button></div></div>
-      <p data-fps-note>Bir xil burilishni turli FPS’da solishtir. Ko‘rinadigan ravonlik ekraningning yangilanish chastotasiga ham bog‘liq.</p></div>`;
+      <p data-fps-note>Bir xil burilishni turli FPS’da solishtiring. Ko‘rinadigan ravonlik ekraningizning yangilanish chastotasiga ham bog‘liq.</p></div>`;
     bindStaticLanguage(dialog);
     document.body.append(dialog);
     canvas = dialog.querySelector("canvas");
