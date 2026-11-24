@@ -26,7 +26,7 @@ self.addEventListener("fetch", event => {
     if (request.mode === "navigate") {
       event.respondWith(
         fetch(request)
-          .then(response => { if (response.ok) { const copy = response.clone(); caches.open(PAGES).then(cache => cache.put("/", copy)); } return response; })
+          .then(response => { if (response.ok && url.pathname === "/") { const copy = response.clone(); caches.open(PAGES).then(cache => cache.put("/", copy)); } return response; })
           .catch(() => caches.match("/").then(hit => hit || Response.error()))
       );
     } else if (url.pathname.startsWith("/img/") || url.pathname.startsWith("/icons/")) {

@@ -21,6 +21,7 @@ try {storedSettings=JSON.parse(localStorage.getItem(overrideKey)||"null")}catch{
 let profile=activeProfile(automatic,readOverrides(storedSettings,automatic));
 const rawGame=id=>data.games[id]||known.get(id);
 const game=id=>applySettings(evaluateGame(rawGame(id),profile,BENCHMARKS),settingsPanel?settingsPanel.get():undefined);
+let gameMedia=null;
 let localQuery="",view="home",filter=new Set(),verdict="",limit=6,detailId=null,generation=0,toastId,searchSerial=0;
 function notify(s){$("#toast").textContent=s;clearTimeout(toastId);toastId=setTimeout(()=>$("#toast").textContent="",3300)}
 function setMenu(open){$(".side").classList.toggle("open",open);$("#scrim").hidden=!open;$("#nav-toggle").setAttribute("aria-expanded",String(open))}
@@ -69,6 +70,10 @@ function render(){
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
 }
 function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
+// A game's window has its own address (/o/<id>-<name>): the back button closes it and the link can be shared.
+function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
+function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"","/"+location.search+location.hash)}catch{}}
+window.addEventListener("popstate",()=>{const id=parseGamePath(location.pathname);if(id){if(detailId!==id)readGame(id)}else if($("#modal").open)$("#modal").close()});
 function show(title,html){const d=$("#modal");$("#modal-body").innerHTML='<div class="modal-head"><h2 id="modal-title">'+E(title)+(`</h2><button class="icon" data-close aria-label="${tr("Yopish")}">`)+I("close")+'</button></div><div class="modal-inner">'+html+'</div>';if(!d.open)d.showModal();d.scrollTop=0}
 function remember(g){data.history=[{id:g.id,at:new Date().toISOString()},...data.history.filter(x=>x.id!==g.id)].slice(0,100);persist()}
 function toggleSave(id){account?.markSaved(id,!data.saved.includes(id));data.saved=data.saved.includes(id)?data.saved.filter(x=>x!==id):[id,...data.saved];persist();render();if($("#modal").open&&detailId===id)detail(game(id),false);if(storeOK)notify(data.saved.includes(id)?tr("Saqlanganlarga qo‘shildi"):tr("Saqlanganlardan olib tashlandi"))}
@@ -76,14 +81,14 @@ const labels={ok:"Mos",low:"Talabdan past",near:"Chegarada",edge:"Minimal hajm",
 function detail(g,record=true,msg=""){if(!g)return;detailId=g.id;if(record)remember(g);const r=g.ratings;const f=fps(g),rows=Object.keys(parts).map(k=>'<tr><td>'+tr(parts[k])+'</td><td>'+E(g.min[k]==null?tr("Ko‘rsatilmagan"):k==="ram"?memorySize(g.min[k]):hardwareText(g.min[k]))+'</td><td>'+E(displaySpecs(profile)[k])+'<br><small class="badge '+({ok:"play",low:"avoid",near:"adjust",edge:"adjust",na:"unknown"}[r[k]])+'">'+tr(labels[r[k]])+'</small></td></tr>').join("");
  const stamp=g.checkedAt?tr("Steam talablari {0} da tekshirildi.",time(g.checkedAt)):tr("Talablar katalogdagi yozuvdan olindi.");
  const content='<div class="game-meta">'+E([...(g.genres||[]).map(genreLabel),g.year].filter(Boolean).join(" · "))+'</div>'+badge(g)+'<div class="metrics"><div><small>'+E(tr(g.fpsLabel||'Taxminiy FPS'))+'</small><strong>'+(f?E(f)+' FPS':tr("Sinov yetarli emas"))+(`</strong></div><div><small>${tr("Grafik sozlamasi")}</small><strong>`)+E(tr(g.preset))+(`</strong></div><div><small>${tr("Ekran o‘lchami")}</small><strong>`)+E(tr(g.resolution))+(`</strong></div></div><h3>${tr("Xarid va o‘rnatish")}</h3><p>`)+E(tr(g.note))+(`</p><h3>${tr("Minimal talablar")}</h3><div class="table-box"><table><thead><tr><th>${tr("Qism")}</th><th>${tr("O‘yin talabi")}</th><th>`)+E(profileLabel(profile))+'</th></tr></thead><tbody>'+rows+(`</tbody></table></div><button class="subtle-btn edit-in-result" data-device>${tr("Qurilma ma’lumotini tahrirlash")}</button><h3>${tr("Baho qanday olindi?")}</h3><p class="hint">`)+E([g.basis,g.fpsBasis].filter(Boolean).map(s=>tr(s)).join(" "))+'</p><a class="source" href="https://store.steampowered.com/app/'+g.id+(`/" target="_blank" rel="noopener noreferrer">${tr("Steam talablari")}</a>`)+(g.perfSource&&/^https:\/\//.test(g.perfSource)?'<a class="source" href="'+E(g.perfSource)+(`" target="_blank" rel="noopener noreferrer">${tr("FPS manbasi")}</a>`):'')+'<div class="row-actions"><button class="primary" data-refresh="'+g.id+'">'+I("refresh")+(`${tr("Qayta tekshirish")}</button><button class="subtle-btn" data-save="`)+g.id+'">'+I("bookmark")+(data.saved.includes(g.id)?tr("Saqlanganlardan olib tashlash"):tr("Saqlash"))+'</button>'+(compare?'<button type="button" class="subtle-btn" data-compare="'+g.id+'" aria-pressed="'+compare.has(g.id)+'">'+I("columns")+tr("Solishtirish")+'</button>':'')+'</div><p class="hint" id="check-state" aria-live="polite">'+E(msg||stamp)+'</p>';
- show(g.name,prices.slot(g.id)+content);prices.sync();reports?.attach(g);
+ show(g.name,(gameMedia&&location.protocol!=="file:"?gameMedia.slot(g.id):"")+prices.slot(g.id)+content);prices.sync();reports?.attach(g);gameMedia?.fill(g.id);syncGameUrl(g);
  const range=(String(f||"").match(/\d+(?:\.\d+)?/g)||[]).map(Number);
  if(range.length){
   const mean=range.slice(0,2).reduce((sum,n)=>sum+n,0)/Math.min(2,range.length);
   const rate=[25,30,60].reduce((best,n)=>Math.abs(n-mean)<Math.abs(best-mean)?n:best);
   const button=document.createElement("button");button.type="button";button.className="subtle-btn fps-inline";button.dataset.fpsDemo=rate;button.textContent=tr("{0} FPS’ni ko‘r",rate);$(".metrics").after(button);
  }
- render()}
+ render();document.title=g.name+" · Framecheck"}
 async function api(path,params){if(location.protocol==="file:")throw Error("local");const url=new URL("/api/"+path,location.origin);for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);if(path==="search")url.searchParams.set("lang",document.documentElement.lang);const res=await fetch(url,{cache:"no-store",signal:AbortSignal.timeout(14000)});const json=await res.json();if(!res.ok)throw Error(json.code||"offline");return json}
 async function readGame(id,refresh=false){
  const ticket=++generation;const baseGame=game(id);
@@ -189,7 +194,7 @@ document.addEventListener("input",e=>{const f=e.target.closest?.("#device-form")
 $("#search").addEventListener("submit",e=>{e.preventDefault();search($("#game-q").value)});
 $("#catalog-query").addEventListener("input",e=>{localQuery=e.target.value;limit=30;render()});
 $("#verdict-filter").addEventListener("change",e=>{verdict=e.target.value;render()});
-$("#modal").addEventListener("close",()=>{detailId=null;returnToId=null;profileOpened=false;generation++;searchSerial++});$("#modal").addEventListener("click",e=>{if(e.target!==$("#modal"))return;const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close()});
+$("#modal").addEventListener("close",()=>{leaveGameUrl();document.title=tr(texts[view])+" · Framecheck";detailId=null;returnToId=null;profileOpened=false;generation++;searchSerial++});$("#modal").addEventListener("click",e=>{if(e.target!==$("#modal"))return;const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close()});
 document.addEventListener("click",e=>{const b=e.target.closest("button,[data-nav],#scrim");if(!b)return;const a=b.dataset;
  if("fpsDemo" in a){window.FramecheckFPS.open(Number(a.fpsDemo));return}if("duel" in a){window.FramecheckDuel.open();return}if(b.id==="nav-toggle")setMenu(!$(".side").classList.contains("open"));else if(b.id==="scrim"||a.nav)setMenu(false);else if("clearProfile" in a){updateProfile({},false)}else if("vivobook" in a){useVivobook()}else if("device" in a){setMenu(false);device()}else if("close" in a)$("#modal").close();else if(a.save)toggleSave(+a.save);else if(a.open)readGame(+a.open);else if(a.choose)readGame(+a.choose);else if("external" in a)search($("#game-q").value,true);else if(a.refresh)readGame(+a.refresh,true);else if(a.f){if(a.f==="all")filter.clear();else if(filter.has(a.f))filter.delete(a.f);else filter.add(a.f);limit=view==="home"?6:30;render()}else if(b.id==="all-games")location.hash=routes.catalog;else if(b.id==="more"){limit+=view==="home"?6:30;render()}else if("reset" in a){if(!filter.size&&!verdict&&!localQuery)location.hash=routes.catalog;else{filter.clear();verdict="";localQuery="";render()}}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});window.addEventListener("hashchange",route);const allTitles=()=>[...new Map([...known.entries(),...Object.values(data.games).filter(g=>g&&g.id&&g.name).map(g=>[g.id,g])]).values()];
@@ -226,6 +231,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
   game:id=>rawGame(id)?game(id):null,profile:()=>profile,profileName:()=>profileLabel(profile),settings:()=>settingsPanel.get()};
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
+ gameMedia=createGameMedia({tr,E,$,api});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});
@@ -240,7 +246,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  });
  const privacyFromHash=()=>{if(location.hash==="#maxfiylik"){history.replaceState(null,"",location.pathname+location.search+"#"+routes[view]);openPrivacy()}};
  window.addEventListener("hashchange",privacyFromHash);
- route();detectMore();window.FramecheckDuel.openIncoming();account.init();privacyFromHash();deals.load();
+ route();{const first=parseGamePath(location.pathname);if(first)readGame(first)}detectMore();window.FramecheckDuel.openIncoming();account.init();privacyFromHash();deals.load();
  // Install as an app and open offline (service worker needs https or localhost).
  if("serviceWorker" in navigator&&(location.protocol==="https:"||["localhost","127.0.0.1"].includes(location.hostname)))navigator.serviceWorker.register("/sw.js").catch(()=>{});
  let installEvent=null;const installButton=$("#install-app");
