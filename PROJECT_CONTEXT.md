@@ -111,6 +111,15 @@ Asosiy fayllar:
 - Kompyuterdagi Python buzuq o'rnatilgan: `portable.py` sinalmagan.
 - Bir vaqtda ko'p test fayli build qiladi: `build.mjs` o'zgarmagan faylni qayta yozmaydi (poyga tuzatilgan).
 - `data-tmp/`, `.data/`, `*.tmp` git'da yo'q bo'lishi kerak.
+- **PowerShell 5.1 `Set-Content -Encoding utf8` fayl boshiga BOM qo'yadi**: `build.mjs` `^import` qatorlarini topolmay, Worker buziladi. Fayllarni `Edit` bilan o'zgartiring. PowerShell `-replace` katta-kichik harfni farqlamaydi (`-creplace` ishlating).
+
+## Telegram bot (@FrameCheckBot)
+- Kod: `src/bot-*.mjs` (matnlar `bot-text`, Telegram API `bot-tg`, statistika `bot-stats`, mantiq `bot-engine`, yangilanishlarni qayta ishlash `bot-core`, xabarnomalar/cron `bot-notify`). Jadvallar: `migrations/0005_bot.sql`. Webhook: `POST /api/bot/webhook` (`server.mjs`). Admin raqamlari: `GET /api/admin/bot` + admin oynasidagi "Telegram bot" bo'limi.
+- Worker to'plamiga katalog, CS2 skinlari va narx snapshot'i `build.mjs` orqali konstantalar sifatida kiradi (Node'da `bot-data.mjs`). Narx o'zgarish xabarlari faqat snapshot yangilanib qayta joylanganda ishlaydi.
+- Maxfiy kalitlar faqat Worker secret'larida: `BOT_TOKEN`, `BOT_WEBHOOK_SECRET`, `BOT_ADMIN_IDS` (vergul bilan Telegram id'lar). Hech qachon Git'ga yoki faylga yozilmaydi. `BOT_USERNAME` ixtiyoriy (standart FrameCheckBot).
+- Ulash: `scripts/bot-setup.mjs` (token muhit o'zgaruvchisidan; webhook, buyruqlar, tavsif, menyu tugmasi, inline/guest sozlamalari). Bot rasmi BotFather orqali qo'lda qo'yiladi.
+- Cron: har 3 soatda (`wrangler.toml`), bitta Steam so'rovi va ko'pi bilan 30 xabar. Cheklovlar: xabar tezligi (5 soniyada 6, minutda 40), `update_id` takrori e'tiborga olinmaydi.
+- Mini App: bot `?src=tg&go=<sahifa>` bilan saytni ochadi; `client.js` Telegram skriptini faqat shunda yuklaydi. Telegram Web uchun `frame-ancestors https://web.telegram.org` ruxsat etilgan.
 
 ## 9. Keyingi vazifalar (ustuvorlik bo'yicha)
 **A. BAJARILDI (2026-11-24): "Ma'lumot yetarli emas" kamaytirildi.** Qaytish nuqtasi: tag `before-unknown-fix`.

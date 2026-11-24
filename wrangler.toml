@@ -26,6 +26,14 @@ directory = "./dist/public"
 # The Worker reads the page through this binding to add a game's title and cover to its head (/o/<id>).
 binding = "ASSETS"
 
+# Telegram bot: every 3 hours it checks watched games for sales and watched skins for price changes (src/bot-notify.mjs).
+# Cron triggers are free; one run uses one Steam request and at most 30 Telegram messages.
+[triggers]
+crons = ["0 */3 * * *"]
+
+# Secrets (never in this file or in Git): BOT_TOKEN, BOT_WEBHOOK_SECRET, BOT_ADMIN_IDS (comma-separated Telegram ids).
+# Set them with `npx wrangler secret put NAME`; scripts/bot-setup.mjs connects the webhook.
+
 # Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
 [[d1_databases]]
 binding = "DB"

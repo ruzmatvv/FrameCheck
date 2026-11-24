@@ -32,7 +32,7 @@ const data = "const ru=" + safeJSON(JSON.parse(read("src/data/ru.json"))) + ";\n
   + "const STEAM_UZ=" + safeJSON(JSON.parse(read("src/data/steam-uz.json"))) + ";\n"
   + "window.FRAME_ART=" + safeJSON(art) + ";\n"
   + "const BENCHMARKS=" + safeJSON(JSON.parse(read("src/benchmarks.json"))) + ";\n";
-const strip = t => t.replace(/^import [^\n]+;\s*/gm, "").replace(/^export /gm, "");
+const strip = t => t.replace(/^import [^;]+;\s*/gm, "").replace(/^export /gm, "");
 const client = data + modules.map(f => strip(read(f))).join("\n") + "\n" + read("src/client.js");
 
 const html = read("src/index.html")
@@ -72,7 +72,18 @@ writeAtomic("dist/public/licenses/cs2-third-party.txt", fs.readFileSync("THIRD_P
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
 const gameNames = "const GAME_NAMES=" + safeJSON(Object.fromEntries(games.map(g => [g.id, g.name]))) + ";\n";
-const worker = gameNames + ["src/routes.mjs", "src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
-writeAtomic("dist/server/index.js", worker + "\nconst home=null;\nconst pwa={};\nexport default {fetch:(request,env,ctx)=>handle(request,home,undefined,env,pwa,ctx)};\n");
+// The Telegram bot (src/bot-*.mjs) runs inside the same Worker: it needs the game catalog, the CS2 skins and prices, the
+// translations and the benchmark table as constants (in Node, src/bot-data.mjs and src/data.mjs load the same files).
+const botData = "const ru=" + safeJSON(JSON.parse(read("src/data/ru.json"))) + ";\n"
+  + "const en=" + safeJSON(JSON.parse(read("src/data/en.json"))) + ";\n"
+  + "const BENCHMARKS=" + safeJSON(JSON.parse(read("src/benchmarks.json"))) + ";\n"
+  + "const CATALOG=" + safeJSON(games) + ";\n"
+  + "const CS2_SKINS=" + safeJSON(JSON.parse(read("src/data/cs2-skins.json"))) + ";\n"
+  + "const CS2_PRICES=" + safeJSON(JSON.parse(read("src/data/cs2-prices.json"))) + ";\n";
+const workerModules = ["src/i18n.mjs", "src/core.mjs", "src/routes.mjs", "src/profile.mjs", "src/frames.mjs", "src/compat.mjs", "src/settings.mjs", "src/score.mjs", "src/cs2-names.mjs", "src/cs2-logic.mjs", "src/devices.mjs",
+  "src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs",
+  "src/bot-text.mjs", "src/bot-tg.mjs", "src/bot-stats.mjs", "src/bot-engine.mjs", "src/bot-core.mjs", "src/bot-notify.mjs", "src/admin.mjs", "src/server.mjs"];
+const worker = gameNames + botData + workerModules.map(f => strip(read(f))).join("\n");
+writeAtomic("dist/server/index.js", worker + "\nconst home=null;\nconst pwa={};\nexport default {fetch:(request,env,ctx)=>handle(request,home,undefined,env,pwa,ctx),scheduled:(event,env,ctx)=>{ctx.waitUntil(botNotify(env,{fetch}))}};\n");
 if (process.argv.includes("--portable")) writeAtomic("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

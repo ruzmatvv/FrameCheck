@@ -11,17 +11,30 @@ function createAdminPanel(ctx) {
     ctx.show(tr("Admin panel"), '<p>' + E(tr("Yuklanmoqda…")) + '</p>');
     const body = $("#modal-body .modal-inner");
     try {
-      const [overview, pending] = await Promise.all([ctx.account.call("GET", "admin/overview"), ctx.account.call("GET", "admin/fps?status=pending")]);
+      const [overview, pending, bot] = await Promise.all([ctx.account.call("GET", "admin/overview"), ctx.account.call("GET", "admin/fps?status=pending"), ctx.account.call("GET", "admin/bot").catch(() => null)]);
       if (overview.status !== 200) { body.innerHTML = '<p>' + E(tr("Bu bo‘lim faqat sayt egasi uchun.")) + '</p>'; return; }
-      render(body, overview.json, pending.json.reports || []);
+      render(body, overview.json, pending.json.reports || [], bot && bot.status === 200 ? bot.json : null);
     } catch { body.innerHTML = '<p>' + E(tr("Serverga ulanib bo‘lmadi. Internetni tekshiring.")) + '</p>'; }
   }
 
-  function render(body, o, pending) {
+  // The Telegram bot: counts only (people, activity, what they search); who searched is never stored.
+  function botSection(b) {
+    if (!b) return '<h3>' + E(tr("Telegram bot")) + '</h3><p class="hint">' + E(tr("Botda hozircha ma’lumot yo‘q.")) + '</p>';
+    const t = b.totals, stat = (label, value) => '<div><small>' + E(tr(label)) + '</small><strong>' + value + '</strong></div>';
+    const max = Math.max(1, ...b.days.map(d => d.n));
+    return '<h3>' + E(tr("Telegram bot")) + '</h3><div class="metrics admin-stats">' + stat("Bot foydalanuvchilari", t.users) + stat("24 soatda faol", t.active24h) + stat("7 kunda faol", t.active7d)
+      + stat("Botni bloklaganlar", t.blocked) + stat("Kuzatuvlar", t.watchGames + t.watchSkins) + stat("Bugungi so‘rovlar", t.requestsToday) + '</div>'
+      + '<p class="hint">' + b.days.map(d => E(d.day.slice(5)) + ': <b>' + d.n + '</b>').join(" · ") + '</p>'
+      + '<div class="admin-lists">' + list("Bot: o‘yin qidiruvlari", b.topGames, String) + list("Bot: skin qidiruvlari", b.topSkins, String) + list("Bot: inline qidiruvlar", b.topInline, String) + list("Bot tillari", b.langs, String) + '</div>'
+      + (b.errors.length ? '<h4>' + E(tr("Bot xatolari (oxirgilari)")) + '</h4><ul class="report-list">' + b.errors.slice(0, 8).map(x => '<li><div><small>' + when(x.at) + ' · ' + E(x.place) + '</small><br>' + E(x.note) + '</div></li>').join("") + '</ul>' : '');
+  }
+
+  function render(body, o, pending, bot) {
     const t = o.totals, stat = (label, value) => '<div><small>' + E(tr(label)) + '</small><strong>' + value + '</strong></div>';
     const gameName = id => ctx.nameOf(Number(id)) || "#" + id;
     body.innerHTML = '<div class="metrics admin-stats">' + stat("Foydalanuvchilar", t.users) + stat("Shu hafta yangi", t.newThisWeek) + stat("Hozir kirgan", t.signedIn)
       + stat("Ma’lumoti bor", t.withData) + stat("Tekshiruvdagi o‘lchovlar", t.reportsPending) + stat("Tasdiqlangan o‘lchovlar", t.reportsApproved) + '</div>'
+      + botSection(bot)
       + '<h3>' + E(tr("FPS o‘lchovlari (tekshiruv kutmoqda)")) + '</h3>'
       + (pending.length ? '<ul class="report-list admin-reports">' + pending.map(r => '<li><div><strong>' + E(gameName(r.game_id)) + '</strong> · ' + E(r.fps + " FPS") + ' · ' + E(tr(PRESETS[r.preset]) + ", " + r.resolution)
         + '<br><small>' + E(r.gpu) + ' · ' + E(r.cpu) + (r.ram ? ' · ' + E(r.ram + " GB") : '') + ' · ' + E(r.username) + '</small></div><div class="row-actions">'

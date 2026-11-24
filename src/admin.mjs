@@ -1,6 +1,7 @@
 // Owner-only tools. A user is an admin only if is_admin = 1 in the database, which can be set only with
 // `wrangler d1 execute` (see migrations/0002). Passwords and session data are never returned.
 import {ROUTES, accountJson, fail, readJson, currentUser, hashPassword} from "./auth.mjs";
+import {botStats} from "./bot-stats.mjs";
 
 const ONE_DAY = 24 * 3600 * 1000;
 const TEMP_ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -109,7 +110,15 @@ async function tempPassword(request, db, now) {
   return accountJson({username: row.username, password});
 }
 
+// The Telegram bot's numbers: people, activity, what they search (src/bot-stats.mjs). Only counts, never who searched.
+async function botOverview(request, db, now) {
+  const {error} = await admin(request, db, now);
+  if (error) return error;
+  return accountJson(await botStats(db, now));
+}
+
 Object.assign(ROUTES, {
+  "GET /api/admin/bot": botOverview,
   "GET /api/admin/overview": overview,
   "GET /api/admin/fps": reports,
   "POST /api/admin/fps": review,

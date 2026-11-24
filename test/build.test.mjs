@@ -33,7 +33,7 @@ test("brauzerlar o'zi so'raydigan ildiz fayllari statik tayyor (404 ham, Worker 
 
 test("_headers: xavfsizlik va kesh qoidalari to'g'ri", () => {
   const headers = readFileSync(file("public/_headers"), "utf8");
-  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "frame-ancestors 'none'", "X-Content-Type-Options: nosniff", "Permissions-Policy", "Service-Worker-Allowed: /"]) assert.ok(headers.includes(needle), needle);
+  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "frame-ancestors https://web.telegram.org", "X-Content-Type-Options: nosniff", "Permissions-Policy", "Service-Worker-Allowed: /"]) assert.ok(headers.includes(needle), needle);
   const block = name => headers.split(/\n\n/).find(b => b.startsWith(name + "\n"));
   assert.match(block("/sw.js"), /no-cache/, "service worker darrov yangilanadi");
   assert.match(block("/"), /no-cache/);
@@ -43,7 +43,7 @@ test("_headers: xavfsizlik va kesh qoidalari to'g'ri", () => {
 
 test("Worker faqat API va rasm proksisini biladi, sahifani o'zida saqlamaydi", () => {
   const worker = readFileSync(file("server/index.js"), "utf8");
-  assert.ok(statSync(file("server/index.js")).size < 250_000, "Worker kichik: " + statSync(file("server/index.js")).size);
+  // the Telegram bot lives in the Worker too (catalog, skins, prices): about 1.1 MB; the free plan allows 3 MB after compression`r`n  assert.ok(statSync(file("server/index.js")).size < 2_000_000, "Worker hajmi: " + statSync(file("server/index.js")).size);
   assert.match(worker, /export default \{fetch/);
   assert.match(worker, /const home=null;/);
   assert.doesNotMatch(worker, /<!doctype html>/i, "sahifa Worker ichida yo'q");
@@ -72,5 +72,5 @@ test("CS2 sahifalari: ma'lumot fayllari, xarita rasmlari va litsenziya statik ta
   assert.match(headers, /\/maps\/\*\n  Cache-Control: public, max-age=86400/);
   // the page stays small: the 500 KB skin list is a separate file, not part of the page or the Worker
   assert.ok(!readFileSync(file("public/index.html"), "utf8").includes("skin-91a429af4a60") && !readFileSync(file("public/index.html"), "utf8").includes("91a429af4a60"));
-  assert.ok(!readFileSync(file("server/index.js"), "utf8").includes("91a429af4a60"));
+  // (the Worker does carry it, on purpose: the Telegram bot searches skins without any outside request)
 });

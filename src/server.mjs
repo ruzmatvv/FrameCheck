@@ -1,4 +1,5 @@
 import {handleAccount} from "./auth.mjs";
+import {botWebhook} from "./bot-core.mjs";
 import "./recovery.mjs";
 import "./fps.mjs";
 import "./admin.mjs";
@@ -96,7 +97,7 @@ function installAsset(pathname,assets){
 // ---- Pages with their own address, in three languages: /o/<id>-<name>, /ru/o/..., /en/o/..., and the home pages / /ru/ /en/.
 // Every address serves the same app; only the head differs (title, description, language, links to the other languages),
 // so a link shared in a chat or found by a search engine shows the right game, cover and language.
-const PAGE_SECURITY={"X-Frame-Options":"DENY","Content-Security-Policy":"frame-ancestors 'none'","Permissions-Policy":"camera=(), microphone=(), geolocation=(), payment=()"};
+const PAGE_SECURITY={"X-Frame-Options":"DENY","Content-Security-Policy":"frame-ancestors https://web.telegram.org","Permissions-Policy":"camera=(), microphone=(), geolocation=(), payment=()"};
 const escapeHtml=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const PAGE_TEXT={
  uz:{locale:"uz_UZ",homeTitle:"Framecheck — O‘yin tekshiruvi",homeDesc:"Qurilmangiz uchun o‘yin talablarini taqqoslang, taxminiy FPS va mos grafik sozlamalarini ko‘ring.",
@@ -199,6 +200,7 @@ export async function handle(request,home,fetchSteam=fetch,env={},assets={},ctx=
 
 async function respond(request,home,fetchSteam,env,assets,ctx){
  const {pathname,searchParams}=new URL(request.url);
+ if(pathname==="/api/bot/webhook")return botWebhook(request,env,ctx,{fetch:fetchSteam||fetch});
  const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if((pathname==="/"||pathname==="/index.html")&&home)return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});

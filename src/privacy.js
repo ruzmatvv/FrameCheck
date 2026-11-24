@@ -12,6 +12,8 @@ function privacyHtml(tr, E) {
       "O‘lchov yuborsangiz, FPS, grafik sozlamasi, ekran o‘lchami hamda protsessor, videokarta va RAM nomi saqlanadi. Sayt egasi tekshirib tasdiqlagandan keyin u login ko‘rsatilmasdan hamma uchun ko‘rinadi.")
     + section("Steam",
       "O‘yin talablari va narxlar Steam’dan server orqali olinadi. Muqova rasmlari Steam CDN’dan yuklanadi (u ishlamasa, server orqali). Steam bu so‘rovlarni ko‘radi.")
+    + section("Telegram bot",
+      "Telegram’dagi FrameCheck botidan foydalansangiz, serverda Telegram raqamingiz (id), tanlagan til, kiritgan qurilma profillari (protsessor, videokarta, RAM) va kuzatuvga qo‘ygan o‘yin yoki skinlar saqlanadi. Xabarlaringiz matni saqlanmaydi; qidiruv so‘zlari faqat umumiy statistika uchun, kim yozgani yozilmasdan sanaladi. Botdagi /ochir buyrug‘i hammasini o‘chiradi.")
     + section("Cloudflare",
       "Sayt Cloudflare’da ishlaydi. Cloudflare xizmat ko‘rsatish uchun odatiy texnik so‘rov jurnallarini yuritadi.")
     + section("Ma’lumotni o‘chirish",

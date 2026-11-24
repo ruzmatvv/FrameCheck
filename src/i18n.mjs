@@ -17,6 +17,9 @@ try {
  const pick = fromPath || saved || detected;
  if (languages.includes(pick)) language = pick;
 } catch {}
+// The Telegram bot (src/bot-*.mjs) answers each person in their own language: it sets the language, runs one synchronous piece
+// of work (no await in between, so two people can never mix) and puts it back.
+export function setLanguage(value) { language = languages.includes(value) ? value : "uz"; }
 const dictionary = () => language === "ru" ? ru : language === "en" ? en : null;
 
 export function locale() { return language === "ru" ? "ru-RU" : language === "en" ? "en-US" : "uz-UZ"; }
