@@ -127,6 +127,6 @@ sahifa og'ir; ro'yxatdan o'tishda CAPTCHA yo'q; qurilma nomlari jadvali qo'lda y
 chalg'ituvchi "Vivobook uchun taxmin" yorlig'i qurilma noma'lum bo'lganda boshqa foydalanuvchiga chiqadi; UI avtomatik testlari yo'q (qo'lda sinaladi).
 
 ## 11. Yangi sessiyani boshlash
-1. `git status`, `git log --oneline -5`, `npm test` (130 o'tishi kerak).
+1. `git status`, `git log --oneline -5`, `npm test` (143 o'tishi kerak).
 2. Egasidan so'rang: A bandi (tuzatishni boshlash) yoki boshqa vazifa; B/C bandlari bajarilganmi.
 3. Joylashdan oldin: `git tag` qo'ying, testlar o'tsin, keyin `npm run deploy` va jonli tekshiruv.
