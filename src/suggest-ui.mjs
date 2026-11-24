@@ -1,5 +1,5 @@
 import {language, tr} from "./i18n.mjs";
-import {steamId} from "./core.mjs";
+import {steamId, isOffSteam} from "./core.mjs";
 import {suggestions} from "./search.mjs";
 
 export function attachSuggestions(input, box, getGames, choose, picture, api, prices) {
@@ -45,8 +45,10 @@ export function attachSuggestions(input, box, getGames, choose, picture, api, pr
    const tile = document.createElement("span"); tile.className = "suggest-tile";
    tile.textContent = g.name.split(/\s+/).slice(0,2).map(w=>w[0]).join("");
    tile.setAttribute("aria-hidden","true");
-   const img = new Image(); img.alt = ""; img.dataset.cover = String(g.id); img.src = picture(g);
-   img.addEventListener("error",()=>{if(!window.coverFallback?.(img))img.remove()}); tile.append(img);
+   if (!isOffSteam(g)) {   // games outside Steam have no Steam cover to load
+    const img = new Image(); img.alt = ""; img.dataset.cover = String(g.id); img.src = picture(g);
+    img.addEventListener("error",()=>{if(!window.coverFallback?.(img))img.remove()}); tile.append(img);
+   }
    const label = document.createElement("span"); label.textContent = g.name;
    const price=document.createElement("span");price.className="steam-price";price.dataset.steamPrice=g.id;
    row.append(tile,label,price); list.append(row);

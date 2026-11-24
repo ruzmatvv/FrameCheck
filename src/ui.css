@@ -597,3 +597,13 @@ dialog.cs2-detail *{box-sizing:border-box}
 }
 @keyframes cs2-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){dialog.cs2-detail{animation:none}.cs2-skin,.cs2-art[data-open-skin] img{transition:none}.cs2-skin:hover{transform:none}.cs2-skin:hover .cs2-art img{transform:none}}
+
+/* Games that are not on Steam: store chip on the cover, a small label on cards, the licence line in the game window */
+.art-store .art-name{background:linear-gradient(135deg,#2c3a47,#1d2426 70%)}
+.store-tag{position:absolute;top:12px;left:12px;z-index:2;padding:.26em .72em;border-radius:99px;background:rgba(193,231,159,.12);border:1px solid rgba(193,231,159,.42);color:#c1e79f;font-size:.72rem;font-weight:700;letter-spacing:.02em}
+.off-steam{display:inline-block;margin-left:.55em;padding:.08em .6em;border-radius:99px;border:1px solid #4a5a4f;color:#c1e79f;font-size:.7rem;white-space:nowrap}
+.license-line{padding:.7rem .9rem;border-left:3px solid #c1e79f;background:rgba(193,231,159,.06);border-radius:0 8px 8px 0;line-height:1.55}
+.license-line .steam-price{display:inline-flex;margin:0}
+.license-label{color:#b6bcb6;margin-right:.3em}
+.source.inline{margin:0 0 0 .4em;font-size:.78rem}
+.other-price strong{font-weight:700}

@@ -3,7 +3,7 @@
 // Nothing here invents numbers: FPS comes from the site's own estimate (and says so), prices from the Skinport snapshot.
 import {CATALOG, CS2_SKINS, CS2_PRICES} from "./bot-data.mjs";
 import {BENCHMARKS} from "./data.mjs";
-import {titles, buildGame, combineGame, lookup, isDirectMatch, steamId, clean} from "./core.mjs";
+import {titles, buildGame, combineGame, lookup, isDirectMatch, steamId, clean, isOffSteam, licenseLabel} from "./core.mjs";
 import {evaluateGame, cpuClass, gpuClass} from "./compat.mjs";
 import {applySettings, defaultSettings} from "./settings.mjs";
 import {steamPriceBatch} from "./frames.mjs";
@@ -138,15 +138,37 @@ export function botRequirementLines(markup) {
 
 // -> {game, result, recommended: [lines] | null, fromSteam: boolean} | {error}
 export async function botCheckGame(id, profile, lang, deps) {
-  const steam = await botSteamGame(id, deps), base = botGames.get(id);
+  const base = botGames.get(id);
+  if (isOffSteam(base)) {                                        // not on Steam: the catalog entry (from the publisher's pages) is all there is
+    const result = withLang(lang, () => applySettings(evaluateGame(base, profile, BENCHMARKS), defaultSettings()));
+    return {game: base, result, fromSteam: false, offSteam: true, recommended: null, minimumLines: null, offer: null};
+  }
+  const steam = await botSteamGame(id, deps);
+  let offer = null;
+  if (steam.ok) { try { offer = (await botCached("price/" + id, 600, async () => (await botSteamPrices([id], deps))[id] || null)); } catch { offer = null; } }
   if (!steam.ok && !base) return {error: steam.code};
   const built = steam.ok ? buildGame(steam.raw) : null;
   const game = base && built ? combineGame(base, built) : (base || built);
   const result = withLang(lang, () => applySettings(evaluateGame(game, profile, BENCHMARKS), defaultSettings()));
-  return {game, result, fromSteam: steam.ok, recommended: steam.ok ? botRequirementLines(steam.raw.pc_requirements?.recommended) : null, minimumLines: steam.ok ? botRequirementLines(steam.raw.pc_requirements?.minimum) : null};
+  return {game, result, offer, fromSteam: steam.ok, recommended: steam.ok ? botRequirementLines(steam.raw.pc_requirements?.recommended) : null, minimumLines: steam.ok ? botRequirementLines(steam.raw.pc_requirements?.minimum) : null};
 }
 
 const botFpsText = g => g.referenceFps || g.observedFps || (Array.isArray(g.fps) ? g.fps.join("–") : null);
+
+// where the game is sold and what it costs: from Steam's own answer, or (outside Steam) from the publisher's page recorded in the catalog
+export function botLicenceLine(check, lang) {
+  const t = (key, ...v) => bt(lang, key, ...v), game = check.game;
+  if (check.offSteam) {
+    const usd = Number.isFinite(game.priceUsd) ? "$" + game.priceUsd.toFixed(2) : "";
+    const kind = game.license === "free" ? t("licFree") : game.license === "subscription" ? (usd ? t("licSub", usd) : t("licNoPrice")) : (usd ? t("licPaid", usd) : t("licNoPrice"));
+    return "🏬 " + t("offSteam", botEscape(game.store || "")) + "\n" + kind + (game.checkedOn ? "\n<i>" + t("licDate", botEscape(game.checkedOn)) + "</i>" : "");
+  }
+  const offer = check.offer;
+  if (!offer) return "";
+  if (offer.type === "free") return t("licFree");
+  if (offer.type === "paid") return t("licPaid", botEscape(offer.price)) + (offer.discount ? " (−" + offer.discount + "%)" : "");
+  return "";
+}
 
 // the message for a checked game. view: "min" (the five-line summary) or "rec" (Steam's recommended requirements).
 export function botGameText(check, profile, lang, view = "min") {
@@ -170,8 +192,9 @@ export function botGameText(check, profile, lang, view = "min") {
     } else {
       body = "\n<b>" + t("minReq") + "</b>\n" + rows.join("\n");
     }
+    const licence = botLicenceLine(check, lang);
     const note = g.note ? "\n\n<i>" + botEscape(botCut(tr(g.note), 420)) + "</i>" : "";
-    return head + summary + body + note + "\n\n" + t("fpsNote");
+    return head + summary + (licence ? licence + "\n" : "") + body + (check.offSteam ? "" : note) + "\n\n" + t("fpsNote");
   });
 }
 

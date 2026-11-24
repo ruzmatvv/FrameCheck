@@ -26,7 +26,7 @@ test("standart manzilda rasmi yo'q 4 ta yangi o'yinda image maydoni bor", () => 
 });
 
 test("har bir o'yin uchun Steam UZ narx yozuvi bor", () => {
-  const missing = games.filter(g => !STEAM_UZ[g.id]).map(g => g.name);
+  const missing = games.filter(g => !(g.id >= 9000000) && !STEAM_UZ[g.id]).map(g => g.name);   // games outside Steam have no Steam price
   assert.deepEqual(missing, []);
 });
 

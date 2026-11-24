@@ -1,5 +1,6 @@
 import {handleAccount} from "./auth.mjs";
 import {botWebhook} from "./bot-core.mjs";
+import {OFF_STEAM_ID} from "./core.mjs";
 import "./recovery.mjs";
 import "./fps.mjs";
 import "./admin.mjs";
@@ -113,7 +114,7 @@ function pageMeta(kind,lang,id,origin,canonicalHost){
  const base=siteBase(origin,canonicalHost),text=PAGE_TEXT[lang],name=kind==="game"?GAME_NAMES[id]:null;
  const pathIn=l=>kind==="game"?gamePath(id,name,l):homePath(l),path=pathIn(lang),url=base+path;
  const title=name?text.gameTitle(name):text.homeTitle,description=name?text.gameDesc(name):text.homeDesc;
- const image=kind==="game"?base+"/img/"+id+".jpg":base+"/social.jpg";
+ const image=kind==="game"&&Number(id)<OFF_STEAM_ID?base+"/img/"+id+".jpg":base+"/social.jpg";   // games outside Steam have no Steam cover
  const ld=name?{"@context":"https://schema.org","@type":"VideoGame",name,url,image,inLanguage:lang,applicationCategory:"Game",operatingSystem:"Windows"}:null;
  const tag=(attr,key,value)=>'<meta '+attr+'="'+key+'" content="'+escapeHtml(value)+'">';
  const alternates=LANGUAGES.map(l=>'<link rel="alternate" hreflang="'+l+'" href="'+escapeHtml(base+pathIn(l))+'">').join("")+'<link rel="alternate" hreflang="x-default" href="'+escapeHtml(base+pathIn("uz"))+'">';

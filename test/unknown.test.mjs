@@ -4,8 +4,10 @@ import {readFileSync} from "node:fs";
 import {evaluateGame, gpuClass, cpuClass, inferGpuClass, inferredGpu} from "../src/compat.mjs";
 import {BENCHMARKS} from "../src/data.mjs";
 
-const games = JSON.parse(readFileSync(new URL("../src/catalog.json", import.meta.url), "utf8"));
+const allGames = JSON.parse(readFileSync(new URL("../src/catalog.json", import.meta.url), "utf8"));
 const {profiles, ratings} = JSON.parse(readFileSync(new URL("./fixtures/ratings-before.json", import.meta.url), "utf8"));
+// these two checks guard the first 215 catalog games; games added later are checked in catalog.test.mjs
+const games = allGames.filter(g => Object.values(ratings).every(r => r[g.id] !== undefined));
 const parts = ["cpu", "gpu", "ram", "os"];
 
 // ---- nothing that was known may change

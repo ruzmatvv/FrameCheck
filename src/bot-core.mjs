@@ -10,7 +10,7 @@ import {CS2_WEARS} from "./cs2-names.mjs";
 import {cs2HasWear} from "./cs2-logic.mjs";
 import {evaluateGame} from "./compat.mjs";
 import {applySettings, defaultSettings} from "./settings.mjs";
-import {titles} from "./core.mjs";
+import {titles, OFF_STEAM_ID} from "./core.mjs";
 import {tr} from "./i18n.mjs";
 import {BENCHMARKS} from "./data.mjs";
 
@@ -230,8 +230,9 @@ async function botGameCard(c, id, profileId = 0, view = "m") {
   const watching = await botWatching(db, user.id, "game", String(id));
   const keyboard = kb([
     [btn(view === "m" ? t("recShow") : t("recHide"), "g:" + id + ":" + row.id + ":" + (view === "m" ? "r" : "m"))],
-    [btn(t("chOther"), "gd:" + id), btn(watching ? t("chUnwatch") : t("chWatch"), "gw:" + id)],
+    check.offSteam ? [btn(t("chOther"), "gd:" + id)] : [btn(t("chOther"), "gd:" + id), btn(watching ? t("chUnwatch") : t("chWatch"), "gw:" + id)],
     [urlBtn(t("chSite"), botGameUrl(check.game, c.lang)), btn(t("back"), "m:menu")],
+    ...(check.offSteam && /^https:\/\//.test(check.game.storeUrl || "") ? [[urlBtn(check.game.store, check.game.storeUrl)]] : []),
   ]);
   return botShow(c, botGameText(check, profile, c.lang, view === "r" ? "rec" : "min"), keyboard);
 }
@@ -445,6 +446,7 @@ async function botButton(c, data) {
       return void await botShow(c, t("devices"), kb([...list.map(p => [btn(botCut(p.name, 40), "g:" + b + ":" + p.id + ":m")]), [btn(t("devNew"), "dv:new")], [btn(t("back"), "g:" + b + ":0:m")]]));
     }
     case "gw": { // watch a game for sales
+      if (Number(b) >= OFF_STEAM_ID) return;                      // only Steam games have sales we can follow
       const id = Number(b), game = botGames.get(id) || (await botSteamGame(id, c.deps)).raw;
       const name = game?.name || "#" + id;
       let price = null, discount = null;
@@ -539,7 +541,7 @@ function botGameArticle(game, profileRow, lang, botName) {
     + (result ? "\n" + botEscape(verdict) + (fps ? "\nрџ“Љ " + t("fps") + ": <b>" + botEscape(fps) + " FPS</b>" : "") + "\nвљ™пёЏ " + botEscape(withLang(lang, () => tr(result.preset) + " В· " + tr(result.resolution))) + "\nрџ’» " + botEscape(profileRow.name) + "\n\nв„№пёЏ " + t("fpsNote").replace("в„№пёЏ ", "")
       : "\n" + t("inlineGameNoDevice"));
   return {
-    type: "article", id: "g" + game.id, title: game.name, description, thumbnail_url: botCover(game.id),
+    type: "article", id: "g" + game.id, title: game.name, description, ...(game.id < OFF_STEAM_ID ? {thumbnail_url: botCover(game.id)} : {}),
     input_message_content: {message_text: text, parse_mode: "HTML", link_preview_options: {is_disabled: true}},
     reply_markup: kb([[urlBtn(t("inlineOpen"), botGameUrl(game, lang)), urlBtn("рџ¤– " + botName, "https://t.me/" + botName + "?start=g" + game.id)]]),
   };

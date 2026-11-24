@@ -1,0 +1,157 @@
+[
+ {
+  "id": 9000001,
+  "name": "VALORANT",
+  "year": null,
+  "genres": [
+   "Ekshen"
+  ],
+  "store": "Riot Games",
+  "storeUrl": "https://playvalorant.com/en-us/",
+  "license": "free",
+  "priceUsd": 0,
+  "priceNote": "Rasmiy sahifada “Play For Free”",
+  "priceSource": "https://playvalorant.com/en-us/",
+  "min": {
+   "cpu": "Intel i3-540 or AMD Athlon 200GE",
+   "gpu": "Intel HD 4000 or AMD Radeon R5 220",
+   "ram": 4,
+   "os": "Windows 10 (Build 19041+) 64-bit or Windows 11 64-bit"
+  },
+  "reqSource": "https://support.riotgames.com/en-us/valorant/support-tools/minimum-recommended-pc-specs",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000002,
+  "name": "League of Legends",
+  "year": null,
+  "genres": [
+   "Strategiya"
+  ],
+  "store": "Riot Games",
+  "storeUrl": "https://www.leagueoflegends.com/en-us/",
+  "license": "free",
+  "priceUsd": 0,
+  "priceNote": "Rasmiy sahifada “Play for free”",
+  "priceSource": "https://www.leagueoflegends.com/en-us/",
+  "min": {
+   "cpu": "Intel Core i3-530 or AMD FX-4100",
+   "gpu": "DirectX 11 (feature level 11_0) video card with 1 GB VRAM, e.g. GeForce 400 Series or AMD HD 6570 or Intel HD 4600",
+   "ram": 2,
+   "os": "Windows 10 (Build 19041+) 64-bit or Windows 11 64-bit"
+  },
+  "reqSource": "https://support.riotgames.com/en-us/league-of-legends/performance/minimum-and-recommended-system-requirements-league-of-legends",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000003,
+  "name": "World of Warcraft",
+  "year": null,
+  "genres": [
+   "RPG"
+  ],
+  "store": "Battle.net",
+  "storeUrl": "https://us.shop.battle.net/en-us/family/world-of-warcraft",
+  "license": "subscription",
+  "priceUsd": 14.99,
+  "priceNote": "Obuna: 1 oy $14.99. Yangi kengaytma (Midnight) alohida sotiladi: $49.99 dan.",
+  "priceSource": "https://us.shop.battle.net/en-us/product/world-of-warcraft-subscription",
+  "min": {
+   "cpu": "6 Cores, 4.0 GHz boost clock speed processor; Intel Core Coffee Lake; AMD Ryzen Zen 2",
+   "gpu": "DirectX 12 capable 4 GB GPU; NVIDIA GeForce GTX 10 series; AMD RDNA 1; Intel Iris Xe2-LPG Lunar Lake",
+   "ram": 8,
+   "os": "Windows 10 64-bit (May 2019 Update or newer)"
+  },
+  "reqSource": "https://us.support.blizzard.com/en/article/380065",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000004,
+  "name": "Hearthstone",
+  "year": null,
+  "genres": [
+   "Strategiya"
+  ],
+  "store": "Battle.net",
+  "storeUrl": "https://hearthstone.blizzard.com/en-us/",
+  "license": "free",
+  "priceUsd": 0,
+  "priceNote": "Rasmiy saytda: tekin, kartalar sotib olish ixtiyoriy.",
+  "priceSource": "https://hearthstone.blizzard.com/en-us/",
+  "min": {
+   "cpu": "Intel Core i3-6100 or AMD A10-7850K",
+   "gpu": "NVIDIA GeForce GTX 660 or AMD Radeon R9 280X or better",
+   "ram": 8,
+   "os": "Windows 10 64-bit (21H1)"
+  },
+  "reqSource": "https://us.support.blizzard.com/en/article/2371",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000005,
+  "name": "StarCraft II",
+  "year": null,
+  "genres": [
+   "Strategiya"
+  ],
+  "store": "Battle.net",
+  "storeUrl": "https://us.shop.battle.net/en-us/product/starcraft-ii",
+  "license": "free",
+  "priceUsd": 0,
+  "priceNote": "Asosiy o‘yin “Play For Free”; kampaniyalar to‘plami ixtiyoriy ($39.99).",
+  "priceSource": "https://us.shop.battle.net/en-us/product/starcraft-ii",
+  "min": {
+   "cpu": "Intel Core 2 Duo or AMD Athlon 64 X2 5600+",
+   "gpu": "NVIDIA GeForce 7600 GT or ATI Radeon HD 2600 XT or Intel HD Graphics 3000 or better",
+   "ram": 2,
+   "os": "Windows 10"
+  },
+  "reqSource": "https://us.support.blizzard.com/en/article/647",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000006,
+  "name": "Warcraft III: Reforged",
+  "year": null,
+  "genres": [
+   "Strategiya"
+  ],
+  "store": "Battle.net",
+  "storeUrl": "https://us.shop.battle.net/en-us/product/warcraft-3-reforged",
+  "license": "paid",
+  "priceUsd": 29.99,
+  "priceNote": "Bir martalik xarid; Forsaken Kingdom kengaytmasi alohida ($29.99).",
+  "priceSource": "https://us.shop.battle.net/en-us/product/warcraft-3-reforged",
+  "min": {
+   "cpu": "Intel Core i3-530 or AMD Phenom II X4 910 or better",
+   "gpu": "NVIDIA GeForce GTS 450 or AMD Radeon HD 5750 or better",
+   "ram": 4,
+   "os": "Windows 10 64-bit (latest version)"
+  },
+  "reqSource": "https://us.support.blizzard.com/en/article/191926",
+  "checkedOn": "2026-11-25"
+ },
+ {
+  "id": 9000007,
+  "name": "Diablo Immortal",
+  "year": null,
+  "genres": [
+   "RPG",
+   "Ekshen"
+  ],
+  "store": "Battle.net",
+  "storeUrl": "https://diabloimmortal.blizzard.com/en-us/",
+  "license": "free",
+  "priceUsd": 0,
+  "priceNote": "Rasmiy saytda: Free to Play.",
+  "priceSource": "https://diabloimmortal.blizzard.com/en-us/",
+  "min": {
+   "cpu": "Intel Core i3 or AMD FX-8100",
+   "gpu": "NVIDIA GeForce GTX 460, ATI Radeon HD 6850 or Intel HD Graphics 530",
+   "ram": 4,
+   "os": "Windows 10 / Windows 11 (64-bit)"
+  },
+  "reqSource": "https://us.support.blizzard.com/en/article/191842",
+  "checkedOn": "2026-11-25"
+ }
+]

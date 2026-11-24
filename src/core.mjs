@@ -1,5 +1,17 @@
 
 export const titles = {play:"Bemalol o‘ynaladi",adjust:"Sozlamani pasaytirish kerak",avoid:"Tavsiya etilmaydi",unknown:"Ma’lumot yetarli emas"};
+// Games that are not on Steam (Epic, Battle.net, Riot...) get ids from 9 000 000 up, so they never clash with a Steam app id.
+// Their requirements, licence and price come from the publisher's own pages and are stored in the catalog entry (see src/data/other-games.json).
+export const OFF_STEAM_ID = 9000000;
+export const isOffSteam = g => !!g && (g.steam === false || Number(g.id) >= OFF_STEAM_ID);
+// What the person has to buy to play: "free" | "paid" | "subscription" (+ price in US dollars when the publisher shows one)
+export function licenseLabel(g, tr = s => s) {
+ if (!g) return "";
+ const usd = Number.isFinite(g.priceUsd) ? "$" + g.priceUsd.toFixed(2) : "";
+ if (g.license === "free") return tr("Tekin");
+ if (g.license === "subscription") return usd ? tr("Obuna kerak · {0}/oy", usd).replace("{0}", usd) : tr("Obuna kerak");
+ return usd ? tr("Litsenziya kerak · {0}", usd).replace("{0}", usd) : tr("Litsenziya kerak");
+}
 export const clean = s => String(s ?? "").replace(/[™®©]/g,"").replace(/&amp;/gi,"&").replace(/&nbsp;|&#160;/gi," ").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/\s+/g," ").trim();
 export const norm = s => clean(s).toLowerCase().replace(/[’‘']/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();
 export function steamId(input) {
