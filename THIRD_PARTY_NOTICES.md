@@ -25,7 +25,8 @@ community servers. Nothing from Valve's games is copied into this repository.
   (US dollars) and writes `src/data/cs2-prices.json`. The page always shows the source and the date of the snapshot.
 - Skinport is a trademark of Skinport GmbH; Framecheck is not affiliated with it. The prices are Skinport marketplace prices, not
   Steam Market prices, and can differ from them. Framecheck does not buy or sell items.
-- The "Steam Market" button on every card only opens that item's page on Steam's market.
+- The "Steam Market" button on every card only opens that item's page on Steam's market. The "Skinport" button opens the item's page on Skinport (the address is written from the item's name; items whose address cannot be derived get no button).
+- Skin descriptions, collections and cases (`src/data/cs2-skin-details.json`) come from ByMykel/CSGO-API (see above), in English.
 
 ---
 

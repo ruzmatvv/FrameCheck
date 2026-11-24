@@ -16,6 +16,14 @@ export function cs2MarketName(star, weapon, pattern, wear, variant = 0) {
   return (star ? "★ " : "") + prefix + weapon + " | " + pattern + " (" + CS2_WEARS[wear].name + ")";
 }
 
+// Skinport writes an item's address from its name: "StatTrak™ AK-47 | Redline (Well-Worn)" -> /item/stattrak-ak-47-redline-well-worn.
+// scripts/build-cs2-prices.mjs checks this rule against Skinport's own addresses and lists the skins where it does not hold.
+export function cs2SkinportSlug(name) {
+  // (no accent stripping: Skinport turns "ö" into a hyphen, "P90 | Astral Jörmungandr" -> p90-astral-j-rmungandr)
+  return String(name).toLowerCase().replace(/[™★®©]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+export function cs2SkinportUrl(name) { return "https://skinport.com/item/" + cs2SkinportSlug(name); }
+
 export function cs2MarketUrl(name) {
   return "https://steamcommunity.com/market/listings/730/" + encodeURIComponent(name);
 }

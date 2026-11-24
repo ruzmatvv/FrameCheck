@@ -1,4 +1,4 @@
-﻿# Framecheck: loyiha konteksti
+# Framecheck: loyiha konteksti
 
 Yangi sessiyada loyihani davom ettirish uchun shu faylni birinchi o'qing, keyin `README.md` ni. Oxirgi yangilanish: 2026-11-24.
 Bu faylda parol, token yoki shaxsiy email yo'q. Ular hech qachon repoga yozilmasin.
@@ -83,7 +83,7 @@ Asosiy fayllar:
 - **Haqiqiy FPS o'lchovi faqat 3 o'yinda** (`benchmarks.json`: 15 qator). Qolgani hisoblangan taxmin.
 
 ## 7. Test va sinash
-- `npm test` hozir **187 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), cs2 (CS2 sahifalari), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
+- `npm test` hozir **197 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), cs2 (CS2 sahifalari), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
 
 ### Zamonaviy to'plam (commit qilingan, hali joylanmagan)
 - **Qurilma bali** (`src/score.mjs`, `score-ui.js`): 0-100 ball + ulashiladigan rasm.
@@ -96,6 +96,7 @@ Asosiy fayllar:
   - Skin rasmlari Steam'ning o‘z CDN'idan, yon menyudagi CS2 ikonkasi Steam community serveridan yuklanadi (hotlink, repoga ko‘chirilmagan). Valve radar rasmlari ataylab ishlatilmagan (huquqi noaniq).
   - Narx: **Skinport ochiq API** (`/v1/items`, kalitsiz, 1 so‘rov) dan olingan **statik snapshot** `src/data/cs2-prices.json` (eng arzon e‘lon, USD, sentda; sahifada manba va sana ko‘rsatiladi, 14 kundan eski bo‘lsa «eskirgan bo‘lishi mumkin»). Yangilash: `node scripts/build-cs2-prices.mjs` → `npm run deploy` (Skinport limiti: 5 daqiqada 8 so‘rov). Narx bo‘yicha saralash va filtr bor. **Steam Market `priceoverview` ishlatilmaydi**: Cloudflare Workers'dan Steam 429 qaytaradi (jonli sinovda tasdiqlangan) va ommaviy ro‘yxat bermaydi. Eslatma: Skinport narxi Steam Market narxidan farq qiladi (sahifada yozilgan). Kelajak: GitHub Actions + Cloudflare token bilan snapshotni avtomatik yangilash.
   - Float faqat skinning umumiy diapazoni sifatida ko‘rsatiladi (aniq listing floati yo‘q).
+  - **Skin oynasi** (karta bosilganda): `<dialog>` + o‘z manzili `#cs2-skinlar/<nom>-<12 belgili id>` (orqaga tugmasi yopadi, havola ochadi). Ichida: katta rasm, tavsif/flavor/kolleksiya/keys (`src/data/cs2-skin-details.json`, ByMykel, faqat inglizcha, oyna ochilganda yuklanadi), barcha wear×variant narxlar jadvali, float zonalari chizig‘i, Steam Market/Skinport/havola nusxalash, ←/→ bilan qo‘shni skin. Skinport havolasi nomdan yoziladi (`cs2SkinportUrl`); qoida mos kelmaydigan skinlar (Doppler fazalari va h.k.) narx faylidagi `noLink` ro‘yxatida, ularga havola berilmaydi.
 - Qaytarish nuqtasi: git tegi `before-modern-ui`. Deploydan keyin `/o/<id>` va `/sitemap.xml`ni jonli tekshirish, Search Console'ga sitemap yuborish kerak.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
 - Brauzer paneli (Claude ichidagi) eslatmalari: service worker'ni ro'yxatdan o'tkazmaydi (mahalliyda xato chiqadi, jonli HTTPS'da ishlaydi);

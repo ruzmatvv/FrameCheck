@@ -5,7 +5,7 @@
 //   /data/cs2-prices.json (a snapshot of the cheapest Skinport listings, made by scripts/build-cs2-prices.mjs; its date is always shown)
 // Prices are never guessed: an item with no listing says "Narx mavjud emas".
 function createCs2(ctx) {
-  const {tr, E, $} = ctx;
+  const {tr, E, $} = ctx; // (ctx.notify shows a short message; ctx.title gives the tab title of the page behind)
   const root = $("#cs2");
   const STEAM_IMAGE = "https://community.akamai.steamstatic.com/economy/image/";
   const CATEGORY_LABEL = {Pistols: "Pistoletlar", SMGs: "Avtomatlar (SMG)", Rifles: "Miltiqlar", Heavy: "Og‘ir qurollar", Knives: "Pichoqlar", Gloves: "Qo‘lqoplar", Equipment: "Jihozlar", Other: "Boshqa"};
@@ -17,6 +17,8 @@ function createCs2(ctx) {
     ext: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
     refresh: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/></svg>',
     tick: '<svg class="tick" aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+    close: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>',
+    link: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
     chev: '<svg class="chev" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
   };
   let current = null, shellView = null, shellLang = "";
@@ -129,9 +131,9 @@ function createCs2(ctx) {
       '<button type="button" data-variant="' + v + '" aria-pressed="' + (v === pick.variant) + '" class="' + (v === pick.variant ? "on" : "") + '">' + E(label) + '</button>').join("") + '</div>' : '';
     const float = skin.minFloat === skin.maxFloat ? skin.minFloat : skin.minFloat.toFixed(2) + " – " + skin.maxFloat.toFixed(2);
     return '<article class="cs2-skin" data-id="' + id + '" style="--g:' + E(skin.rarityColor) + '">'
-      + '<div class="cs2-art"><span class="cs2-rar">' + E(skin.rarity) + '</span><img src="' + STEAM_IMAGE + E(skin.image) + '/256fx192f" width="256" height="192" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="' + E(skin.title) + '"><span class="cs2-miss" hidden>' + E(skin.weapon) + '</span></div>'
+      + '<div class="cs2-art" data-open-skin="' + id + '"><span class="cs2-rar">' + E(skin.rarity) + '</span><img src="' + STEAM_IMAGE + E(skin.image) + '/256fx192f" width="256" height="192" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="' + E(skin.title) + '"><span class="cs2-miss" hidden>' + E(skin.weapon) + '</span></div>'
       + '<div class="cs2-body"><div class="cs2-type">' + E(tr(CATEGORY_LABEL[skin.category] || CATEGORY_LABEL.Other)) + '</div>'
-      + '<h3 class="cs2-name">' + E(skin.weapon) + ' <span>| ' + E(skin.pattern) + '</span></h3>'
+      + '<h3 class="cs2-name"><button type="button" class="cs2-open" data-open-skin="' + id + '" aria-label="' + E(tr("{0}: batafsil ma’lumot", skin.title)) + '">' + E(skin.weapon) + ' <span>| ' + E(skin.pattern) + '</span></button></h3>'
       + '<div class="cs2-float">' + E(tr("Float diapazoni")) + ': ' + E(float) + '</div>' + variantRow
       + '<div class="cs2-wears" role="group" aria-label="Wear">' + wears + '</div>'
       + '<div class="cs2-pricebox">' + priceHtml(skin, pick) + '</div>'
@@ -198,6 +200,180 @@ function createCs2(ctx) {
     if (skins.status !== "ready" || current !== "cs2skins") return;
     if (shellView !== "cs2skins" || shellLang !== language) { skinsShell(); shellView = "cs2skins"; shellLang = language; }
     skinsUpdate();
+    syncDetail();
+  }
+
+  // ---------------------------------------------------------------- one skin in detail
+  // A large window (a native <dialog>: focus stays inside, Esc closes). It has its own address (#cs2-skinlar/<name>-<id>), so the browser's
+  // back button closes it and a copied link opens the same skin. Descriptions come from a second file that loads on first use.
+  const detail = {dialog: null, id: null, wear: 2, variant: 0, list: [], lang: "", viaPush: false, quiet: false, file: null, status: "idle"};
+  const skinById = id => skins.all.find(s => s.id === id);
+  const teamLabel = team => team === "t" ? tr("Terrorist") : team === "ct" ? tr("Counter-Terrorist") : tr("Ikkala jamoa");
+
+  function ensureDialog() {
+    if (detail.dialog) return detail.dialog;
+    const d = document.createElement("dialog");
+    d.className = "cs2-detail"; d.setAttribute("aria-labelledby", "cs2-detail-title");
+    document.body.append(d);
+    d.addEventListener("close", onDetailClosed);
+    d.addEventListener("click", e => {
+      if (e.target === d) { d.close(); return; }                       // the dark area around the window
+      const b = e.target.closest("[data-d]"); if (!b || b.disabled) return;
+      const action = b.dataset.d;
+      if (action === "close") d.close();
+      else if (action === "prev") stepDetail(-1);
+      else if (action === "next") stepDetail(1);
+      else if (action === "copy") copyLink();
+      else if (action === "pick") { const [v, w] = b.dataset.pick.split(",").map(Number); detail.variant = v; detail.wear = w; drawDetail(`[data-d="pick"][data-pick="${v},${w}"]`); }
+      else if (action === "wear") { detail.wear = Number(b.dataset.wear); drawDetail(`[data-d="wear"][data-wear="${detail.wear}"]`); }
+      else if (action === "variant") { detail.variant = Number(b.dataset.variant); drawDetail(`[data-d="variant"][data-variant="${detail.variant}"]`); }
+    });
+    d.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && !e.target.closest("input")) { e.preventDefault(); stepDetail(-1); }
+      else if (e.key === "ArrowRight" && !e.target.closest("input")) { e.preventDefault(); stepDetail(1); }
+    });
+    // a picture of the skin that does not load: the weapon's name instead of a broken image
+    d.addEventListener("error", e => { const img = e.target; if (img.matches?.(".cs2-d-art img")) { img.hidden = true; img.parentElement.querySelector(".cs2-miss").hidden = false; } }, true);
+    detail.dialog = d;
+    return d;
+  }
+
+  function wearZoneHtml(skin) {
+    const zones = CS2_FLOAT_ZONES, colors = ["#5ac85a", "#9bd24a", "#e0c43a", "#e69a38", "#e0584f"];
+    const segments = CS2_WEARS.map((w, i) => '<span class="seg' + (cs2HasWear(skin, i) ? "" : " off") + '" style="flex:' + (zones[i + 1] - zones[i]) + ';--c:' + colors[i] + '" title="' + E(w.name + " · " + zones[i].toFixed(2) + " – " + zones[i + 1].toFixed(2)) + '"><b>' + w.short + '</b></span>').join("");
+    const left = skin.minFloat * 100, width = Math.max(0.8, (skin.maxFloat - skin.minFloat) * 100);
+    const ticks = zones.slice(1, 5).map(z => '<i style="left:' + z * 100 + '%"><em>' + z.toFixed(2) + '</em></i>').join("");
+    return '<div class="cs2-d-float" role="img" aria-label="' + E(tr("Float diapazoni") + ": " + skin.minFloat.toFixed(2) + " – " + skin.maxFloat.toFixed(2)) + '"><div class="bar">' + segments
+      + '<span class="range" style="left:' + left + '%;width:' + width + '%"></span></div><div class="ticks" aria-hidden="true">' + ticks + '</div></div>';
+  }
+
+  function priceTableHtml(skin) {
+    const p = skins.prices, variants = [[0, tr("Oddiy")], [1, "StatTrak™"], [2, "Souvenir"]].filter(([v]) => v === 0 || (v === 1 && skin.statTrak) || (v === 2 && skin.souvenir));
+    let best = Infinity;
+    for (const [v] of variants) for (let w = 0; w < 5; w++) { const price = cs2Price(p, skin, w, v); if (price != null && price < best) best = price; }
+    const head = '<tr><th scope="col"><span class="sr">' + E(tr("Variant")) + '</span></th>' + CS2_WEARS.map(w => '<th scope="col" title="' + E(w.name) + '">' + w.short + '</th>').join("") + '</tr>';
+    const rows = variants.map(([v, label]) => '<tr><th scope="row">' + E(label) + '</th>' + CS2_WEARS.map((w, i) => {
+      if (!cs2HasWear(skin, i)) return '<td><span class="cs2-cell none" title="' + E(tr("Bu wear’da mavjud emas")) + '" aria-label="' + E(tr("Bu wear’da mavjud emas")) + '">·</span></td>';
+      const price = cs2Price(p, skin, i, v), on = detail.variant === v && detail.wear === i;
+      if (price == null) return '<td><button type="button" class="cs2-cell empty' + (on ? " on" : "") + '" data-d="pick" data-pick="' + v + ',' + i + '" aria-pressed="' + on + '" title="' + E(w.name + " · " + label + ": " + tr("Narx mavjud emas")) + '">—</button></td>';
+      return '<td><button type="button" class="cs2-cell' + (on ? " on" : "") + (price === best ? " best" : "") + '" data-d="pick" data-pick="' + v + ',' + i + '" aria-pressed="' + on + '" title="' + E(w.name + " · " + label + (price === best ? " · " + tr("eng arzoni") : "")) + '">' + E(money.format(price)) + '</button></td>';
+    }).join("") + '</tr>').join("");
+    return '<div class="cs2-d-tablebox"><table class="cs2-d-table"><caption class="sr">' + E(tr("Narxlar: wear va variant bo‘yicha")) + '</caption><thead>' + head + '</thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  function detailHtml(skin) {
+    const p = skins.prices, name = cs2MarketName(skin.star, skin.weapon, skin.pattern, detail.wear, detail.variant);
+    const price = cs2Price(p, skin, detail.wear, detail.variant);
+    const at = detail.list.indexOf(skin.id);
+    const info = detail.file ? cs2Details(detail.file, skin.id) : null;
+    const variants = [[0, tr("Oddiy")], [1, "StatTrak™"], [2, "Souvenir"]].filter(([v]) => v === 0 || (v === 1 && skin.statTrak) || (v === 2 && skin.souvenir));
+    const variantChips = variants.length > 1 ? '<div class="cs2-variants" role="group" aria-label="' + E(tr("Variant")) + '">' + variants.map(([v, label]) => '<button type="button" data-d="variant" data-variant="' + v + '" aria-pressed="' + (v === detail.variant) + '" class="' + (v === detail.variant ? "on" : "") + '">' + E(label) + '</button>').join("") + '</div>' : '';
+    const wearChips = '<div class="cs2-wears" role="group" aria-label="Wear">' + CS2_WEARS.map((w, i) => '<button type="button" class="cs2-wear' + (i === detail.wear ? " on" : "") + '" data-d="wear" data-wear="' + i + '" aria-pressed="' + (i === detail.wear) + '" title="' + E(w.name) + '"' + (cs2HasWear(skin, i) ? "" : " disabled") + '><b>' + w.short + '</b></button>').join("") + '</div>';
+    const sourceNote = p ? tr("Eng arzon e’lon · {0} · {1}", p.source, dateText(p.generated)) : tr("Narx ma’lumoti yuklanmadi");
+    const priceBlock = price != null
+      ? '<div class="cs2-d-price"><strong>' + E(money.format(price)) + '</strong><small>' + E(sourceNote) + '</small></div>'
+      : '<div class="cs2-d-price empty"><strong>' + E(tr("Narx mavjud emas")) + '</strong><small>' + E(p ? tr("{0}’da hozir e’lon yo‘q", p.source) : sourceNote) + '</small></div>';
+    const skinport = p && price != null && !(p.noLink || []).includes(skin.id) ? cs2SkinportUrl(name) : "";
+    const textBlock = info
+      ? (info.text ? '<p class="cs2-d-text">' + E(info.text).replace(/\n+/g, "<br>") + '</p>' : '') + (info.flavor ? '<p class="cs2-d-flavor">“' + E(info.flavor) + '”</p>' : '')
+        + (language !== "en" && (info.text || info.flavor) ? '<p class="cs2-d-note">' + E(tr("Tavsif Steam ma’lumotida faqat inglizcha.")) + '</p>' : '')
+      : detail.status === "error" ? '' : '<div class="cs2-d-text-skel" aria-busy="true"><span class="cs2-sk"></span><span class="cs2-sk"></span><span class="cs2-sk short"></span></div>';
+    const origin = info && (info.collections.length || info.crates.length)
+      ? '<section class="cs2-d-sec"><h3>' + E(tr("Qayerdan tushadi")) + '</h3><div class="cs2-d-chips">'
+        + info.collections.map(c => '<span class="chip"><small>' + E(tr("Kolleksiya")) + '</small>' + E(c) + '</span>').join("") + info.crates.map(c => '<span class="chip"><small>' + E(tr("Keys")) + '</small>' + E(c) + '</span>').join("") + '</div></section>'
+      : '';
+    return '<div class="cs2-d-wrap" style="--g:' + E(skin.rarityColor) + '">'
+      + '<header class="cs2-d-head"><div class="cs2-d-step"><button type="button" data-d="prev" aria-label="' + E(tr("Oldingi skin")) + '"' + (at <= 0 ? " disabled" : "") + '>' + icon.left + '</button><button type="button" data-d="next" aria-label="' + E(tr("Keyingi skin")) + '"' + (at < 0 || at >= detail.list.length - 1 ? " disabled" : "") + '>' + icon.right + '</button></div>'
+      + '<span class="cs2-d-pos" aria-live="polite">' + (at >= 0 && detail.list.length > 1 ? (at + 1) + ' / ' + detail.list.length : '') + '</span>'
+      + '<button type="button" class="cs2-d-close" data-d="close" aria-label="' + E(tr("Yopish")) + '">' + icon.close + '</button></header>'
+      + '<div class="cs2-d-body"><div class="cs2-d-art"><span class="cs2-rar">' + E(skin.rarity) + '</span><img src="' + STEAM_IMAGE + E(skin.image) + '/512fx384f" width="512" height="384" decoding="async" referrerpolicy="no-referrer" alt="' + E(skin.title) + '"><span class="cs2-miss" hidden>' + E(skin.weapon) + '</span></div>'
+      + '<div class="cs2-d-info"><div class="cs2-type">' + E(tr(CATEGORY_LABEL[skin.category] || CATEGORY_LABEL.Other)) + (info ? ' · ' + E(teamLabel(info.team)) : '') + '</div>'
+      + '<h2 id="cs2-detail-title" class="cs2-d-title">' + E(skin.weapon) + ' <span>| ' + E(skin.pattern) + '</span></h2>' + textBlock
+      + '<div class="cs2-d-sum"><div class="cs2-d-pick">' + variantChips + wearChips + '</div>' + priceBlock
+      + '<div class="cs2-d-actions"><a class="cs2-market" href="' + E(cs2MarketUrl(name)) + '" target="_blank" rel="noopener noreferrer">' + E(tr("Steam Market")) + icon.ext + '<span class="sr"> ' + E(tr("(yangi oynada ochiladi)")) + '</span></a>'
+      + (skinport ? '<a class="cs2-market alt" href="' + E(skinport) + '" target="_blank" rel="noopener noreferrer">Skinport' + icon.ext + '<span class="sr"> ' + E(tr("(yangi oynada ochiladi)")) + '</span></a>' : '')
+      + '<button type="button" class="cs2-d-copy" data-d="copy" aria-label="' + E(tr("Havolani nusxalash")) + '" title="' + E(tr("Havolani nusxalash")) + '">' + icon.link + '<span>' + E(tr("Havola")) + '</span></button></div></div></div></div>'
+      + '<section class="cs2-d-sec"><h3>' + E(tr("Narxlar")) + '</h3>' + priceTableHtml(skin) + '<p class="cs2-d-note">' + E(tr("Narx — Skinport bozoridagi eng arzon e’lon (USD) va Steam Market narxidan farq qilishi mumkin. Katakni bosib, o‘sha variantni tanlang.")) + '</p></section>'
+      + '<section class="cs2-d-sec"><h3>' + E(tr("Float diapazoni")) + ' <small>' + skin.minFloat.toFixed(2) + ' – ' + skin.maxFloat.toFixed(2) + '</small></h3>' + wearZoneHtml(skin)
+      + '<p class="cs2-d-note">' + E(tr("Rangli chiziq — barcha wearlar (0 dan 1 gacha). Yorqin qismi shu skin uchun mumkin bo‘lgan diapazon.")) + '</p></section>'
+      + origin + '</div>';
+  }
+
+  // draws the window for the skin that is open now; `focusSelector` keeps the keyboard where it was after the content is replaced
+  function drawDetail(focusSelector) {
+    const skin = skinById(detail.id); if (!skin || !detail.dialog) return;
+    const d = detail.dialog, scroller = d, top = scroller.scrollTop;
+    d.innerHTML = detailHtml(skin);
+    scroller.scrollTop = top;
+    if (focusSelector) d.querySelector(focusSelector)?.focus({preventScroll: true});
+  }
+
+  async function loadDetails() {
+    if (detail.file || detail.status === "loading") return;
+    detail.status = "loading";
+    try { detail.file = await loadJson("/data/cs2-skin-details.json"); detail.status = "ready"; } catch { detail.status = "error"; }
+    if (detail.dialog?.open) drawDetail();
+  }
+
+  function openDetail(skin) {
+    const d = ensureDialog();
+    if (d.open && detail.id === skin.id && detail.lang === language) return;
+    const fresh = !d.open || detail.id !== skin.id;
+    detail.id = skin.id; detail.lang = language;
+    if (fresh) { const pick = skinPick(skin); detail.wear = pick.wear; detail.variant = pick.variant; }
+    if (!detail.list.includes(skin.id)) { const list = cs2Filter(skins.all, skins, skins.prices).map(s => s.id); detail.list = list.includes(skin.id) ? list : [skin.id]; }
+    drawDetail();
+    if (!d.open) { d.showModal(); document.documentElement.classList.add("cs2-lock"); d.scrollTop = 0; }
+    document.title = skin.title + " · CS2 · Framecheck";
+    loadDetails();
+  }
+
+  // ←/→ in the window: the next skin of the list that was on screen when it opened (the address is replaced, so "back" still closes the window)
+  function stepDetail(delta) {
+    const at = detail.list.indexOf(detail.id), next = skinById(detail.list[at + delta]);
+    if (at < 0 || !next) return;
+    history.replaceState(history.state, "", "#" + cs2SkinHash(next));
+    openDetail(next);
+    detail.dialog.scrollTop = 0;
+    detail.dialog.querySelector(delta < 0 ? '[data-d="prev"]' : '[data-d="next"]')?.focus({preventScroll: true});
+  }
+
+  function onDetailClosed() {
+    document.documentElement.classList.remove("cs2-lock");
+    detail.list = [];
+    // what was chosen in the window (wear, variant) is what the card shows afterwards
+    const seen = skinById(detail.id);
+    if (seen) {
+      const pick = skinPick(seen); pick.wear = detail.wear; pick.variant = detail.variant; pick.fixed = true;
+      const card = root.querySelector('.cs2-skin[data-id="' + CSS.escape(seen.id) + '"]');
+      if (card) { const fresh = document.createElement("div"); fresh.innerHTML = skinCard(seen); card.replaceWith(fresh.firstElementChild); }
+    }
+    if (detail.quiet) { detail.quiet = false; return; }               // closed by the page itself (the address changed): nothing to undo
+    if (current === "cs2skins" && cs2ParseSkinHash(location.hash)) {  // closed by the person: take the skin out of the address
+      if (detail.viaPush) { detail.viaPush = false; history.back(); }
+      else history.replaceState(history.state, "", "#cs2-skinlar");
+    }
+    document.title = ctx.title ? ctx.title() : document.title;
+  }
+
+  // keeps the window and the address in step (called every time the page is drawn)
+  function syncDetail() {
+    const id = current === "cs2skins" && skins.status === "ready" ? cs2ParseSkinHash(location.hash) : null;
+    if (!id) { if (detail.dialog?.open) { detail.quiet = true; detail.dialog.close(); } return; }
+    const skin = skinById(id);
+    if (!skin) { history.replaceState(history.state, "", "#cs2-skinlar"); ctx.notify?.(tr("Bu skin topilmadi.")); return; }
+    openDetail(skin);
+  }
+  function openFromCard(id) {
+    const skin = skinById(id); if (!skin) return;
+    detail.list = cs2Filter(skins.all, skins, skins.prices).map(s => s.id);
+    const pick = skinPick(skin); detail.wear = pick.wear; detail.variant = pick.variant;
+    detail.viaPush = true;
+    location.hash = "#" + cs2SkinHash(skin);
+  }
+  async function copyLink() {
+    try { await navigator.clipboard.writeText(location.href); ctx.notify?.(tr("Havola nusxalandi")); }
+    catch { ctx.notify?.(tr("Nusxalab bo‘lmadi. Havolani manzil satridan oling.")); }
   }
 
   // ---------------------------------------------------------------- maps
@@ -365,6 +541,7 @@ function createCs2(ctx) {
   document.addEventListener("click", e => { if (ddState.open && !ddState.open.contains(e.target)) ddClose(false); });
   root.addEventListener("click", e => {
     const t = e.target;
+    const open = t.closest("[data-open-skin]"); if (open) { openFromCard(open.dataset.openSkin); return; }
     const option = t.closest(".cs2-dd-opt"); if (option) { ddChoose(option.closest(".cs2-dd"), option.dataset.value); return; }
     const toggle = t.closest(".cs2-dd-btn"); if (toggle) { const wrap = toggle.closest(".cs2-dd"); if (ddState.open === wrap) ddClose(true); else ddOpen(wrap); return; }
     const page = t.closest("[data-page]"); if (page && !page.disabled) { skins.page = Number(page.dataset.page); skinsUpdate(true); return; }
@@ -403,10 +580,12 @@ function createCs2(ctx) {
     const same = current === view && shellView === view && shellLang === language && root.childElementCount > 0;
     current = view;
     root.hidden = false;
-    if (same) return; // the page is already drawn: nothing to rebuild when the app only redraws itself
+    if (view !== "cs2skins") closeDetailQuiet();
+    if (same) { syncDetail(); return; } // the page is already drawn: only the skin window may need to follow the address
     (view === "cs2skins" ? showSkins : showMaps)();
   }
-  function hide() { ddClose(false); current = null; root.hidden = true; }
+  function closeDetailQuiet() { if (detail.dialog?.open) { detail.quiet = true; detail.dialog.close(); } }
+  function hide() { ddClose(false); closeDetailQuiet(); current = null; root.hidden = true; }
   return {show, hide};
 }
 

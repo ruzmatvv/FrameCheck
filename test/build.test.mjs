@@ -63,6 +63,7 @@ test("CS2 sahifalari: ma'lumot fayllari, xarita rasmlari va litsenziya statik ta
   const maps = JSON.parse(readFileSync(file("public/data/cs2-maps.json"), "utf8"));
   assert.ok(skins.items.length > 1500);
   assert.equal(JSON.parse(readFileSync(file("public/data/cs2-prices.json"), "utf8")).source, "Skinport");
+  assert.ok(JSON.parse(readFileSync(file("public/data/cs2-skin-details.json"), "utf8")).collections.length > 10);
   assert.ok(maps.maps.length >= 3);
   for (const m of maps.maps) assert.ok(existsSync(file("public/maps/" + m.image)), m.image);
   assert.match(readFileSync(file("public/licenses/cs2-third-party.txt"), "utf8"), /ByMykel\/CSGO-API/);

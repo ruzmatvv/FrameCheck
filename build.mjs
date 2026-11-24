@@ -66,6 +66,7 @@ fs.mkdirSync("dist/public/licenses", {recursive: true});
 writeAtomic("dist/public/data/cs2-skins.json", fs.readFileSync("src/data/cs2-skins.json"));
 writeAtomic("dist/public/data/cs2-maps.json", fs.readFileSync("src/data/cs2-maps.json"));
 writeAtomic("dist/public/data/cs2-prices.json", fs.readFileSync("src/data/cs2-prices.json"));
+writeAtomic("dist/public/data/cs2-skin-details.json", fs.readFileSync("src/data/cs2-skin-details.json"));
 for (const file of fs.readdirSync("src/cs2/maps")) writeAtomic("dist/public/maps/" + file, fs.readFileSync("src/cs2/maps/" + file));
 writeAtomic("dist/public/licenses/cs2-third-party.txt", fs.readFileSync("THIRD_PARTY_NOTICES.md"));
 

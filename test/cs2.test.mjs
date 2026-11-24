@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync, existsSync} from "node:fs";
-import {CS2_WEARS, cs2MarketName, cs2MarketUrl} from "../src/cs2-names.mjs";
-import {cs2Decode, cs2Filter, cs2Slice, cs2Pages, cs2PageWindow, cs2DefaultWear, cs2HasWear, cs2ClampView, cs2RarityRank, cs2Price, cs2SortPrice, cs2SnapshotAge, CS2_PAGE_SIZE, CS2_PRICE_BANDS} from "../src/cs2-logic.mjs";
+import {CS2_WEARS, cs2MarketName, cs2MarketUrl, cs2SkinportSlug, cs2SkinportUrl} from "../src/cs2-names.mjs";
+import {cs2Decode, cs2Filter, cs2Slice, cs2Pages, cs2PageWindow, cs2DefaultWear, cs2HasWear, cs2ClampView, cs2RarityRank, cs2Price, cs2SortPrice, cs2SnapshotAge, cs2SkinHash, cs2ParseSkinHash, cs2WearsOfRange, cs2Details, CS2_FLOAT_ZONES, CS2_PAGE_SIZE, CS2_PRICE_BANDS} from "../src/cs2-logic.mjs";
 
 const read = name => JSON.parse(readFileSync(new URL("../" + name, import.meta.url), "utf8"));
-const skinsFile = read("src/data/cs2-skins.json"), mapsFile = read("src/data/cs2-maps.json"), pricesFile = read("src/data/cs2-prices.json");
+const detailsFile = read("src/data/cs2-skin-details.json"), skinsFile = read("src/data/cs2-skins.json"), mapsFile = read("src/data/cs2-maps.json"), pricesFile = read("src/data/cs2-prices.json");
 const skins = cs2Decode(skinsFile);
 const base = {q: "", weapon: "", category: "", rarity: -1, wear: -1, price: "", sort: "name"};
 const find = title => skins.find(s => s.title === title);
@@ -137,6 +137,69 @@ test("the snapshot's age is counted in whole days", () => {
   assert.equal(cs2SnapshotAge("2026-12-01T12:00:00Z", now), 9);
   assert.equal(cs2SnapshotAge("2027-01-01T00:00:00Z", now), 0);  // a clock slip never gives a negative age
   assert.equal(cs2SnapshotAge("not a date", now), null);
+});
+
+// ---- one skin in detail
+test("every skin has its own address, and the address is read back to the same skin", () => {
+  const seen = new Set();
+  for (const s of skins) {
+    assert.match(s.id, /^[0-9a-f]{12}$/, s.title);
+    const hash = cs2SkinHash(s);
+    assert.match(hash, /^cs2-skinlar\/[a-z0-9-]+-[0-9a-f]{12}$/, s.title);
+    assert.equal(cs2ParseSkinHash("#" + hash), s.id, s.title);
+    assert.equal(cs2ParseSkinHash(hash), s.id);
+    assert.ok(!seen.has(hash), "same address twice: " + hash); seen.add(hash);
+  }
+  assert.equal(cs2SkinHash(find("AK-47 | Redline")), "cs2-skinlar/ak-47-redline-" + find("AK-47 | Redline").id);
+});
+
+test("addresses that are not a skin's are refused", () => {
+  for (const bad of ["", null, undefined, "#cs2-skinlar", "#cs2-skinlar/", "#cs2-skinlar/x", "#cs2-skinlar/ak-47-zzzzzzzzzzzz", "#cs2-skinlar/ak-47-redline-91A429AF4A60", "#cs2-xaritalar/ak-47-redline-91a429af4a60", "#cs2-skinlar/../91a429af4a60", "#cs2-skinlar/a b-91a429af4a60", "#cs2-skinlar/ak-47-redline-91a429af4a60/extra"]) assert.equal(cs2ParseSkinHash(bad), null, String(bad));
+  assert.equal(cs2ParseSkinHash("#cs2-skinlar/91a429af4a60"), "91a429af4a60"); // the readable part is optional
+});
+
+test("the float zones give the same wears as the data file for every skin", () => {
+  assert.deepEqual(CS2_FLOAT_ZONES, [0, 0.07, 0.15, 0.38, 0.45, 1]);
+  for (const s of skins) {
+    let mask = 0; for (const w of cs2WearsOfRange(s.minFloat, s.maxFloat)) mask |= 1 << w;
+    assert.equal(mask, s.mask, s.title + " " + s.minFloat + "-" + s.maxFloat);
+  }
+  assert.deepEqual(cs2WearsOfRange(0.10, 0.70), [1, 2, 3, 4]);
+  assert.deepEqual(cs2WearsOfRange(0, 1), [0, 1, 2, 3, 4]);
+  assert.deepEqual(cs2WearsOfRange(0.07, 0.15), [1]);
+});
+
+test("the details file has a row for every skin, with valid collection and case numbers", () => {
+  assert.deepEqual(Object.keys(detailsFile.items).sort(), skins.map(s => s.id).sort());
+  for (const [id, row] of Object.entries(detailsFile.items)) {
+    assert.equal(row.length, 5, id);
+    assert.ok(typeof row[0] === "string" && typeof row[1] === "string", id);
+    assert.doesNotMatch(row[0] + row[1], /<[^>]+>|\\n/, "no markup or escaped newlines left: " + id);
+    for (const i of row[2]) assert.ok(Number.isInteger(i) && detailsFile.collections[i], id + " collection " + i);
+    for (const i of row[3]) assert.ok(Number.isInteger(i) && detailsFile.crates[i], id + " case " + i);
+    assert.ok(["", "t", "ct"].includes(row[4]), id);
+  }
+  const redline = cs2Details(detailsFile, find("AK-47 | Redline").id);
+  assert.match(redline.text, /AK-47/); assert.ok(redline.flavor.length > 5); assert.deepEqual(redline.collections, ["The Phoenix Collection"]); assert.deepEqual(redline.crates, ["Operation Phoenix Weapon Case"]); assert.equal(redline.team, "t");
+  assert.equal(cs2Details(detailsFile, "nope"), null); assert.equal(cs2Details(null, "x"), null);
+  assert.match(detailsFile.source, /MIT/);
+});
+
+test("Skinport addresses are written the way Skinport writes them", () => {
+  assert.equal(cs2SkinportSlug("AK-47 | Redline (Field-Tested)"), "ak-47-redline-field-tested");
+  assert.equal(cs2SkinportSlug("StatTrak™ AK-47 | Redline (Well-Worn)"), "stattrak-ak-47-redline-well-worn");
+  assert.equal(cs2SkinportSlug("★ Karambit | Doppler (Factory New)"), "karambit-doppler-factory-new");
+  assert.equal(cs2SkinportSlug("P90 | Astral Jörmungandr (Factory New)"), "p90-astral-j-rmungandr-factory-new");
+  assert.equal(cs2SkinportUrl("Souvenir AWP | Dragon Lore (Factory New)"), "https://skinport.com/item/souvenir-awp-dragon-lore-factory-new");
+});
+
+test("the price file lists the skins that get no Skinport link", () => {
+  assert.ok(Array.isArray(pricesFile.noLink));
+  const ids = new Set(skins.map(s => s.id));
+  for (const id of pricesFile.noLink) assert.ok(ids.has(id), id);
+  assert.ok(pricesFile.noLink.length < skins.length / 4, "the rule works for most skins");
+  assert.ok(!pricesFile.noLink.includes(find("AK-47 | Redline").id));
+  assert.ok(pricesFile.noLink.includes(find("Karambit | Doppler").id), "Doppler phases have addresses of their own, so no link");
 });
 
 // ---- filtering and paging

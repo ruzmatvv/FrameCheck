@@ -87,7 +87,7 @@ function render(){
  compare?.syncButtons();deals?.update();scorePanel?.update();
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
 }
-function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";if(isHub(view))setHub(true,false);filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
+function route(){const before=view;localQuery="";view=cs2ParseSkinHash(location.hash)?"cs2skins":Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";if(isHub(view))setHub(true,false);filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();if(!(isHub(view)&&before===view))window.scrollTo(0,0)}
 // A game's window has its own address (/o/<id>-<name>): the back button closes it and the link can be shared.
 function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name,language);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
 function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"",(routeLanguage(location.pathname)?homePath(language):"/")+location.search+location.hash)}catch{}}
@@ -252,7 +252,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
  gameMedia=createGameMedia({tr,E,$,api});
- cs2=createCs2({tr,E,$});
+ cs2=createCs2({tr,E,$,notify,title:()=>pageTitle()});
  {let saved="open";try{saved=localStorage.getItem("framecheck.hub.cs2")||"open"}catch{}setHub(saved!=="closed",false)}
  $("#hub-toggle").addEventListener("click",()=>setHub($("#hub-toggle").getAttribute("aria-expanded")!=="true"));
  createPalette({tr,E,$,open:id=>readGame(id),find:q=>lookup(q,allTitles()),

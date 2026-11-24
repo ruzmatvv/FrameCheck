@@ -91,6 +91,32 @@ export function cs2PageWindow(page, pages) {
   return out;
 }
 
+// ---- one skin's own address: #cs2-skinlar/ak-47-redline-<12-character id> (the readable part is only for people; the 12 characters at the end are the id)
+export function cs2SkinHash(skin) {
+  const slug = skin.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return "cs2-skinlar/" + (slug ? slug + "-" : "") + skin.id;
+}
+export function cs2ParseSkinHash(hash) {
+  const m = /^#?cs2-skinlar\/(?:[a-z0-9-]*-)?([0-9a-f]{12})$/.exec(String(hash || ""));
+  return m ? m[1] : null;
+}
+
+// ---- float: the five wears are fixed slices of the 0..1 scale
+export const CS2_FLOAT_ZONES = [0, 0.07, 0.15, 0.38, 0.45, 1];
+// the wears a float range touches, e.g. 0.10 .. 0.70 -> [1, 2, 3, 4]
+export function cs2WearsOfRange(minFloat, maxFloat) {
+  const out = [];
+  for (let w = 0; w < 5; w++) if (minFloat < CS2_FLOAT_ZONES[w + 1] && maxFloat >= CS2_FLOAT_ZONES[w] && (maxFloat > CS2_FLOAT_ZONES[w] || w === 0 || minFloat === maxFloat)) out.push(w);
+  return out;
+}
+
+// ---- the long texts (second data file, loaded when a skin is opened)
+export function cs2Details(file, id) {
+  const row = file?.items?.[id];
+  if (!row) return null;
+  return {text: row[0], flavor: row[1], collections: row[2].map(i => file.collections[i]).filter(Boolean), crates: row[3].map(i => file.crates[i]).filter(Boolean), team: row[4]};
+}
+
 // Whole days since the price snapshot was taken (an ISO timestamp), so the page can warn when it is old.
 export function cs2SnapshotAge(generated, now = Date.now()) {
   const t = Date.parse(generated);
