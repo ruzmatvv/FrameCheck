@@ -232,6 +232,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
  gameMedia=createGameMedia({tr,E,$,api});
+ createPalette({tr,E,$,open:id=>readGame(id),find:q=>lookup(q,allTitles()),
+  recent:()=>{const byId=new Map(allTitles().map(g=>[g.id,g]));return data.history.map(h=>byId.get(h.id)).filter(Boolean)},
+  actions:()=>[...Object.keys(routes).map(k=>({label:texts[k],run:()=>{location.hash=routes[k]}})),{label:"Qurilmam",run:()=>device()}]});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});

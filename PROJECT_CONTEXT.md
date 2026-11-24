@@ -83,7 +83,14 @@ Asosiy fayllar:
 - **Haqiqiy FPS o'lchovi faqat 3 o'yinda** (`benchmarks.json`: 15 qator). Qolgani hisoblangan taxmin.
 
 ## 7. Test va sinash
-- `npm test` hozir **143 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), pwa, server, settings, sw, sync.
+- `npm test` hozir **162 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
+
+### Zamonaviy to'plam (commit qilingan, hali joylanmagan)
+- **Qurilma bali** (`src/score.mjs`, `score-ui.js`): 0-100 ball + ulashiladigan rasm.
+- **O'yin manzillari** `/o/<id>-<nom>` (`src/routes.mjs`, serverda `gamePage`): OG/Twitter/JSON-LD meta, `/sitemap.xml`; `wrangler.toml`da `[assets] binding = "ASSETS"`; Worker bundle'ga `GAME_NAMES`ni build.mjs qo'shadi.
+- **O'yin oynasi**: skrinshotlar, treyler, qisqa tavsif (`game-media.js`; `/api/game` media maydonlari faqat steamstatic/akamaihd https manzillari).
+- **Ctrl+K palitra** (`palette.js`), mobil pastki menyu, yumshoq animatsiyalar (`prefers-reduced-motion` hurmat qilinadi).
+- Qaytarish nuqtasi: git tegi `before-modern-ui`. Deploydan keyin `/o/<id>` va `/sitemap.xml`ni jonli tekshirish, Search Console'ga sitemap yuborish kerak.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
 - Brauzer paneli (Claude ichidagi) eslatmalari: service worker'ni ro'yxatdan o'tkazmaydi (mahalliyda xato chiqadi, jonli HTTPS'da ishlaydi);
   `127.0.0.1` va `localhost` alohida "qurilma" sifatida ishlatiladi (ikki qurilma sinxronini sinash uchun); manzilning faqat `#` qismi o'zgarsa sahifa qayta yuklanmaydi.
@@ -127,6 +134,6 @@ sahifa og'ir; ro'yxatdan o'tishda CAPTCHA yo'q; qurilma nomlari jadvali qo'lda y
 chalg'ituvchi "Vivobook uchun taxmin" yorlig'i qurilma noma'lum bo'lganda boshqa foydalanuvchiga chiqadi; UI avtomatik testlari yo'q (qo'lda sinaladi).
 
 ## 11. Yangi sessiyani boshlash
-1. `git status`, `git log --oneline -5`, `npm test` (143 o'tishi kerak).
+1. `git status`, `git log --oneline -5`, `npm test` (162 o'tishi kerak).
 2. Egasidan so'rang: A bandi (tuzatishni boshlash) yoki boshqa vazifa; B/C bandlari bajarilganmi.
 3. Joylashdan oldin: `git tag` qo'ying, testlar o'tsin, keyin `npm run deploy` va jonli tekshiruv.

@@ -279,3 +279,39 @@ body.has-compare{padding-bottom:78px}
 .lb-prev{left:12px;top:50%;transform:translateY(-50%)}.lb-next{right:12px;top:50%;transform:translateY(-50%)}.lb-close{right:12px;top:12px}
 .lightbox button:focus-visible{outline:2px solid var(--lime)}
 @media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
+
+/* quick palette (Ctrl+K) */
+.palette-btn{display:inline-flex;align-items:center;gap:7px;background:#1b1e1f;border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:7px 11px;font-size:.85rem}
+.palette-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.palette-btn:hover,.palette-btn:focus-visible{border-color:var(--lime);color:#fff}
+dialog.palette{border:1px solid var(--border);border-radius:16px;background:#151819;color:#f4f5f2;padding:0;width:min(560px,calc(100vw - 24px));margin:12vh auto auto;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+dialog.palette::backdrop{background:rgba(5,6,6,.66);backdrop-filter:blur(3px)}
+#palette-q{width:100%;border:0;border-bottom:1px solid var(--border);background:transparent;color:inherit;font:inherit;font-size:1.05rem;padding:17px 20px;outline:none}
+#palette-list{max-height:min(52vh,380px);overflow-y:auto;padding:8px}
+.palette-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;cursor:pointer}
+.palette-item.on{background:#26302a;box-shadow:inset 3px 0 var(--lime)}
+.palette-kind{flex:0 0 auto;min-width:54px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.palette-empty{color:var(--muted);text-align:center;margin:18px 0}
+.palette-hint{margin:0;padding:9px 18px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem}
+
+/* mobile bottom navigation */
+.bottom-nav{display:none}
+@media(max-width:740px){
+ .bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:13;background:#121516f2;backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+ .bottom-nav a,.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border:0;background:none;color:var(--muted);font-size:.7rem;text-decoration:none;border-radius:10px;min-height:48px}
+ .bottom-nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+ .bottom-nav .active{color:var(--lime)}.bottom-nav .active svg{transform:translateY(-2px)}
+ body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+ #compare-bar{bottom:calc(76px + env(safe-area-inset-bottom))}
+ #toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+
+/* gentle motion (all off when the person asked for less motion) */
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+main>*{animation:rise .28s ease both}
+dialog[open]#modal,dialog.palette[open]{animation:pop .2s ease both}
+#modal[open]::backdrop,.palette[open]::backdrop{animation:fade .2s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media(max-width:700px){dialog[open]#modal{animation:rise .24s ease both}}
+@media (prefers-reduced-motion:reduce){main>*,dialog[open]#modal,dialog.palette[open],#modal[open]::backdrop,.palette[open]::backdrop{animation:none}.bottom-nav svg{transition:none}}
