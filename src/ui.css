@@ -303,7 +303,10 @@ dialog.palette::backdrop{background:rgba(5,6,6,.66);backdrop-filter:blur(3px)}
  .bottom-nav .active{color:var(--lime)}.bottom-nav .active svg{transform:translateY(-2px)}
  body:has(.side.open) .bottom-nav{display:none}
  .side{padding-bottom:env(safe-area-inset-bottom)}
- body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+ /* installed on a phone, the page runs under the clock and notch: keep the content below them in the page's own colour */
+ body{padding-top:env(safe-area-inset-top);padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+ .side{padding-top:env(safe-area-inset-top)}
+ .modal-head{padding-top:calc(15px + env(safe-area-inset-top))}
  #compare-bar{bottom:calc(76px + env(safe-area-inset-bottom))}
  #toast{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
