@@ -217,4 +217,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
   },
  });
  route();detectMore();window.FramecheckDuel.openIncoming();account.init();
+ // Install as an app and open offline (service worker needs https or localhost).
+ if("serviceWorker" in navigator&&(location.protocol==="https:"||["localhost","127.0.0.1"].includes(location.hostname)))navigator.serviceWorker.register("/sw.js").catch(()=>{});
+ let installEvent=null;const installButton=$("#install-app");
+ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvent=e;installButton.hidden=false});
+ installButton.addEventListener("click",async()=>{if(!installEvent)return;installEvent.prompt();await installEvent.userChoice.catch(()=>{});installEvent=null;installButton.hidden=true});
+ window.addEventListener("appinstalled",()=>{installButton.hidden=true});
 })();

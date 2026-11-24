@@ -50,12 +50,23 @@ async function cover(id,fetchSteam){
  return json({code:"not_found"},404);
 }
 
-export async function handle(request,home,fetchSteam=fetch,env={}){
+const decodeBase64=text=>Uint8Array.from(atob(text),c=>c.charCodeAt(0));
+// Manifest, service worker and icons (built by build.mjs) so the site can be installed and opened offline.
+function installAsset(pathname,assets){
+ if(pathname==="/manifest.webmanifest"&&assets.manifest)return new Response(assets.manifest,{headers:{"Content-Type":"application/manifest+json; charset=utf-8","Cache-Control":"public, max-age=3600",...security}});
+ if(pathname==="/sw.js"&&assets.sw)return new Response(assets.sw,{headers:{"Content-Type":"text/javascript; charset=utf-8","Cache-Control":"no-cache","Service-Worker-Allowed":"/",...security}});
+ const icon=pathname.match(/^\/icons\/([\w-]+\.png)$/);
+ if(icon&&assets.icons?.[icon[1]])return new Response(decodeBase64(assets.icons[icon[1]]),{headers:{"Content-Type":"image/png","Cache-Control":"public, max-age=604800",...security}});
+ return null;
+}
+
+export async function handle(request,home,fetchSteam=fetch,env={},assets={}){
  const {pathname,searchParams}=new URL(request.url);
  const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
  if(pathname==="/favicon.ico")return new Response(null,{status:204});
+ const asset=installAsset(pathname,assets);if(asset)return request.method==="HEAD"?new Response(null,{status:asset.status,headers:asset.headers}):asset;
  if(pathname.startsWith("/img/"))return cover(pathname.slice(5).replace(/\.jpg$/,""),fetchSteam);
  if(pathname==="/api/prices")return prices(searchParams,fetchSteam);
  const isSearch=pathname==="/api/search";if(!isSearch&&pathname!=="/api/game")return json({code:"not_found"},404);

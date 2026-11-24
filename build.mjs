@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+import {buildPwa} from "./src/pwa.mjs";
 const root = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(root);
 const read = f => fs.readFileSync(f, "utf8");
@@ -31,6 +32,7 @@ fs.mkdirSync("dist/.openai", {recursive: true});
 fs.copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped).
 const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
-fs.writeFileSync("dist/server/index.js", worker + "\nconst home=" + JSON.stringify(html) + ";\nexport default {fetch:(request,env)=>handle(request,home,undefined,env)};\n");
+const pwa = buildPwa(read("src/sw.js"), html);
+fs.writeFileSync("dist/server/index.js", worker + "\nconst home=" + JSON.stringify(html) + ";\nconst pwa=" + JSON.stringify(pwa) + ";\nexport default {fetch:(request,env)=>handle(request,home,undefined,env,pwa)};\n");
 if (process.argv.includes("--portable")) fs.writeFileSync("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

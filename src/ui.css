@@ -168,3 +168,4 @@ button.user .avatar{flex:none}
 .account-section[open]{padding-bottom:12px}
 .account-section.danger>summary{color:#ff9f93}
 .danger-btn{border-color:#7a3b35;color:#ffb3a8}
+.device-link[hidden]{display:none}
