@@ -1,0 +1,10 @@
+name = "framecheck-samir"
+main = "dist/server/index.js"
+compatibility_date = "2026-11-23"
+
+# Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
+[[d1_databases]]
+binding = "DB"
+database_name = "framecheck-db"
+database_id = "a6e7fba6-69b3-4c46-9a8b-2d2126115d0f"
+migrations_dir = "migrations"

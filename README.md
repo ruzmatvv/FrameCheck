@@ -11,7 +11,8 @@ Static page plus a small API (Cloudflare Worker compatible).
 | `npm run build` | Writes `dist/server/index.js` (the Worker with the page inside). |
 | `npm run build:portable` | Also writes `Framecheck.html` (works offline, no API). |
 | `npm start` | Local server at http://127.0.0.1:4672 (after `npm run build`). |
-| `npm run deploy` | Tests, builds and deploys to Cloudflare (`framecheck-samir`). |
+| `npm run start:accounts` | Like `npm start`, with accounts on a local SQLite file in `.data/` (git-ignored). |
+| `npm run deploy` | Tests, builds, applies new database migrations and deploys to Cloudflare (`framecheck-samir`). |
 
 First deploy on a machine, or when the token has expired: run `npx wrangler login` once in a terminal.
 
@@ -28,6 +29,20 @@ First deploy on a machine, or when the token has expired: run `npx wrangler logi
 - `build.mjs`: joins the modules into one page. `import`/`export` lines are stripped for the browser.
 - `media/`: offline covers (`<steam id>.jpg`) and the hero image.
 - `reference/`: snapshot of the deployed site, kept for comparison.
+
+## Accounts
+
+Sign in / sign up with a login and password; saved games, history and the device profile sync across devices.
+The site works without an account.
+
+- Storage: Cloudflare D1 database `framecheck-db` (binding `DB` in `wrangler.toml`). Schema: `migrations/`.
+  Add new schema changes as a new numbered `.sql` file; `npm run deploy` applies them.
+- Passwords: only salted PBKDF2-SHA256 hashes are stored. Sessions: HttpOnly cookie, only its hash is stored.
+  There is no password recovery (no email). The owner can delete a user row in D1 if someone is locked out.
+- Server code: `src/auth.mjs` (routes, hashing, rate limits), `src/sync.mjs` (document rules, shared with the browser).
+- Browser code: `src/account.js` (dialogs, sync loop). Sync never runs without a signed-in user.
+- Without a database (file://, plain `npm start`) the account buttons are hidden.
+- Look at the data: `npx wrangler d1 execute framecheck-db --remote --command "SELECT username, created_at FROM users"`.
 
 ## Notes
 
