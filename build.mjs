@@ -56,7 +56,7 @@ for (const [name, base64] of Object.entries(pwa.icons)) writeAtomic("dist/public
 writeAtomic("dist/public/_headers", read("src/headers.txt"));
 // Browsers and iOS ask for these two at the root by themselves; as static files they cost nothing and never 404.
 writeAtomic("dist/public/apple-touch-icon.png", Buffer.from(pwa.icons["apple-touch-icon.png"], "base64"));
-writeAtomic("dist/public/favicon.ico", makeIco(32));
+writeAtomic("dist/public/favicon.ico", makeIco(48));
 // The picture chat apps and search engines show next to a shared link.
 writeAtomic("dist/public/social.jpg", fs.readFileSync("src/social.jpg"));
 // Counter-Strike 2 pages: data files and schematic maps load only when those pages are opened (src/cs2.js).

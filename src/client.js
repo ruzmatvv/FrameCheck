@@ -45,10 +45,15 @@ function badge(g){const why=g.verdict==="unknown"&&g.unknownParts?.length?' titl
 function fps(g){return g.referenceFps||g.observedFps|| (Array.isArray(g.fps)?g.fps.join("–"):null)}
 function savedButton(id){const on=data.saved.includes(id);return '<button class="save '+(on?'saved':'')+'" data-save="'+id+'" aria-pressed="'+on+'" aria-label="'+E(tr(on?"{0}ni saqlanganlardan olib tashlash":"{0}ni saqlash",game(id).name))+'">'+I("bookmark")+'</button>'}
 function card(g){const h=data.history.find(x=>x.id===g.id);return '<article class="card"><button class="card-body-link" data-open="'+g.id+'" aria-label="'+E(tr("{0} mosligini ko‘rish",g.name))+'">'+figure(g)+'<div class="card-text"><div class="game-meta">'+E([g.genres?.[0]&&genreLabel(g.genres[0]),g.year].filter(Boolean).join("  ·  ")||"Steam")+'</div><h3>'+E(g.name)+'</h3>'+prices.slot(g.id)+'<div class="card-bottom">'+badge(g)+'<span class="fps" title="'+E(tr(g.fpsBasis||g.basis))+'">'+(fps(g)?'<small>'+E(tr(g.fpsLabel))+'</small> '+E(fps(g))+' FPS':tr("Talablar e’lon qilinmagan"))+'</span></div>'+(view==="history"&&h?'<div class="last-check">'+E(time(h.at))+'</div>':'')+'</div></button>'+savedButton(g.id)+(compare?compare.button(g.id):'')+'</article>'}
+// The tab title. The home page keeps the title the server gave it (it is the one search engines show: "Framecheck — O‘yin tekshiruvi",
+// or the English / Russian one on /en/ and /ru/) until the person changes the language.
+const serverTitle=document.title;let titleFromServer=parseHomePath(location.pathname)!==null&&routeLanguage(location.pathname)!==null;
+window.addEventListener("framecheck:language",()=>{titleFromServer=false});
+function pageTitle(){return view==="home"?(titleFromServer?serverTitle:tr("Framecheck — O‘yin tekshiruvi")):isHub(view)?tr(texts[view])+" · CS2 · Framecheck":tr(texts[view])+" · Framecheck"}
 function syncNav(){document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")})}
 function hubRender(){
  syncNav();
- $("#crumb").textContent="CS2 / "+tr(texts[view]);document.title=tr(texts[view])+" · CS2 · Framecheck";
+ $("#crumb").textContent="CS2 / "+tr(texts[view]);document.title=pageTitle();
  for(const id of ["hero","rig","score-panel","settings-panel","frame-lab","collection"])$("#"+id).hidden=true;
  $("#savedCount").textContent=data.saved.length||"";
  cs2?.show(view);
@@ -72,7 +77,7 @@ function render(){
  $("#catalog-count").textContent=gameCount(filtered.length)+(view==="home"||view==="catalog"?" · "+tr("Katalogda jami {0} ta",known.size):"");
  $("#frame-lab").hidden=$("#hero").hidden=$("#rig").hidden=view!=="home";$("#settings-panel").hidden=!(view==="home"||view==="catalog");$("#collection").classList.toggle("solo",view!=="home");
  $("#section-title").textContent=view==="home"?tr("O‘yinlarni tanlang"):tr(texts[view]);$("#section-kicker").textContent=view==="home"||view==="catalog"?tr("KATALOG"):tr("SHAXSIY TO‘PLAM");
- $("#all-games").hidden=view!=="home";$("#crumb").textContent=tr(texts[view]);document.title=tr(texts[view])+" · Framecheck";
+ $("#all-games").hidden=view!=="home";$("#crumb").textContent=tr(texts[view]);document.title=pageTitle();
  document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")});
  $("#savedCount").textContent=data.saved.length||"";$("#verdict-filter").value=verdict;document.querySelector('[data-f="recent"]').title=tr("{0}–{1} yillarda Steam’da chiqqan o‘yinlar",recent,new Date().getFullYear());
  document.querySelectorAll("[data-f]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.f==="all"?!filter.size:filter.has(b.dataset.f))));
@@ -209,7 +214,7 @@ document.addEventListener("input",e=>{const f=e.target.closest?.("#device-form")
 $("#search").addEventListener("submit",e=>{e.preventDefault();search($("#game-q").value)});
 $("#catalog-query").addEventListener("input",e=>{localQuery=e.target.value;limit=30;render()});
 $("#verdict-filter").addEventListener("change",e=>{verdict=e.target.value;render()});
-$("#modal").addEventListener("close",()=>{leaveGameUrl();document.title=tr(texts[view])+" · Framecheck";detailId=null;returnToId=null;profileOpened=false;generation++;searchSerial++});$("#modal").addEventListener("click",e=>{if(e.target!==$("#modal"))return;const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close()});
+$("#modal").addEventListener("close",()=>{leaveGameUrl();document.title=pageTitle();detailId=null;returnToId=null;profileOpened=false;generation++;searchSerial++});$("#modal").addEventListener("click",e=>{if(e.target!==$("#modal"))return;const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close()});
 document.addEventListener("click",e=>{const b=e.target.closest("button,[data-nav],#scrim");if(!b)return;const a=b.dataset;
  if("fpsDemo" in a){window.FramecheckFPS.open(Number(a.fpsDemo));return}if("duel" in a){window.FramecheckDuel.open();return}if(b.id==="nav-toggle")setMenu(!$(".side").classList.contains("open"));else if(b.id==="scrim"||a.nav)setMenu(false);else if("clearProfile" in a){updateProfile({},false)}else if("vivobook" in a){useVivobook()}else if("device" in a){setMenu(false);device()}else if("close" in a)$("#modal").close();else if(a.save)toggleSave(+a.save);else if(a.open)readGame(+a.open);else if(a.choose)readGame(+a.choose);else if("external" in a)search($("#game-q").value,true);else if(a.refresh)readGame(+a.refresh,true);else if(a.f){if(a.f==="all")filter.clear();else if(filter.has(a.f))filter.delete(a.f);else filter.add(a.f);limit=view==="home"?6:30;render()}else if(b.id==="all-games")location.hash=routes.catalog;else if(b.id==="more"){limit+=view==="home"?6:30;render()}else if("reset" in a){if(!filter.size&&!verdict&&!localQuery)location.hash=routes.catalog;else{filter.clear();verdict="";localQuery="";render()}}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});window.addEventListener("hashchange",route);const allTitles=()=>[...new Map([...known.entries(),...Object.values(data.games).filter(g=>g&&g.id&&g.name).map(g=>[g.id,g])]).values()];

@@ -80,6 +80,7 @@ export function buildPwa(serviceWorkerSource, html) {
     manifest: manifest(),
     sw: serviceWorkerSource.replace("__VERSION__", version),
     icons: {
+      "icon-48.png": makePng(48).toString("base64"),
       "icon-192.png": makePng(192).toString("base64"),
       "icon-512.png": makePng(512).toString("base64"),
       "maskable-512.png": makePng(512, true).toString("base64"),

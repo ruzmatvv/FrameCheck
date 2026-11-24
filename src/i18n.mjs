@@ -10,7 +10,11 @@ try {
  // the address wins (a shared link keeps its language), then the saved choice
  const fromPath = typeof location !== "undefined" ? pathLanguage(location.pathname) : null;
  const saved = typeof window !== "undefined" ? window.localStorage?.getItem(languageKey) : null;
- const pick = fromPath || saved;
+ // nothing chosen yet: follow the browser's own language (Uzbek, Russian; everybody else gets English). Search engines have no choice and
+ // no browser language, so they see the Uzbek page at "/" and the other languages at /ru/ and /en/.
+ const browser = typeof window !== "undefined" ? String(navigator.languages?.[0] || navigator.language || "").toLowerCase() : "";
+ const detected = !browser ? null : browser.startsWith("uz") ? "uz" : browser.startsWith("ru") ? "ru" : "en";
+ const pick = fromPath || saved || detected;
  if (languages.includes(pick)) language = pick;
 } catch {}
 const dictionary = () => language === "ru" ? ru : language === "en" ? en : null;
