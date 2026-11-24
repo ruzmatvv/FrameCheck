@@ -99,13 +99,17 @@ Asosiy fayllar:
 - `data-tmp/`, `.data/`, `*.tmp` git'da yo'q bo'lishi kerak.
 
 ## 9. Keyingi vazifalar (ustuvorlik bo'yicha)
-**A. Egasi ruxsat berishi kutilayotgan: "Ma'lumot yetarli emas" ni kamaytirish.** Tahlil (215 o'yin) natijasi:
-   - To'liq stol kompyuteri: 47 ta noma'lum. "AMD Radeon Graphics" kabi umumiy ichki videokarta: **168 ta**. Brauzer faqat OS'ni bilsa: 215. OS versiyasiz "Windows": 215.
-   - Tuzatish rejasi: (1) `®/™` belgisini OS matnidan tozalash (Counter-Strike 2, Destiny 2... "noma'lum" bo'lyapti); (2) Windows 10 va tuzilma raqami
-     (`build 19043`) bo'lmasa taxmin qilib "ok" deb olish; (3) versiyasiz "Windows" ni 10/11 deb olish va yozib qo'yish; (4) "DirectX 11/1 GB VRAM" kabi modelsiz
-     past talablarni zamonaviy GPU uchun "ok"; (5) umumiy ichki grafika nomini protsessor avlodidan taxmin qilish (Ryzen 5000U ~ Vega 7, 6000/7000 ~ 680M/780M,
-     Core Ultra ~ Arc, 12/13-avlod ~ Iris Xe), natija "taxminiy"; (6) bitta noma'lum qism boshqa aniq qismlarni yashirmasin.
-   - Har tuzatish test bilan; tuzatishdan keyin `scratchpad` dagi o'lchovni (47/168/215) qayta o'tkazib sonlarni ko'rsating. Mavjud natijalar buzilmasin (215 o'yinda tekshiring).
+**A. BAJARILDI (2026-11-24): "Ma'lumot yetarli emas" kamaytirildi.** Qaytish nuqtasi: tag `before-unknown-fix`.
+   - Natija (215 o'yin, noma'lumlar soni oldin -> keyin): to'liq stol kompyuteri 47 -> 1; Ryzen noutbuk ("AMD Radeon Graphics") 168 -> 1; Intel umumiy grafika 168 -> 1;
+     MX250 noutbuk 211 -> 0; versiyasiz "Windows" 215 -> 4; Vivobook 34 -> 0; eski kompyuter 22 -> 15. Hech narsa kiritilmagan qurilmada 215 (to'g'ri).
+   - Nima qilindi (`src/compat.mjs`): Windows matnidan `®/™/(64-bit)` tozalanadi; Windows 10 build raqami bo'lmasa 22H2 (19045) deb olinadi; versiyasiz "Windows" 10/11 deb
+     olinadi (izoh bilan); modelsiz GPU talablari (DirectX/VRAM/Shader Model) va CPU talablari ("Intel Core i5", "i5-9th Gen", "R3", "4 yadroli", "64-bit") darajaga solishtiriladi,
+     lekin kuchsiz qurilma bunda "low" emas, "na" bo'ladi; umumiy ichki grafika nomi protsessordan taxmin qilinadi (`inferGpuClass`, izoh chiqadi); MX seriyasi va eski kartalar
+     (GTX 680, GT 640, 8800GT, HD 5870...) jadvalga qo'shildi; natijada `unknownParts` bor va "Ma'lumot yetarli emas" belgisi ustida qaysi qism noma'lumligi chiqadi.
+   - **Topilgan va tuzatilgan eski xato:** `cpuClass` 4 xonali "1xxx" Intel modellarini (i5-1135G7, i5-1235U, i7-1165G7) 1-avlod deb o'qirdi (sinf 1-2, noto'g'ri "tavsiya etilmaydi").
+     Endi `intelGen()` birinchi ikki raqamni oladi (11/12/13-avlod).
+   - Himoya: `test/fixtures/ratings-before.json` (8 qurilma x 215 o'yin surati) va `test/unknown.test.mjs`: oldin aniq bo'lgan hech bir baho o'zgarmasligi tekshiriladi, noma'lumlar soni chegaradan oshmaydi.
+   - Qolgan noma'lumlar: ma'lumot tomonidan (Lethal Company'da RAM yo'q; Windows 11 talab qilgan o'yinlar va versiyasiz Windows; "4 GB VRAM + OpenGL" kabi talablar).
 **B. Cloudflare panelida egasi qiladigan sozlamalar** (kodda qilib bo'lmaydi; yo'riq README da):
    *Always Use HTTPS*; *Browser Cache TTL = Respect Existing Headers*; WAF Rate limiting (`/api/*` va `/img/*`, IP bo'yicha ~50 so'rov/10 s, Block); `flamecheck.bid` avtomatik yangilashini o'chirish.
 **C. Git zaxirasi**: repoda **uzoq nusxa (remote) yo'q**. Egasi GitHub'da yopiq repo ochishi, keyin `git remote add origin ...` va `git push -u origin master --tags`.
