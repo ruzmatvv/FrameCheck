@@ -65,12 +65,13 @@ fs.mkdirSync("dist/public/maps", {recursive: true});
 fs.mkdirSync("dist/public/licenses", {recursive: true});
 writeAtomic("dist/public/data/cs2-skins.json", fs.readFileSync("src/data/cs2-skins.json"));
 writeAtomic("dist/public/data/cs2-maps.json", fs.readFileSync("src/data/cs2-maps.json"));
+writeAtomic("dist/public/data/cs2-prices.json", fs.readFileSync("src/data/cs2-prices.json"));
 for (const file of fs.readdirSync("src/cs2/maps")) writeAtomic("dist/public/maps/" + file, fs.readFileSync("src/cs2/maps/" + file));
 writeAtomic("dist/public/licenses/cs2-third-party.txt", fs.readFileSync("THIRD_PARTY_NOTICES.md"));
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
 const gameNames = "const GAME_NAMES=" + safeJSON(Object.fromEntries(games.map(g => [g.id, g.name]))) + ";\n";
-const worker = gameNames + ["src/routes.mjs", "src/cs2-names.mjs", "src/cs2.mjs", "src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+const worker = gameNames + ["src/routes.mjs", "src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
 writeAtomic("dist/server/index.js", worker + "\nconst home=null;\nconst pwa={};\nexport default {fetch:(request,env,ctx)=>handle(request,home,undefined,env,pwa,ctx)};\n");
 if (process.argv.includes("--portable")) writeAtomic("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

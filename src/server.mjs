@@ -3,7 +3,6 @@ import "./recovery.mjs";
 import "./fps.mjs";
 import "./admin.mjs";
 import {GAME_NAMES} from "./game-names.mjs";
-import {cs2PricesRequest} from "./cs2.mjs";
 import {LANGUAGES, routeLanguage, homePath, gamePath, parseGamePath, parseHomePath} from "./routes.mjs";
 const steam="https://store.steampowered.com";
 const COVER_HOSTS=["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/","https://cdn.cloudflare.steamstatic.com/steam/apps/","https://cdn.akamai.steamstatic.com/steam/apps/"];
@@ -209,7 +208,6 @@ async function respond(request,home,fetchSteam,env,assets,ctx){
  {const lang=parseHomePath(pathname);if(lang&&lang!=="uz")return homePage(request,home,env,lang)}
  const asset=installAsset(pathname,assets);if(asset)return request.method==="HEAD"?new Response(null,{status:asset.status,headers:asset.headers}):asset;
  if(pathname.startsWith("/img/")){const id=pathname.slice(5).replace(/\.jpg$/,"");return cached(request,validId(id)?"img/"+id:null,86400,()=>cover(id,fetchSteam),ctx)}
- if(pathname==="/api/cs2/prices"){const answer=await cs2PricesRequest(request.url,env,fetchSteam);return json(answer.body,answer.status)}
  if(pathname==="/api/prices")return cached(request,priceKey(searchParams),600,()=>prices(searchParams,fetchSteam),ctx);
  const isSearch=pathname==="/api/search";if(!isSearch&&pathname!=="/api/game")return json({code:"not_found"},404);
  const key=isSearch?(searchParams.get("q")||"").trim():searchParams.get("id")||"";

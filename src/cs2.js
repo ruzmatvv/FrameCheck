@@ -2,7 +2,8 @@
 // Data files are static and load only when one of these pages is opened:
 //   /data/cs2-skins.json  (skins: ByMykel/CSGO-API, MIT; pictures come from Steam's own CDN)
 //   /data/cs2-maps.json   (callouts and schematic maps: sink3x/cs2-server-admin-callouts, MIT)
-// Prices come from Steam's community market through our own /api/cs2/prices; with no answer the page says so and never invents one.
+//   /data/cs2-prices.json (a snapshot of the cheapest Skinport listings, made by scripts/build-cs2-prices.mjs; its date is always shown)
+// Prices are never guessed: an item with no listing says "Narx mavjud emas".
 function createCs2(ctx) {
   const {tr, E, $} = ctx;
   const root = $("#cs2");
@@ -33,11 +34,10 @@ function createCs2(ctx) {
     + (local ? '' : '<button type="button" class="subtle-btn" data-cs2-retry="' + retryKey + '">' + E(tr("Qayta urinish")) + '</button>') + '</div>';
 
   // ---------------------------------------------------------------- skins
-  const skins = {status: "idle", file: null, all: [], q: "", weapon: "", rarity: -1, wear: -1, sort: "name", page: 1, picks: new Map()};
-  const prices = new Map();       // market name -> {price, median, volume, status, checkedAt, stale, at}
-  const asking = new Set();
+  const skins = {status: "idle", file: null, prices: null, all: [], q: "", weapon: "", rarity: -1, wear: -1, price: "", sort: "name", page: 1, picks: new Map()};
   const money = new Intl.NumberFormat("en-US", {style: "currency", currency: "USD"});
-  const dateText = seconds => new Intl.DateTimeFormat(locale(), {day: "numeric", month: "short", year: "numeric"}).format(new Date(seconds * 1000));
+  // 25.11.2026 (the Uzbek locale of some browsers writes dates in an odd way, so numbers are formatted the same for everybody)
+  const dateText = iso => new Intl.DateTimeFormat(language === "ru" ? "ru-RU" : "en-GB", {day: "2-digit", month: "2-digit", year: "numeric"}).format(new Date(iso)).replace(/\//g, ".");
 
   function skinPick(skin) {
     let pick = skins.picks.get(skin.id);
@@ -47,18 +47,16 @@ function createCs2(ctx) {
   }
   const skinName = (skin, pick) => cs2MarketName(skin.star, skin.weapon, skin.pattern, pick.wear, pick.variant);
 
-  function priceHtml(name) {
-    const p = prices.get(name);
-    if (!p) return '<div class="cs2-price is-loading" aria-busy="true"><span class="cs2-sk"></span><span class="cs2-sk short"></span></div>';
-    const age = p.checkedAt ? cs2Age(p.checkedAt) : null;
-    const when = !age ? "" : age[0] === "now" ? tr("hozirgina") : age[0] === "minutes" ? tr("{0} daqiqa oldin", age[1]) : age[0] === "hours" ? tr("{0} soat oldin", age[1]) : tr("{0} kun oldin", age[1]);
-    if (p.price != null) {
-      const note = p.stale ? tr("Oxirgi ma’lum narx · {0}", dateText(p.checkedAt)) : tr("Eng arzon · Steam Market · {0}", when);
-      const title = (p.median != null ? tr("O‘rtacha sotuv narxi: {0}", money.format(p.median)) + ". " : "") + (p.volume != null ? tr("24 soatda sotilgan: {0}", p.volume) + ". " : "") + note;
-      return '<div class="cs2-price" title="' + E(title) + '"><strong>' + E(money.format(p.price)) + '</strong><small>' + E(note) + '</small></div>';
+  // The price of the card's wear and variant. It comes from the price snapshot (Skinport), never from a guess.
+  function priceHtml(skin, pick) {
+    const p = skins.prices;
+    if (!p) return '<div class="cs2-price is-empty"><strong>' + E(tr("Narx mavjud emas")) + '</strong><small>' + E(tr("Narx ma’lumoti yuklanmadi")) + '</small></div>';
+    const price = cs2Price(p, skin, pick.wear, pick.variant);
+    if (price != null) {
+      const note = tr("Eng arzon e’lon · {0} · {1}", p.source, dateText(p.generated));
+      return '<div class="cs2-price" title="' + E(note) + '"><strong>' + E(money.format(price)) + '</strong><small>' + E(note) + '</small></div>';
     }
-    const why = p.status === "none" ? tr("Steam Market’da bu variant sotilmayapti") : tr("Steam Market hozir javob bermadi");
-    return '<div class="cs2-price is-empty"><strong>' + E(tr("Narx mavjud emas")) + '</strong><small>' + E(why) + '</small></div>';
+    return '<div class="cs2-price is-empty"><strong>' + E(tr("Narx mavjud emas")) + '</strong><small>' + E(tr("{0}’da hozir e’lon yo‘q", p.source)) + '</small></div>';
   }
 
   function skinCard(skin) {
@@ -75,7 +73,7 @@ function createCs2(ctx) {
       + '<h3 class="cs2-name">' + E(skin.weapon) + ' <span>| ' + E(skin.pattern) + '</span></h3>'
       + '<div class="cs2-float">' + E(tr("Float diapazoni")) + ': ' + E(float) + '</div>' + variantRow
       + '<div class="cs2-wears" role="group" aria-label="Wear">' + wears + '</div>'
-      + '<div class="cs2-pricebox" data-name="' + E(name) + '">' + priceHtml(name) + '</div>'
+      + '<div class="cs2-pricebox">' + priceHtml(skin, pick) + '</div>'
       + '<a class="cs2-market" href="' + E(cs2MarketUrl(name)) + '" target="_blank" rel="noopener noreferrer">' + E(tr("Steam Market")) + icon.ext + '<span class="sr"> ' + E(tr("(yangi oynada ochiladi)")) + '</span></a></div></article>';
   }
 
@@ -86,21 +84,28 @@ function createCs2(ctx) {
       + [...used.get(c)].sort((a, b) => a.localeCompare(b, "en")).map(w => '<option value="' + E(w) + '">' + E(w) + '</option>').join("") + '</optgroup>').join("");
     const rarityOptions = '<option value="-1">' + E(tr("Barchasi")) + '</option>' + f.rarities.map(([n], i) => ({n, i})).sort((a, b) => cs2RarityRank(b.n) - cs2RarityRank(a.n)).map(({n, i}) => '<option value="' + i + '">' + E(n) + '</option>').join("");
     const wearOptions = '<option value="-1">' + E(tr("Barchasi")) + '</option>' + CS2_WEARS.map((w, i) => '<option value="' + i + '">' + E(w.name) + '</option>').join("");
+    const priceOptions = '<option value="">' + E(tr("Barchasi")) + '</option><option value="lt1">' + E(tr("$1 gacha")) + '</option><option value="1-10">$1 – $10</option><option value="10-100">$10 – $100</option><option value="gt100">' + E(tr("$100 dan yuqori")) + '</option>';
     const sel = (id, label, options) => '<label class="cs2-sel"><small>' + E(label) + '</small><select id="' + id + '">' + options + '</select></label>';
+    const age = skins.prices ? cs2SnapshotAge(skins.prices.generated) : null, old = age != null && age > 14;
+    const source = skins.prices
+      ? E(tr("Narx manbasi")) + ': <b>' + E(skins.prices.source) + '</b> · ' + E(tr("yangilangan")) + ': ' + E(dateText(skins.prices.generated)) + (old ? ' · <b class="warn">' + E(tr("eskirgan bo‘lishi mumkin")) + '</b>' : '')
+      : E(tr("Narx ma’lumoti yuklanmadi"));
     root.innerHTML = '<div class="cs2-head"><div><div class="cs2-kicker"><i></i>' + E(tr("COUNTER-STRIKE 2 · SKINLAR")) + '</div><h1>' + E(tr("Skinlar katalogi")) + '</h1>'
-      + '<p>' + E(tr("Qurol, noyoblik va wear bo‘yicha qidiring. Har bir skin uchun Steam Market havolasi bor.")) + '</p></div>'
-      + '<div class="cs2-source"><span class="cs2-dot"></span>' + E(tr("Narx manbasi")) + ': <b>Steam Community Market</b></div></div>'
+      + '<p>' + E(tr("Qurol, noyoblik, wear va narx bo‘yicha qidiring. Har bir skin uchun Steam Market havolasi bor.")) + '</p></div>'
+      + '<div class="cs2-source' + (old ? ' old' : '') + '"><span class="cs2-dot"></span><span>' + source + '</span></div></div>'
       + '<form class="cs2-tools" role="search" id="cs2-tools"><label class="cs2-search">' + icon.search + '<span class="sr">' + E(tr("Skin nomi bo‘yicha qidirish")) + '</span><input id="cs2-q" type="search" maxlength="80" autocomplete="off" spellcheck="false" placeholder="' + E(tr("Skin nomi bo‘yicha qidirish…")) + '"></label>'
-      + sel("cs2-weapon", tr("Qurol"), weaponOptions) + sel("cs2-rarity", tr("Noyoblik"), rarityOptions) + sel("cs2-wear", "Wear", wearOptions)
-      + sel("cs2-sort", tr("Saralash"), '<option value="name">' + E(tr("Nomi bo‘yicha")) + '</option><option value="rarity">' + E(tr("Noyoblik bo‘yicha")) + '</option><option value="weapon">' + E(tr("Qurol turi bo‘yicha")) + '</option>') + '</form>'
+      + sel("cs2-weapon", tr("Qurol"), weaponOptions) + sel("cs2-rarity", tr("Noyoblik"), rarityOptions) + sel("cs2-wear", "Wear", wearOptions) + (skins.prices ? sel("cs2-price", tr("Narx"), priceOptions) : "")
+      + sel("cs2-sort", tr("Saralash"), '<option value="name">' + E(tr("Nomi bo‘yicha")) + '</option><option value="rarity">' + E(tr("Noyoblik bo‘yicha")) + '</option><option value="weapon">' + E(tr("Qurol turi bo‘yicha")) + '</option>'
+        + (skins.prices ? '<option value="price-up">' + E(tr("Narx: arzonidan")) + '</option><option value="price-down">' + E(tr("Narx: qimmatidan")) + '</option>' : '')) + '</form>'
       + '<p class="cs2-count" id="cs2-count" role="status" aria-live="polite"></p><div class="cs2-skins" id="cs2-grid"></div><nav class="cs2-pager" id="cs2-pager" aria-label="' + E(tr("Sahifalar")) + '"></nav>'
-      + '<p class="cs2-note">' + E(tr("Narxlar har bir skin uchun alohida, Steam Market’dan olinadi va bir necha soat saqlanadi, shuning uchun narx bo‘yicha saralash yo‘q. Narx kelmasa «Narx mavjud emas» yoziladi.")) + '</p>'
-      + legal([link("https://github.com/ByMykel/CSGO-API", "ByMykel/CSGO-API (MIT)") + " — " + E(tr("skinlar ro‘yxati")), E(tr("Rasmlar: Steam CDN, © Valve Corporation")), E(tr("Narxlar: Steam Community Market"))]);
+      + '<p class="cs2-note">' + E(tr("Narx — Skinport bozoridagi eng arzon e’lon (USD), vaqti-vaqti bilan yangilanadi; Steam Market narxidan farq qilishi mumkin. Steam Market tugmasi bilan aniq narxni tekshiring. Narx bo‘yicha saralash va filtr tanlangan wear (yoki eng arzon wear) bo‘yicha ishlaydi.")) + '</p>'
+      + legal([link("https://github.com/ByMykel/CSGO-API", "ByMykel/CSGO-API (MIT)") + " — " + E(tr("skinlar ro‘yxati")), E(tr("Rasmlar: Steam CDN, © Valve Corporation")), link("https://skinport.com/", "Skinport") + " — " + E(tr("narxlar (ochiq API)"))]);
     $("#cs2-q").value = skins.q; $("#cs2-weapon").value = skins.weapon; $("#cs2-rarity").value = String(skins.rarity); $("#cs2-wear").value = String(skins.wear); $("#cs2-sort").value = skins.sort;
+    if ($("#cs2-price")) $("#cs2-price").value = skins.price;
   }
 
   function skinsUpdate(scroll = false) {
-    const list = cs2Filter(skins.all, skins), part = cs2Slice(list, skins.page);
+    const list = cs2Filter(skins.all, skins, skins.prices), part = cs2Slice(list, skins.page);
     skins.page = part.page;
     const grid = $("#cs2-grid"); if (!grid) return;
     $("#cs2-count").textContent = list.length ? tr("{0} ta skin topildi", list.length) + (part.pages > 1 ? " · " + tr("Sahifa {0} / {1}", part.page, part.pages) : "") : "";
@@ -113,30 +118,6 @@ function createCs2(ctx) {
       + cs2PageWindow(part.page, part.pages).map(n => n == null ? '<span class="gap" aria-hidden="true">…</span>' : '<button type="button" data-page="' + n + '"' + (n === part.page ? ' class="on" aria-current="page"' : "") + ' aria-label="' + E(tr("Sahifa {0}", n)) + '">' + n + '</button>').join("")
       + '<button type="button" data-page="' + (part.page + 1) + '" aria-label="' + E(tr("Keyingi sahifa")) + '"' + (part.page === part.pages ? " disabled" : "") + '>' + icon.right + '</button>';
     if (scroll) $(".cs2-tools")?.scrollIntoView({block: "start", behavior: reduced() ? "auto" : "smooth"});
-    askPrices(part.items.map(s => skinName(s, skinPick(s))));
-  }
-
-  const freshPrice = name => { const p = prices.get(name); return p && Date.now() - p.at < (p.status === "error" ? 60_000 : 600_000); };
-  function paint(name) {
-    for (const box of root.querySelectorAll(".cs2-pricebox")) if (box.dataset.name === name) box.innerHTML = priceHtml(name);
-  }
-  async function askPrices(names) {
-    const todo = [...new Set(names)].filter(n => !freshPrice(n) && !asking.has(n));
-    for (const n of todo) asking.add(n);
-    for (let i = 0; i < todo.length; i += 4) {
-      // a card the person already left (next page, another filter, another section) is not worth asking Steam about
-      const chunk = todo.slice(i, i + 4).filter(n => root.querySelector('.cs2-pricebox[data-name="' + CSS.escape(n) + '"]'));
-      for (const n of todo.slice(i, i + 4)) if (!chunk.includes(n)) asking.delete(n);
-      if (!chunk.length) continue;
-      try {
-        const res = await fetch("/api/cs2/prices?" + chunk.map(n => "n=" + encodeURIComponent(n)).join("&"), {cache: "no-store", signal: AbortSignal.timeout(20000)});
-        if (!res.ok) throw new Error("http");
-        const body = await res.json();
-        for (const item of body.items || []) prices.set(item.name, {...item, at: Date.now()});
-        for (const n of chunk) if (!prices.get(n)) prices.set(n, {status: "error", price: null, at: Date.now()});
-      } catch { for (const n of chunk) prices.set(n, {status: "error", price: null, at: Date.now()}); }
-      for (const n of chunk) { asking.delete(n); paint(n); }
-    }
   }
 
   async function showSkins() {
@@ -146,8 +127,10 @@ function createCs2(ctx) {
         + Array.from({length: 8}, () => '<div class="cs2-skin cs2-skeleton"><div class="cs2-art"></div><div class="cs2-body"><span class="cs2-sk"></span><span class="cs2-sk short"></span><span class="cs2-sk"></span></div></div>').join("") + '</div>';
       shellView = null;
       try {
-        skins.file = await loadJson("/data/cs2-skins.json");
-        skins.all = cs2Decode(skins.file);
+        // the price file is a nice-to-have: without it the catalog still works and says the price is not available
+        const [file, prices] = await Promise.all([loadJson("/data/cs2-skins.json"), loadJson("/data/cs2-prices.json").catch(() => null)]);
+        skins.file = file; skins.prices = prices && prices.items ? prices : null;
+        skins.all = cs2Decode(file);
         skins.status = "ready";
       } catch (e) { skins.status = "error"; if (current === "cs2skins") root.innerHTML = errorBox("skins", e.message === "local"); return; }
     }
@@ -299,7 +282,7 @@ function createCs2(ctx) {
     else if (e.target.id === "cs2-pq") { maps.query = e.target.value; drawList(); }
   });
   root.addEventListener("change", e => {
-    const map = {"cs2-weapon": ["weapon", v => v], "cs2-rarity": ["rarity", Number], "cs2-wear": ["wear", Number], "cs2-sort": ["sort", v => v]}[e.target.id];
+    const map = {"cs2-weapon": ["weapon", v => v], "cs2-rarity": ["rarity", Number], "cs2-wear": ["wear", Number], "cs2-price": ["price", v => v], "cs2-sort": ["sort", v => v]}[e.target.id];
     if (!map) return;
     skins[map[0]] = map[1](e.target.value); skins.page = 1;
     if (map[0] === "wear") for (const pick of skins.picks.values()) delete pick.fixed;
@@ -318,10 +301,9 @@ function createCs2(ctx) {
       const fresh = document.createElement("div"); fresh.innerHTML = skinCard(skin); card.replaceWith(fresh.firstElementChild);
       const again = root.querySelector('.cs2-skin[data-id="' + CSS.escape(skin.id) + '"]');
       (wear ? again?.querySelector('[data-wear="' + pick.wear + '"]') : again?.querySelector('[data-variant="' + pick.variant + '"]'))?.focus({preventScroll: true});
-      askPrices([skinName(skin, pick)]);
       return;
     }
-    if (t.closest("[data-cs2-reset]")) { Object.assign(skins, {q: "", weapon: "", rarity: -1, wear: -1, sort: "name", page: 1}); skinsShell(); skinsUpdate(); return; }
+    if (t.closest("[data-cs2-reset]")) { Object.assign(skins, {q: "", weapon: "", rarity: -1, wear: -1, price: "", sort: "name", page: 1}); skinsShell(); skinsUpdate(); return; }
     const retry = t.closest("[data-cs2-retry]"); if (retry) { (retry.dataset.cs2Retry === "maps" ? showMaps : showSkins)(); return; }
     const tab = t.closest("[data-map]"); if (tab && maps.data) { maps.id = tab.dataset.map; maps.selected = null; maps.query = ""; mapsShell(); $('.cs2-maptab.on')?.focus({preventScroll: true}); return; }
     const row = t.closest("[data-place]"); if (row) { select(Number(row.dataset.place), false); return; }

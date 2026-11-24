@@ -18,10 +18,14 @@ community servers. Nothing from Valve's games is copied into this repository.
 - Place names come from the awpy project (https://github.com/pnxenopoulos/awpy, MIT), which reads them from Valve's games.
 - License: MIT, Copyright (c) 2026 sink3x. The full text is in `src/cs2/LICENSE-callouts.txt`.
 
-## Prices
+## Prices: Skinport
 
-- Steam Community Market (https://steamcommunity.com/market/). Prices are asked from Steam one item at a time, kept for a few hours
-  and always shown with their source. Framecheck does not take part in the market and does not sell items.
+- Source: Skinport's public REST API (https://docs.skinport.com/), `GET /v1/items`, which needs no key; Skinport's documentation invites
+  integrating these prices into applications. `scripts/build-cs2-prices.mjs` takes a snapshot of the cheapest current listing of each item
+  (US dollars) and writes `src/data/cs2-prices.json`. The page always shows the source and the date of the snapshot.
+- Skinport is a trademark of Skinport GmbH; Framecheck is not affiliated with it. The prices are Skinport marketplace prices, not
+  Steam Market prices, and can differ from them. Framecheck does not buy or sell items.
+- The "Steam Market" button on every card only opens that item's page on Steam's market.
 
 ---
 

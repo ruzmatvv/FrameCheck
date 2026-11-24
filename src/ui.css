@@ -474,3 +474,7 @@ dialog[open]#modal,dialog.palette[open]{animation:pop .2s ease both}
 .cs2-sel::after{content:"";flex:none;width:7px;height:7px;border-right:2px solid #848b88;border-bottom:2px solid #848b88;transform:translateY(-2px) rotate(45deg);pointer-events:none;margin-left:2px}
 .cs2,.cs2 *,.cs2 *::before,.cs2 *::after,.hub-group,.hub-group *{box-sizing:border-box}
 @media(max-width:740px){.cs2-sel{padding:0 6px 0 9px;gap:6px}.cs2-sel small{font-size:.68rem}.cs2-sel select{font-size:.84rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}}
+.cs2-source .warn{color:#f0c24b}
+.cs2-source.old{border-color:#6b5a1f}
+.cs2-source{flex-wrap:wrap}
+#cs2-sort{max-width:156px}.cs2-sel select{white-space:nowrap}

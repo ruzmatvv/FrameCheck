@@ -33,19 +33,44 @@ export function cs2DefaultWear(skin, wanted = -1) {
   return 0;
 }
 
-// state: {q, weapon ("" = any), category ("" = any), rarity (-1 = any), wear (-1 = any), sort: "name" | "rarity" | "weapon"}
-export function cs2Filter(skins, state) {
-  const words = normalize(state.q).split(" ").filter(Boolean);
-  const out = skins.filter(skin =>
-    (!state.weapon || skin.weapon === state.weapon)
-    && (!state.category || skin.category === state.category)
-    && (state.rarity == null || state.rarity < 0 || skin.rarityIndex === state.rarity)
-    && (state.wear == null || state.wear < 0 || cs2HasWear(skin, state.wear))
-    && words.every(word => skin.search.includes(word)));
+// ---- prices. The price file (scripts/build-cs2-prices.mjs): items[skinId] = [normal, StatTrak, Souvenir], each [FN, MW, FT, WW, BS] in US cents, 0 = no listing.
+export const CS2_PRICE_BANDS = {"lt1": [0, 1], "1-10": [1, 10], "10-100": [10, 100], "gt100": [100, Infinity]};
+
+// The price in dollars of one skin in one wear and variant, or null when there is none.
+export function cs2Price(prices, skin, wear, variant = 0) {
+  const cents = prices?.items?.[skin.id]?.[variant]?.[wear];
+  return Number.isFinite(cents) && cents > 0 ? cents / 100 : null;
+}
+// What a skin is sorted and filtered by: its price in the chosen wear, or (no wear chosen) the cheapest wear of the normal variant.
+export function cs2SortPrice(prices, skin, wear = -1) {
+  if (wear >= 0) return cs2Price(prices, skin, wear, 0);
+  let best = null;
+  for (let w = 0; w < 5; w++) { const p = cs2Price(prices, skin, w, 0); if (p != null && (best == null || p < best)) best = p; }
+  return best;
+}
+
+// state: {q, weapon ("" = any), category ("" = any), rarity (-1 = any), wear (-1 = any), price ("" or a key of CS2_PRICE_BANDS),
+//         sort: "name" | "rarity" | "weapon" | "price-up" | "price-down"}; prices: the price file or null
+export function cs2Filter(skins, state, prices = null) {
+  const words = normalize(state.q).split(" ").filter(Boolean), band = CS2_PRICE_BANDS[state.price];
+  const wear = state.wear ?? -1;
+  const out = skins.filter(skin => {
+    if (state.weapon && skin.weapon !== state.weapon) return false;
+    if (state.category && skin.category !== state.category) return false;
+    if (state.rarity != null && state.rarity >= 0 && skin.rarityIndex !== state.rarity) return false;
+    if (wear >= 0 && !cs2HasWear(skin, wear)) return false;
+    if (!words.every(word => skin.search.includes(word))) return false;
+    if (band) { const p = cs2SortPrice(prices, skin, wear); if (p == null || p < band[0] || p >= band[1]) return false; }
+    return true;
+  });
   const byName = (a, b) => a.title.localeCompare(b.title, "en");
   if (state.sort === "rarity") out.sort((a, b) => b.rarityRank - a.rarityRank || byName(a, b));
   else if (state.sort === "weapon") out.sort((a, b) => a.categoryIndex - b.categoryIndex || byName(a, b));
-  else out.sort(byName);
+  else if (state.sort === "price-up" || state.sort === "price-down") {
+    const sign = state.sort === "price-up" ? 1 : -1, cache = new Map(out.map(s => [s.id, cs2SortPrice(prices, s, wear)]));
+    // skins with no price go last in both directions
+    out.sort((a, b) => { const pa = cache.get(a.id), pb = cache.get(b.id); if (pa == null || pb == null) return (pa == null) - (pb == null) || byName(a, b); return sign * (pa - pb) || byName(a, b); });
+  } else out.sort(byName);
   return out;
 }
 
@@ -66,13 +91,10 @@ export function cs2PageWindow(page, pages) {
   return out;
 }
 
-// How a price's age reads: minutes, hours or days. Returns [unit, count] so the page can translate the words.
-export function cs2Age(checkedAt, now = Date.now() / 1000) {
-  const seconds = Math.max(0, now - checkedAt);
-  if (seconds < 90) return ["now", 0];
-  if (seconds < 5400) return ["minutes", Math.round(seconds / 60)];
-  if (seconds < 129600) return ["hours", Math.round(seconds / 3600)];
-  return ["days", Math.round(seconds / 86400)];
+// Whole days since the price snapshot was taken (an ISO timestamp), so the page can warn when it is old.
+export function cs2SnapshotAge(generated, now = Date.now()) {
+  const t = Date.parse(generated);
+  return Number.isFinite(t) ? Math.max(0, Math.floor((now - t) / 86_400_000)) : null;
 }
 
 // Map helpers: a callout's position is 0..1000 on both axes.

@@ -1,19 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync, existsSync} from "node:fs";
-import {handle} from "../src/server.mjs";
-import {openDatabase} from "../src/d1-sqlite.mjs";
-import {CS2_WEARS, cs2MarketName, cs2IsMarketName, cs2MarketUrl, cs2ParsePrice} from "../src/cs2-names.mjs";
-import {cs2Decode, cs2Filter, cs2Slice, cs2Pages, cs2PageWindow, cs2DefaultWear, cs2HasWear, cs2Age, cs2ClampView, cs2RarityRank, CS2_PAGE_SIZE} from "../src/cs2-logic.mjs";
-import {cs2ResetForTests} from "../src/cs2.mjs";
+import {CS2_WEARS, cs2MarketName, cs2MarketUrl} from "../src/cs2-names.mjs";
+import {cs2Decode, cs2Filter, cs2Slice, cs2Pages, cs2PageWindow, cs2DefaultWear, cs2HasWear, cs2ClampView, cs2RarityRank, cs2Price, cs2SortPrice, cs2SnapshotAge, CS2_PAGE_SIZE, CS2_PRICE_BANDS} from "../src/cs2-logic.mjs";
 
 const read = name => JSON.parse(readFileSync(new URL("../" + name, import.meta.url), "utf8"));
-const skinsFile = read("src/data/cs2-skins.json"), mapsFile = read("src/data/cs2-maps.json");
+const skinsFile = read("src/data/cs2-skins.json"), mapsFile = read("src/data/cs2-maps.json"), pricesFile = read("src/data/cs2-prices.json");
 const skins = cs2Decode(skinsFile);
-const migrations = new URL("../migrations/", import.meta.url);
-const req = path => new Request("https://framecheck.uk" + path);
+const base = {q: "", weapon: "", category: "", rarity: -1, wear: -1, price: "", sort: "name"};
+const find = title => skins.find(s => s.title === title);
 const NAME = "AK-47 | Redline (Field-Tested)";
-const steamJson = body => async () => new Response(JSON.stringify(body), {status: 200, headers: {"Content-Type": "application/json"}});
 
 // ---- names and links
 test("market names are built the way Steam writes them", () => {
@@ -24,33 +20,11 @@ test("market names are built the way Steam writes them", () => {
   assert.equal(CS2_WEARS.length, 5);
 });
 
-test("only well-formed market names are accepted", () => {
-  for (const ok of [NAME, "★ Karambit | Doppler (Factory New)", "M4A4 | 龍王 (Dragon King) (Well-Worn)", "Desert Eagle | Sunset Storm 壱 (Battle-Scarred)", "P90 | Death by Kitty (Field-Tested)"]) assert.ok(cs2IsMarketName(ok), ok);
-  for (const bad of ["", "AK-47", "AK-47 | Redline", "AK-47 | Redline (Great)", NAME + "&x=1", NAME + "\n", "A".repeat(200) + " | B (Factory New)", "../../etc | x (Factory New)", null, 5, "<script> | x (Factory New)"]) assert.equal(cs2IsMarketName(bad), false, String(bad));
-});
-
-test("every name the catalog can produce passes the check (so no real skin is turned away)", () => {
-  let total = 0;
-  for (const s of skins) for (let w = 0; w < 5; w++) if (cs2HasWear(s, w)) for (const v of [0, 1, 2]) {
-    if ((v === 1 && !s.statTrak) || (v === 2 && !s.souvenir)) continue;
-    total++;
-    const name = cs2MarketName(s.star, s.weapon, s.pattern, w, v);
-    assert.ok(cs2IsMarketName(name), name);
-  }
-  assert.ok(total > 15000);
-});
-
 test("the market link is encoded", () => {
   assert.equal(cs2MarketUrl(NAME), "https://steamcommunity.com/market/listings/730/AK-47%20%7C%20Redline%20(Field-Tested)");
   assert.ok(cs2MarketUrl("StatTrak™ AK-47 | Redline (Field-Tested)").includes("%E2%84%A2"));
-});
-
-test("dollar amounts are read, anything else is not", () => {
-  assert.equal(cs2ParsePrice("$27.34"), 27.34);
-  assert.equal(cs2ParsePrice("$1,234.56"), 1234.56);
-  assert.equal(cs2ParsePrice("$0.03"), 0.03);
-  assert.equal(cs2ParsePrice("$ 12"), 12);
-  for (const bad of ["12,34€", "27.34", "", null, undefined, "$abc", "$-5", "free", "$1e9"]) assert.equal(cs2ParsePrice(bad), null, String(bad));
+  assert.ok(cs2MarketUrl("M4A4 | 龍王 (Dragon King) (Factory New)").startsWith("https://steamcommunity.com/market/listings/730/M4A4%20"));
+  assert.ok(!cs2MarketUrl("a & b | c (Factory New)").includes("&"));
 });
 
 // ---- the data files
@@ -65,10 +39,29 @@ test("the skin file is complete and consistent", () => {
     assert.match(s.rarityColor, /^#[0-9a-f]{6}$/i);
     assert.ok(s.weapon && s.pattern);
   }
-  assert.ok(skins.find(s => s.title === "AK-47 | Redline"));
-  assert.ok(skins.find(s => s.title === "AWP | Asiimov"));
-  assert.ok(skins.find(s => s.title === "M4A1-S | Printstream"));
+  for (const title of ["AK-47 | Redline", "AWP | Asiimov", "M4A1-S | Printstream"]) assert.ok(find(title), title);
   assert.match(skinsFile.source, /MIT/);
+});
+
+test("the price file matches the skin file and holds only real, sane prices", () => {
+  assert.equal(pricesFile.source, "Skinport"); assert.equal(pricesFile.currency, "USD"); assert.equal(pricesFile.unit, "cents");
+  assert.ok(Number.isFinite(Date.parse(pricesFile.generated)), "the snapshot has a date");
+  assert.deepEqual(Object.keys(pricesFile.items).sort(), skins.map(s => s.id).sort(), "one row per skin");
+  let priced = 0;
+  for (const s of skins) {
+    const rows = pricesFile.items[s.id];
+    assert.ok(rows.length >= 1 && rows.length <= 3, s.title);
+    rows.forEach((row, variant) => {
+      if (row === null) { assert.ok(variant === 1 ? !s.statTrak : !s.souvenir, s.title + " variant " + variant); return; }
+      assert.equal(row.length, 5, s.title);
+      if (variant === 1) assert.ok(s.statTrak, s.title); if (variant === 2) assert.ok(s.souvenir, s.title);
+      row.forEach((cents, wear) => {
+        assert.ok(Number.isInteger(cents) && cents >= 0 && cents < 1e9, s.title);
+        if (cents > 0) { priced++; assert.ok(cs2HasWear(s, wear), s.title + " has a price in a wear it does not have"); }
+      });
+    });
+  }
+  assert.ok(priced > 5000, "enough prices: " + priced);
 });
 
 test("the map file has the three first maps and sane callouts", () => {
@@ -86,19 +79,70 @@ test("the map file has the three first maps and sane callouts", () => {
   assert.match(mapsFile.source, /MIT/);
 });
 
-test("the licenses of both sources are shipped with the site", () => {
+test("the licenses and the disclaimer are shipped with the site", () => {
   const notice = readFileSync(new URL("../THIRD_PARTY_NOTICES.md", import.meta.url), "utf8");
-  assert.match(notice, /ByMykel\/CSGO-API/); assert.match(notice, /sink3x\/cs2-server-admin-callouts/);
+  for (const name of ["ByMykel/CSGO-API", "sink3x/cs2-server-admin-callouts", "Skinport"]) assert.match(notice, new RegExp(name.replace("/", "\\/")), name);
   assert.match(notice, /Permission is hereby granted/); assert.match(notice, /not affiliated/i);
   assert.match(readFileSync(new URL("../src/cs2/LICENSE-callouts.txt", import.meta.url), "utf8"), /MIT License/);
 });
 
+// ---- prices
+test("a price is read for one wear and variant, or there is none", () => {
+  const redline = find("AK-47 | Redline");
+  const row = pricesFile.items[redline.id];
+  assert.equal(cs2Price(pricesFile, redline, 2, 0), row[0][2] / 100);
+  assert.ok(cs2Price(pricesFile, redline, 2, 0) > 1);
+  assert.equal(cs2Price(pricesFile, redline, 0, 0), null);        // Redline never comes in Factory New
+  assert.equal(cs2Price(pricesFile, redline, 2, 2), row[2]?.[2] > 0 ? row[2][2] / 100 : null);
+  assert.equal(cs2Price(null, redline, 2, 0), null);              // no price file: no price
+  assert.equal(cs2Price({items: {}}, redline, 2, 0), null);
+  assert.equal(cs2Price({items: {[redline.id]: [[0, 0, -5, "x", NaN]]}}, redline, 2, 0), null);
+});
+
+test("the cheapest wear is used when no wear is chosen", () => {
+  const skin = {id: "t"}, prices = {items: {t: [[0, 5000, 900, 700, 800]]}};
+  assert.equal(cs2SortPrice(prices, skin, -1), 7);
+  assert.equal(cs2SortPrice(prices, skin, 2), 9);
+  assert.equal(cs2SortPrice(prices, skin, 0), null);
+  assert.equal(cs2SortPrice(null, skin, -1), null);
+});
+
+test("price bands and price sorting work, and skins without a price go last", () => {
+  const fake = [{id: "a", title: "A | a"}, {id: "b", title: "B | b"}, {id: "c", title: "C | c"}, {id: "d", title: "D | d"}].map(s => ({weapon: s.id, category: "", rarityIndex: 0, rarityRank: 0, categoryIndex: 0, mask: 31, search: s.id, ...s}));
+  const prices = {items: {a: [[0, 0, 5000, 0, 0]], b: [[0, 0, 50, 0, 0]], c: [[0, 0, 0, 0, 0]], d: [[0, 0, 1500, 0, 0]]}}; // $50, $0.50, none, $15
+  const ids = list => list.map(s => s.id).join("");
+  assert.equal(ids(cs2Filter(fake, {...base, sort: "price-up"}, prices)), "bdac");
+  assert.equal(ids(cs2Filter(fake, {...base, sort: "price-down"}, prices)), "adbc");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "lt1"}, prices)), "b");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "1-10"}, prices)), "");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "10-100"}, prices)), "ad");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "gt100"}, prices)), "");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "10-100", wear: 2}, prices)), "ad");
+  assert.equal(ids(cs2Filter(fake, {...base, price: "10-100", wear: 1}, prices)), "");   // nobody has a price in that wear
+  assert.equal(ids(cs2Filter(fake, {...base, price: "lt1"}, null)), "");                  // no price file: a price filter finds nothing
+  assert.deepEqual(Object.keys(CS2_PRICE_BANDS), ["lt1", "1-10", "10-100", "gt100"]);
+});
+
+test("on the real data the price order really is ascending", () => {
+  const list = cs2Filter(skins, {...base, weapon: "AWP", sort: "price-up"}, pricesFile).map(s => cs2SortPrice(pricesFile, s, -1));
+  const priced = list.filter(p => p != null);
+  assert.ok(priced.length > 10);
+  for (let i = 1; i < priced.length; i++) assert.ok(priced[i - 1] <= priced[i]);
+  assert.deepEqual(list.slice(priced.length).filter(p => p != null), [], "the ones with no price are all at the end");
+});
+
+test("the snapshot's age is counted in whole days", () => {
+  const now = Date.parse("2026-12-10T12:00:00Z");
+  assert.equal(cs2SnapshotAge("2026-12-10T08:00:00Z", now), 0);
+  assert.equal(cs2SnapshotAge("2026-12-01T12:00:00Z", now), 9);
+  assert.equal(cs2SnapshotAge("2027-01-01T00:00:00Z", now), 0);  // a clock slip never gives a negative age
+  assert.equal(cs2SnapshotAge("not a date", now), null);
+});
+
 // ---- filtering and paging
 test("search, weapon, rarity and wear filters work together", () => {
-  const base = {q: "", weapon: "", category: "", rarity: -1, wear: -1, sort: "name"};
   assert.equal(cs2Filter(skins, base).length, skins.length);
-  const red = cs2Filter(skins, {...base, q: "ak redline"});
-  assert.deepEqual(red.map(s => s.title), ["AK-47 | Redline"]);
+  assert.deepEqual(cs2Filter(skins, {...base, q: "ak redline"}).map(s => s.title), ["AK-47 | Redline"]);
   assert.ok(cs2Filter(skins, {...base, q: "★ KARAMBIT doppler"}).every(s => s.weapon === "Karambit" && /doppler/i.test(s.pattern)));
   assert.ok(cs2Filter(skins, {...base, weapon: "AWP"}).every(s => s.weapon === "AWP"));
   const covert = skins.find(s => s.rarity === "Covert").rarityIndex;
@@ -109,7 +153,6 @@ test("search, weapon, rarity and wear filters work together", () => {
 });
 
 test("sorting by name, rarity and weapon type", () => {
-  const base = {q: "", weapon: "", category: "", rarity: -1, wear: -1};
   const byName = cs2Filter(skins, {...base, sort: "name"}).map(s => s.title);
   assert.deepEqual(byName, [...byName].sort((a, b) => a.localeCompare(b, "en")));
   const byRarity = cs2Filter(skins, {...base, sort: "rarity"});
@@ -132,98 +175,29 @@ test("paging never leaves the list", () => {
 });
 
 test("a card starts on a wear the skin really has", () => {
-  const dop = skins.find(s => s.title === "★ Karambit | Doppler".replace("★ ", ""));
-  assert.ok(dop && cs2HasWear(dop, cs2DefaultWear(dop)));
-  for (const s of skins.slice(0, 400)) { const w = cs2DefaultWear(s, 4); assert.ok(cs2HasWear(s, w), s.title); }
+  for (const s of skins) { const w = cs2DefaultWear(s, 4); assert.ok(cs2HasWear(s, w), s.title); assert.ok(cs2HasWear(s, cs2DefaultWear(s)), s.title); }
   const ft = skins.find(s => cs2HasWear(s, 2) && cs2HasWear(s, 4));
   assert.equal(cs2DefaultWear(ft, 4), 4);   // asked for Battle-Scarred and it has it
   assert.equal(cs2DefaultWear(ft), 2);      // otherwise Field-Tested
 });
 
-test("price age and the radar view stay in range", () => {
-  assert.deepEqual(cs2Age(1000, 1030), ["now", 0]);
-  assert.deepEqual(cs2Age(1000, 1000 + 600), ["minutes", 10]);
-  assert.deepEqual(cs2Age(1000, 1000 + 7200), ["hours", 2]);
-  assert.deepEqual(cs2Age(1000, 1000 + 3 * 86400), ["days", 3]);
+test("the radar view stays in range", () => {
   const v = cs2ClampView({scale: 99, x: 1e6, y: -1e6}, 800);
   assert.equal(v.scale, 8); assert.ok(Math.abs(v.x) <= 7 * 400 + 80 && Math.abs(v.y) <= 7 * 400 + 80);
   assert.equal(cs2ClampView({scale: 0.2, x: 500, y: 0}, 800).scale, 1);
   assert.ok(cs2ClampView({scale: 1, x: 500, y: 0}, 800).x <= 80);
 });
 
-// ---- the price endpoint
-test("a price is asked from Steam once, then served from memory", async () => {
-  cs2ResetForTests();
-  let calls = 0;
-  const steam = async url => { calls++; assert.ok(url.includes("appid=730") && url.includes(encodeURIComponent(NAME))); return new Response(JSON.stringify({success: true, lowest_price: "$27.34", median_price: "$27.36", volume: "1,085"})); };
-  const res = await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", steam, {});
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.equal(body.source, "Steam Community Market"); assert.equal(body.currency, "USD");
-  assert.equal(body.items[0].price, 27.34); assert.equal(body.items[0].median, 27.36); assert.equal(body.items[0].volume, 1085); assert.equal(body.items[0].stale, false); assert.equal(body.items[0].status, "ok");
-  await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", steam, {});
-  assert.equal(calls, 1);
-});
-
-test("the answer is kept in the database and found there next time", async () => {
-  cs2ResetForTests();
-  const env = {DB: openDatabase(":memory:", migrations)};
-  let calls = 0;
-  const steam = async () => { calls++; return new Response(JSON.stringify({success: true, lowest_price: "$5.10", median_price: "$5.20", volume: "7"})); };
-  await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", steam, env);
-  const row = await env.DB.prepare("SELECT price, status FROM cs2_prices WHERE name = ?").bind(NAME).first();
-  assert.equal(row.price, 5.1); assert.equal(row.status, "ok");
-  const again = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", steam, env)).json();
-  assert.equal(calls, 1); assert.equal(again.items[0].price, 5.1);
-});
-
-test("an item Steam does not list is reported honestly, with no price", async () => {
-  cs2ResetForTests();
-  const body = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent("AK-47 | Redline (Factory New)")), "x", steamJson({success: false}), {})).json();
-  assert.equal(body.items[0].price, null); assert.equal(body.items[0].status, "none");
-  const empty = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", steamJson({success: true}), {})).json();
-  assert.equal(empty.items[0].price, null);
-});
-
-test("when Steam refuses, the last known price is returned as stale with its date", async () => {
-  cs2ResetForTests();
-  const env = {DB: openDatabase(":memory:", migrations)};
-  const old = Math.floor(Date.now() / 1000) - 3 * 86400;
-  await env.DB.prepare("INSERT INTO cs2_prices (name, price, median, volume, status, checked_at) VALUES (?, 9.99, 10, 3, 'ok', ?)").bind(NAME, old).run();
-  let calls = 0;
-  const limited = async () => { calls++; return new Response("Too many", {status: 429}); };
-  const first = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", limited, env)).json();
-  assert.equal(first.items[0].price, 9.99); assert.equal(first.items[0].stale, true); assert.equal(first.items[0].checkedAt, old);
-  // Steam is then left alone for a while: no second request
-  const second = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", limited, env)).json();
-  assert.equal(calls, 1); assert.equal(second.items[0].stale, true);
-});
-
-test("with no answer and no memory the price is null, never invented", async () => {
-  cs2ResetForTests();
-  const down = async () => { throw new Error("offline"); };
-  const body = await (await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", down, {})).json();
-  assert.equal(body.items[0].price, null); assert.equal(body.items[0].status, "unknown"); assert.equal(body.items[0].checkedAt, null);
-  const bad = await handle(req("/api/cs2/prices?n=" + encodeURIComponent(NAME)), "x", async () => new Response("<html>", {status: 200}), {});
-  assert.equal((await bad.json()).items[0].price, null);
-});
-
-test("bad price requests are refused before Steam is asked", async () => {
-  cs2ResetForTests();
-  const never = async () => { throw new Error("must not be called"); };
-  for (const query of ["", "?n=hello", "?n=" + encodeURIComponent(NAME + "&x=1"), "?" + Array.from({length: 9}, (_, i) => "n=" + encodeURIComponent("AK-47 | Skin" + i + " (Field-Tested)")).join("&")]) {
-    const res = await handle(req("/api/cs2/prices" + query), "x", never, {});
-    assert.equal(res.status, 400, query);
-  }
-  const post = await handle(new Request("https://framecheck.uk/api/cs2/prices?n=" + encodeURIComponent(NAME), {method: "POST"}), "x", never, {});
-  assert.equal(post.status, 405);
-});
-
 // ---- the page itself
-test("the page has the sidebar group, the section and the data files", () => {
+test("the page has the sidebar group and the section, and no server list yet", () => {
   const html = readFileSync(new URL("../src/index.html", import.meta.url), "utf8");
   assert.match(html, /id="hub-toggle"/); assert.match(html, /href="#cs2-skinlar" data-nav="cs2skins"/); assert.match(html, /href="#cs2-xaritalar" data-nav="cs2maps"/);
   assert.match(html, /id="cs2"/);
-  assert.doesNotMatch(html, /cs2-serverlar/); // the server list is postponed
+  assert.doesNotMatch(html, /cs2-serverlar/);
   assert.match(html, /apps\/730\//); // Steam's own icon
+});
+
+test("the Worker does not talk to Steam's market (Steam answers it with 429)", () => {
+  const server = readFileSync(new URL("../src/server.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(server, /priceoverview|api\/cs2/);
 });

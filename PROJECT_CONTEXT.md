@@ -83,7 +83,7 @@ Asosiy fayllar:
 - **Haqiqiy FPS o'lchovi faqat 3 o'yinda** (`benchmarks.json`: 15 qator). Qolgani hisoblangan taxmin.
 
 ## 7. Test va sinash
-- `npm test` hozir **189 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), cs2 (CS2 sahifalari/narx API), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
+- `npm test` hozir **187 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), cs2 (CS2 sahifalari), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
 
 ### Zamonaviy to'plam (commit qilingan, hali joylanmagan)
 - **Qurilma bali** (`src/score.mjs`, `score-ui.js`): 0-100 ball + ulashiladigan rasm.
@@ -94,7 +94,7 @@ Asosiy fayllar:
 - **CS2 markazi** (yon menyuda «O‘YIN MARKAZLARI» → Counter-Strike 2): `#cs2-skinlar` (skinlar katalogi) va `#cs2-xaritalar` (xaritalar). Serverlar ro‘yxati **kechiktirilgan** (UDP/A2S Workers'da ishlamaydi, alohida xizmat kerak). Kod: `src/cs2.js` (sahifalar), `src/cs2-logic.mjs` (filtr/saralash/sahifalash), `src/cs2-names.mjs` (market nomlari, tekshiruv), `src/cs2.mjs` (Worker: `/api/cs2/prices`), migratsiya `0003_cs2_prices.sql`.
   - Ma'lumot manbalari (hammasi MIT, `THIRD_PARTY_NOTICES.md` va `/licenses/cs2-third-party.txt`): skinlar — ByMykel/CSGO-API; callout va sxematik xaritalar — sink3x/cs2-server-admin-callouts (rasmlari MIT, Valve radari emas, shuning uchun repoda saqlanadi). Yangilash: `node scripts/build-cs2-data.mjs` (natija commit qilinadi).
   - Skin rasmlari Steam'ning o‘z CDN'idan, yon menyudagi CS2 ikonkasi Steam community serveridan yuklanadi (hotlink, repoga ko‘chirilmagan). Valve radar rasmlari ataylab ishlatilmagan (huquqi noaniq).
-  - Narx: faqat Steam Community Market `priceoverview`, har bir (skin, wear, variant) uchun alohida; D1 `cs2_prices` jadvalida 6 soat saqlanadi, Steam 429 bersa oxirgi qiymat «stale» sana bilan, yo‘q bo‘lsa «Narx mavjud emas». Narx bo‘yicha saralash/filtr yo‘q (barcha skinlar narxi uchun ommaviy manba kerak, hozircha yo‘q).
+  - Narx: **Skinport ochiq API** (`/v1/items`, kalitsiz, 1 so‘rov) dan olingan **statik snapshot** `src/data/cs2-prices.json` (eng arzon e‘lon, USD, sentda; sahifada manba va sana ko‘rsatiladi, 14 kundan eski bo‘lsa «eskirgan bo‘lishi mumkin»). Yangilash: `node scripts/build-cs2-prices.mjs` → `npm run deploy` (Skinport limiti: 5 daqiqada 8 so‘rov). Narx bo‘yicha saralash va filtr bor. **Steam Market `priceoverview` ishlatilmaydi**: Cloudflare Workers'dan Steam 429 qaytaradi (jonli sinovda tasdiqlangan) va ommaviy ro‘yxat bermaydi. Eslatma: Skinport narxi Steam Market narxidan farq qiladi (sahifada yozilgan). Kelajak: GitHub Actions + Cloudflare token bilan snapshotni avtomatik yangilash.
   - Float faqat skinning umumiy diapazoni sifatida ko‘rsatiladi (aniq listing floati yo‘q).
 - Qaytarish nuqtasi: git tegi `before-modern-ui`. Deploydan keyin `/o/<id>` va `/sitemap.xml`ni jonli tekshirish, Search Console'ga sitemap yuborish kerak.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
