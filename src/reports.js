@@ -48,12 +48,12 @@ function createReports(ctx) {
   }
 
   function form(host, game, data) {
-    const p = ctx.profile(), mine = data.mine || {};
+    const p = ctx.profile(), mine = data.mine || {}, chosen = ctx.settings(); // new reports start from the settings picked on the site
     host.innerHTML = '<form id="report-form" class="account-fields" novalidate>'
       + '<p class="hint">' + E(tr("Faqat shu o‘yinda o‘z qurilmangda o‘zing o‘lchagan FPS ni yoz. Tekshiruvdan keyin hamma uchun ko‘rinadi.")) + '</p>'
       + '<label class="spec-field"><span>FPS</span><input name="fps" type="number" min="1" max="1000" step="1" required value="' + E(mine.fps || "") + '"></label>'
-      + '<label class="spec-field"><span>' + E(tr("Grafik sozlamasi")) + '</span><select name="preset">' + Object.entries(PRESETS).map(([k, v]) => '<option value="' + k + '"' + (k === (mine.preset || "low") ? " selected" : "") + '>' + E(tr(v)) + '</option>').join("") + '</select></label>'
-      + '<label class="spec-field"><span>' + E(tr("Ekran o‘lchami")) + '</span><select name="resolution">' + RESOLUTIONS.map(v => '<option' + (v === (mine.resolution || "1080p") ? " selected" : "") + '>' + v + '</option>').join("") + '</select></label>'
+      + '<label class="spec-field"><span>' + E(tr("Grafik sozlamasi")) + '</span><select name="preset">' + Object.entries(PRESETS).map(([k, v]) => '<option value="' + k + '"' + (k === (mine.preset || (chosen.preset !== "auto" ? chosen.preset : "low")) ? " selected" : "") + '>' + E(tr(v)) + '</option>').join("") + '</select></label>'
+      + '<label class="spec-field"><span>' + E(tr("Ekran o‘lchami")) + '</span><select name="resolution">' + RESOLUTIONS.map(v => '<option' + (v === (mine.resolution || (chosen.resolution !== "auto" ? chosen.resolution : "1080p")) ? " selected" : "") + '>' + v + '</option>').join("") + '</select></label>'
       + '<label class="spec-field"><span>' + E(tr("Protsessor")) + '</span><input name="cpu" maxlength="120" required value="' + E(mine.cpu || p.cpu || "") + '"></label>'
       + '<label class="spec-field"><span>' + E(tr("Videokarta")) + '</span><input name="gpu" maxlength="120" required value="' + E(mine.gpu || p.gpu || "") + '"></label>'
       + '<label class="spec-field"><span>' + E(tr("RAM, GB")) + '</span><input name="ram" type="number" min="1" max="4096" step="0.25" value="' + E(mine.ram || p.ram || "") + '"></label>'

@@ -85,7 +85,7 @@ function benchGpu(s,kind){
  const integrated=/radeon\s+(?:680|780|890)m|rx\s+\d+m/i.test(s);
  return m[1].replace(/\s+/g,"")+(integrated?"":mobile?":laptop":fixed?":desktop":":unspecified");
 }
-const baseNotes={play:"Talablar qurilmaga mos. Standart sozlamada boshlab, o‘yinning ichki sinovida tekshir.",adjust:"Past grafik sozlamasidan boshla. Sotib olishdan oldin demo bo‘lsa, uni sinab ko‘r.",avoid:"Bir yoki bir nechta minimal talab bajarilmadi. Shu qurilma uchun xaridni tavsiya etmaymiz.",unknown:"Xarid qilishdan oldin jadvaldagi noma’lum bandlarni tekshir."};
+export const baseNotes={play:"Talablar qurilmaga mos. Standart sozlamada boshlab, o‘yinning ichki sinovida tekshir.",adjust:"Past grafik sozlamasidan boshla. Sotib olishdan oldin demo bo‘lsa, uni sinab ko‘r.",avoid:"Bir yoki bir nechta minimal talab bajarilmadi. Shu qurilma uchun xaridni tavsiya etmaymiz.",unknown:"Xarid qilishdan oldin jadvaldagi noma’lum bandlarni tekshir."};
 export function evaluateGame(raw,p,benches=[]){
  const result=evaluateCompatibility(raw,p,benches);
  return fillFrameRate(result,raw,p,{gpuClass,cpuClass,splitModels});

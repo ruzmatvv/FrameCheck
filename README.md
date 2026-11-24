@@ -24,6 +24,10 @@ First deploy on a machine, or when the token has expired: run `npx wrangler logi
 - `src/frames.mjs`: FPS estimates and Steam price parsing. `src/data/steam-uz.json` is the price seed.
 - `src/search.mjs`, `src/suggest-ui.mjs`, `src/prices-ui.mjs`, `src/dxdiag.mjs`: search, prices, DxDiag import.
 - `src/fps-demo.js`, `src/pc-duel.js`, `src/client.js`: browser-only parts.
+- `src/devices.mjs`, `src/device-picker.js`: video card / processor / RAM / system lists and the pick-or-type controls in
+  the device dialog. Every listed model must be understood by `gpuClass` / `cpuClass` (a test enforces it).
+- `src/settings.mjs`, `src/settings-ui.js`: screen size and graphics quality. FPS numbers are converted from the setting
+  they belong to (for example 720p low) to the chosen one; converted numbers are labelled as estimates.
 - `src/catalog.json`: 215 games. `src/benchmarks.json`: sourced FPS measurements.
 - `src/server.mjs`: `/api/game`, `/api/search`, `/api/prices`, `/img/<id>` (cover proxy).
 - `build.mjs`: joins the modules into one page. `import`/`export` lines are stripped for the browser.

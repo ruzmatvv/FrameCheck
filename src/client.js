@@ -10,7 +10,7 @@ const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tari
 const K="framecheck.v1",base=JSON.parse($("#catalog-data").textContent),images=window.FRAME_ART||{};
 const prices=attachSteamPrices(STEAM_UZ);
 const order=[1815780,1222680,1551360,227300,690790,271590,2824660,2707900,2737300,3241660,635260,244210,2379780,813230,1643320];
-const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;let account=null,compare=null,deals=null,reports=null,upgrade=null,adminPanel=null;
+const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;let account=null,compare=null,deals=null,reports=null,upgrade=null,adminPanel=null,settingsPanel=null;
 try {const v=JSON.parse(localStorage.getItem(K)||"null");if(v){data.saved=Array.isArray(v.saved)?v.saved.filter(Number.isInteger):[];data.history=Array.isArray(v.history)?v.history.filter(h=>Number.isInteger(h.id)&&h.at):[];data.games=v.games&&typeof v.games==="object"?v.games:{}}}catch{}
 function persist(){try{localStorage.setItem(K,JSON.stringify(data));storeOK=true;account?.touch()}catch{storeOK=false;notify(tr("Brauzer saqlashga ruxsat bermadi. Natija shu sahifada ko‘rinadi."))}}
 const autoInitial=browserProfile(navigator,document),overrideKey="framecheck.device.v2";
@@ -18,7 +18,7 @@ let automatic=autoInitial,storedSettings=null,profileBusy=false,returnToId=null,
 try {storedSettings=JSON.parse(localStorage.getItem(overrideKey)||"null")}catch{}
 let profile=activeProfile(automatic,readOverrides(storedSettings,automatic));
 const rawGame=id=>data.games[id]||known.get(id);
-const game=id=>evaluateGame(rawGame(id),profile,BENCHMARKS);
+const game=id=>applySettings(evaluateGame(rawGame(id),profile,BENCHMARKS),settingsPanel?settingsPanel.get():undefined);
 let localQuery="",view="home",filter=new Set(),verdict="",limit=6,detailId=null,generation=0,toastId,searchSerial=0;
 function notify(s){$("#toast").textContent=s;clearTimeout(toastId);toastId=setTimeout(()=>$("#toast").textContent="",3300)}
 function setMenu(open){$(".side").classList.toggle("open",open);$("#scrim").hidden=!open;$("#nav-toggle").setAttribute("aria-expanded",String(open))}
@@ -54,7 +54,7 @@ function render(){
  $("#profile-note").textContent=profileBusy?tr("Qurilma xususiyatlari o‘qilmoqda…"):mobile?tr("Bu qurilmada Steam’ning PC versiyalari uchun platforma mosligi tekshiriladi."):need.length?tr("Aniqroq baho uchun {0} ma’lumotini to‘ldir.",need.join(", ")):odd.length?tr("{0} modeli tanilmadi. Nomni tekshir, aks holda baho aniq chiqmaydi.",odd.join(", ")):tr("Baholar shu qurilma xususiyatlariga hisoblandi.");
  $("#library-search").hidden=view==="home"||!ids.length;$("#catalog-query").value=localQuery;
  $("#catalog-count").textContent=gameCount(filtered.length)+(view==="home"||view==="catalog"?" · "+tr("Katalogda jami {0} ta",known.size):"");
- $("#frame-lab").hidden=$("#hero").hidden=$("#rig").hidden=view!=="home";$("#collection").classList.toggle("solo",view!=="home");
+ $("#frame-lab").hidden=$("#hero").hidden=$("#rig").hidden=view!=="home";$("#settings-panel").hidden=!(view==="home"||view==="catalog");$("#collection").classList.toggle("solo",view!=="home");
  $("#section-title").textContent=view==="home"?tr("O‘yinlarni tanla"):tr(texts[view]);$("#section-kicker").textContent=view==="home"||view==="catalog"?tr("KATALOG"):tr("SHAXSIY TO‘PLAM");
  $("#all-games").hidden=view!=="home";$("#crumb").textContent=tr(texts[view]);document.title=tr(texts[view])+" · Framecheck";
  document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")});
@@ -136,6 +136,7 @@ function device(again=false){
   const odd=[cpu&&cpuClass(cpu)==null?tr("Protsessor"):null,gpu&&gpuClass(gpu,{cpu})==null?tr("Videokarta"):null].filter(Boolean);
   $("#spec-hint").textContent=odd.length?tr("{0} modeli tanilmadi. Nomni tekshir, aks holda baho aniq chiqmaydi.",odd.join(", ")):""};
  form.elements.cpu.addEventListener("input",checkSpecs);form.elements.gpu.addEventListener("input",checkSpecs);checkSpecs();
+ enhanceDeviceForm(form,{tr,E});
  const imported=new Map((profile.reportFields||[]).map(k=>[k,String(profile[k])]));
  fileInput.addEventListener("change",async()=>{
   const file=fileInput.files[0];if(!file)return;
@@ -144,12 +145,12 @@ function device(again=false){
    const {fields,adapters}=await readDxDiag(file);
    if(!form.isConnected)return;
    imported.clear();
-   for(const [k,v] of Object.entries(fields)){form.elements[k].value=v;imported.set(k,String(v));form.elements[k].closest("label").querySelector("small").textContent="DxDiag"}
+   for(const [k,v] of Object.entries(fields)){form.elements[k].value=v;form.elements[k].dispatchEvent(new Event("input",{bubbles:true}));imported.set(k,String(v));form.elements[k].closest("label").querySelector("small").textContent="DxDiag"}
    if(adapters.length>1){
     $("#gpu-choices").replaceChildren(...adapters.map(name=>new Option(name,name)));
     const gpu=form.elements.gpu;
     if(!adapters.includes(gpu.value)){gpu.value="";gpu.placeholder=tr("Ro‘yxatdan GPU tanla")}
-    gpu.setAttribute("list","gpu-choices");gpu.required=true;
+    gpu.required=true;
    }
    status.textContent=[tr("O‘qilgan maydonlar: {0}.",Object.keys(fields).length),adapters.length>1?tr("Bir nechta GPU topildi. O‘yin ishlatadigan modelni tanla."):"",tr("Tekshir va saqla.")].filter(Boolean).join(" ");
   }catch(err){status.textContent=err.message}finally{fileInput.value=""}
@@ -220,7 +221,8 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  });
  const nameOf=id=>known.get(id)?.name||data.games[id]?.name||"";
  const shared={tr,E,$,I,show,notify,time,prices,fps,badge,locale,memorySize,hardwareText,genreLabel,labels,parts,
-  game:id=>rawGame(id)?game(id):null,profile:()=>profile,profileName:()=>profileLabel(profile)};
+  game:id=>rawGame(id)?game(id):null,profile:()=>profile,profileName:()=>profileLabel(profile),settings:()=>settingsPanel.get()};
+ settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});

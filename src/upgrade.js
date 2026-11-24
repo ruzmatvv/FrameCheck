@@ -17,7 +17,7 @@ function createUpgrade(ctx) {
     for (const id of ctx.ids()) {
       const raw = ctx.raw(id);
       if (!raw) continue;
-      const a = evaluateGame(raw, base, BENCHMARKS), b = evaluateGame(raw, next, BENCHMARKS);
+      const a = applySettings(evaluateGame(raw, base, BENCHMARKS), ctx.settings()), b = applySettings(evaluateGame(raw, next, BENCHMARKS), ctx.settings());
       if (!a || !b) continue;
       before[a.verdict]++; after[b.verdict]++;
       if (RANK[b.verdict] > RANK[a.verdict]) better.push({id, name: b.name, from: a, to: b, gain: RANK[b.verdict] - RANK[a.verdict]});

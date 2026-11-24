@@ -210,3 +210,29 @@ button.user .avatar{flex:none}
 .privacy-link:hover{color:#fff}
 @media(max-width:600px){.admin-stats{grid-template-columns:repeat(2,1fr)}.admin-lists{grid-template-columns:1fr}#compare-bar{width:calc(100vw - 24px)}}
 body.has-compare{padding-bottom:78px}
+
+/* Device picker */
+.choice-field{grid-column:1/-1;display:grid;gap:8px}
+.choice-title{font-size:.88rem}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.choice-card{display:grid;gap:2px;align-content:center;min-height:46px;padding:9px 10px;text-align:center;border:1px solid #475046;border-radius:9px;background:#151916;color:#dfe3dd;cursor:pointer;font-size:.88rem}
+.choice-card small{color:var(--muted);font-size:.74rem}
+.choice-card:hover{border-color:#6c7d68}
+.choice-card[aria-pressed=true]{border-color:var(--lime);background:#1b2a17;color:#fff;box-shadow:inset 0 0 0 1px #c3fc6540}
+.spec-field.combo{position:relative}
+.combo-panel{position:absolute;left:0;right:0;top:100%;z-index:6;margin-top:4px;border:1px solid #475046;border-radius:9px;background:#171b18;box-shadow:0 12px 32px #000a;overflow:hidden}
+.combo-panel[hidden]{display:none}
+.combo-chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--border)}
+.combo-chip{padding:4px 10px;border:1px solid #475046;border-radius:14px;background:#1c201f;color:#dfe3dd;font-size:.78rem;cursor:pointer}
+.combo-chip[aria-pressed=true]{background:var(--lime);border-color:var(--lime);color:#141b0f}
+.combo-list{max-height:240px;overflow:auto}
+.combo-option{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;cursor:pointer;font-size:.88rem}
+.combo-option small{color:var(--muted);flex:none}
+.combo-option:hover,.combo-option[aria-selected=true]{background:#243023}
+.combo-empty{margin:0;padding:12px;color:var(--muted);font-size:.84rem}
+/* FPS settings panel */
+.settings-panel{margin:16px 0 0;padding:16px;border:1px solid #313632;border-radius:12px;background:var(--card);display:grid;gap:14px}
+.settings-panel[hidden]{display:none}
+.settings-head strong{display:block;font-size:1rem}
+.settings-head small{display:block;margin-top:3px;color:var(--muted);font-size:.8rem;line-height:1.4}
+.settings-panel .choice-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
