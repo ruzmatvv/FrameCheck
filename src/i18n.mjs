@@ -1,17 +1,28 @@
-import {ru} from "./data.mjs";
+import {ru, en} from "./data.mjs";
 import {titles} from "./core.mjs";
+import {routeLanguage} from "./routes.mjs";
 
 const languageKey = "framecheck.language";
 export let language = "uz";
-try { if (typeof window !== "undefined" && window.localStorage?.getItem(languageKey) === "ru") language = "ru"; } catch {}
+const languages = ["uz", "ru", "en"];
+const pathLanguage = routeLanguage;
+try {
+ // the address wins (a shared link keeps its language), then the saved choice
+ const fromPath = typeof location !== "undefined" ? pathLanguage(location.pathname) : null;
+ const saved = typeof window !== "undefined" ? window.localStorage?.getItem(languageKey) : null;
+ const pick = fromPath || saved;
+ if (languages.includes(pick)) language = pick;
+} catch {}
+const dictionary = () => language === "ru" ? ru : language === "en" ? en : null;
 
-export function locale() { return language === "ru" ? "ru-RU" : "uz-UZ"; }
+export function locale() { return language === "ru" ? "ru-RU" : language === "en" ? "en-US" : "uz-UZ"; }
 export function tr(message, ...values) {
- const text = language === "ru" && Object.hasOwn(ru, message) ? ru[message] : message;
+ const dict = dictionary(), text = dict && Object.hasOwn(dict, message) ? dict[message] : message;
  return values.length ? text.replace(/\{(\d+)\}/g, (_, index) => String(values[index])) : text;
 }
 export function gameCount(n) {
  if (language === "uz") return n + " ta o‘yin";
+ if (language === "en") return n + (n === 1 ? " game" : " games");
  const word = {one:"игра", few:"игры", many:"игр", other:"игры"};
  return n + " " + word[new Intl.PluralRules("ru").select(n)];
 }
@@ -45,7 +56,7 @@ export function initLanguage() {
  sync();
  bindStaticLanguage(document.documentElement);
  menu.addEventListener("change", () => {
-  language = menu.value === "ru" ? "ru" : "uz";
+  language = languages.includes(menu.value) ? menu.value : "uz";
   try { localStorage.setItem(languageKey, language); } catch {}
   sync();
   window.dispatchEvent(new Event("framecheck:language"));
@@ -99,9 +110,23 @@ const requirementPhrases = [
 const escaped = text => text.replace(/[.*+?^$}|()[\]\\]/g,"\\$&");
 const phrases = new Map(requirementPhrases.map(row => [row[0].toLowerCase(),row]));
 const phrasePattern = new RegExp("(?<![a-zа-яё])("+[...phrases.keys()].sort((a,b)=>b.length-a.length).map(escaped).join("|")+")(?![a-zа-яё])","gi");
+// English is what Steam already writes, so only the phrases that our own Uzbek notes put into requirement text need an English copy.
+const englishPhrases = {
+ "qo‘llaydigan integratsiyalashgan grafika":"integrated graphics supporting it","Integratsiyalashgan GPU rasmiy qo‘llab-quvvatlanmaydi.":"Integrated GPUs are not officially supported.",
+ "ayrim Windows 7 versiyalari ham mos":"some Windows 7 versions also work","yoki DirectX 10.1 qo‘llaydigan tengi":"or an equivalent with DirectX 10.1 support","yoki DX11 mos tengi":"or a DX11-compatible equivalent",
+ "yoki teng 6 yadroli CPU":"or an equivalent 6-core CPU","AMD ekvivalenti":"AMD equivalent","AMD tengi":"AMD equivalent","AMD muqobili":"AMD equivalent","standart ekran uchun":"for a standard display","standart rejim":"standard mode",
+ "alohida videoxotira":"dedicated video memory","videoxotira":"video memory","yoki tengi":"or equivalent","yadroli protsessor":"-core processor","yadroli CPU":"-core processor","yoki":"or","oqim":"threads","yadroli":"-core","yadro":"cores",
+ "masalan":"for example","kamida":"at least","protsessor":"processor"
+};
 export function hardwareText(value) {
- const column = locale()==="ru-RU"?2:1;
- return String(value).replace(phrasePattern, key=>phrases.get(key.toLowerCase())[column])
+ const lang = locale(), column = lang==="ru-RU"?2:1;
+ return String(value).replace(phrasePattern, key=>{
+  const row = phrases.get(key.toLowerCase());
+  if (lang !== "en-US") return row[column];
+  if (Object.hasOwn(englishPhrases,row[0])) return englishPhrases[row[0]];
+  return /^(Vulkan|OpenGL|DirectX) [\d.]+ qo‘llaydigan/.test(row[0]) ? "Integrated graphics with "+row[0].split(" qo‘llaydigan")[0]+" support" : key;
+ })
+  .replace(/(\d)\s+-core/g,"$1-core")
   .replace(/(\d)(ГБ|МБ|ГГц|GB|MB|GHz)/gi,"$1 $2")
   .replace(/(32|64)[- ]?bits?\b/gi,(_,bits)=>bits+(column===2?"-бит":" bit"));
 }

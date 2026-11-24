@@ -90,6 +90,7 @@ Asosiy fayllar:
 - **O'yin manzillari** `/o/<id>-<nom>` (`src/routes.mjs`, serverda `gamePage`): OG/Twitter/JSON-LD meta, `/sitemap.xml`; `wrangler.toml`da `[assets] binding = "ASSETS"`; Worker bundle'ga `GAME_NAMES`ni build.mjs qo'shadi.
 - **O'yin oynasi**: skrinshotlar, treyler, qisqa tavsif (`game-media.js`; `/api/game` media maydonlari faqat steamstatic/akamaihd https manzillari).
 - **Ctrl+K palitra** (`palette.js`), mobil pastki menyu, yumshoq animatsiyalar (`prefers-reduced-motion` hurmat qilinadi).
+- **Uch til** (uz asosiy, ru, en): matnlar `src/data/ru.json` va `src/data/en.json` (kalit = o'zbekcha matn; ikkala fayl kalitlari bir xil bo'lishi testda tekshiriladi). Manzillar: `/`, `/ru/`, `/en/`, `/o/<id>-<nom>`, `/ru/o/...`, `/en/o/...` (`src/routes.mjs`). Server (`pageMeta`/`servePage`) har til uchun sarlavha, tavsif, `<html lang>`, canonical va hreflang beradi; sitemap har sahifani 3 tilda beradi. Til tanlash: manzil > saqlangan tanlov > uz. Eslatma: Steam tavsifi va talablari doim inglizcha (talablarni tahlil qilish inglizchaga tayanadi).
 - Qaytarish nuqtasi: git tegi `before-modern-ui`. Deploydan keyin `/o/<id>` va `/sitemap.xml`ni jonli tekshirish, Search Console'ga sitemap yuborish kerak.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
 - Brauzer paneli (Claude ichidagi) eslatmalari: service worker'ni ro'yxatdan o'tkazmaydi (mahalliyda xato chiqadi, jonli HTTPS'da ishlaydi);

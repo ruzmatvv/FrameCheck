@@ -71,7 +71,9 @@ test("the sitemap lists the home page and every game once", async () => {
   assert.equal(res.status, 200);
   assert.match(res.headers.get("Content-Type"), /xml/);
   const xml = await res.text();
-  assert.equal((xml.match(/<loc>/g) || []).length, Object.keys(GAME_NAMES).length + 1);
+  assert.equal((xml.match(/<loc>/g) || []).length, (Object.keys(GAME_NAMES).length + 1) * 3); // every page in three languages
+  assert.ok(xml.includes('hreflang="en" href="https://framecheck.uk/en/"'));
+  assert.ok(xml.includes("<loc>https://framecheck.uk/ru" + path + "</loc>"));
   assert.ok(xml.includes("<loc>https://framecheck.uk/</loc>"));
   assert.ok(xml.includes("<loc>https://framecheck.uk" + path + "</loc>"));
 });
@@ -89,4 +91,53 @@ test("/api/game adds only safe media from Steam's own hosts", async () => {
   assert.deepEqual(game.screenshots, [{thumb: "https://shared.akamai.steamstatic.com/a_t.jpg", full: "https://shared.akamai.steamstatic.com/a.jpg"}]);
   assert.equal(game.movies.length, 1);
   assert.equal(game.movies[0].mp4, "https://video.akamai.steamstatic.com/t.mp4");
+});
+
+test("routes know the language of an address", async () => {
+  const {routeLanguage, homePath, parseHomePath} = await import("../src/routes.mjs");
+  assert.equal(routeLanguage("/en/o/5-x"), "en");
+  assert.equal(routeLanguage("/ru"), "ru");
+  assert.equal(routeLanguage("/o/5"), null);
+  assert.equal(routeLanguage("/english"), null);
+  assert.equal(gamePath(5, "Demo", "en"), "/en/o/5-demo");
+  assert.equal(gamePath(5, "Demo", "ru"), "/ru/o/5-demo");
+  assert.equal(gamePath(5, "Demo"), "/o/5-demo");
+  assert.equal(parseGamePath("/en/o/5-demo"), 5);
+  assert.equal(parseGamePath("/de/o/5"), null);
+  assert.equal(homePath("en"), "/en/");
+  assert.equal(homePath("uz"), "/");
+  assert.equal(parseHomePath("/ru/"), "ru");
+  assert.equal(parseHomePath("/ru"), "ru");
+  assert.equal(parseHomePath("/fr/"), null);
+});
+
+test("English and Russian game pages carry their language, title and links to the other languages", async () => {
+  for (const [lang, word] of [["en", "Can your PC run"], ["ru", "системные требования"]]) {
+    const res = await handle(req(gamePath(id, name, lang)), '<html lang="uz"><head><title>x</title><meta name="description" content="old"><link rel="canonical" href="https://framecheck.uk/"></head><body>app</body></html>', down, {CANONICAL_HOST: "framecheck.uk"});
+    assert.equal(res.status, 200);
+    const html = await res.text();
+    assert.ok(html.includes('<html lang="' + lang + '"'), lang);
+    assert.ok(html.includes(word), lang);
+    assert.ok(html.includes('rel="canonical" href="https://framecheck.uk' + gamePath(id, name, lang) + '"'), lang);
+    assert.equal((html.match(/rel="canonical"/g) || []).length, 1, "one canonical");
+    for (const l of ["uz", "ru", "en", "x-default"]) assert.ok(html.includes('hreflang="' + l + '"'), l);
+  }
+});
+
+test("a wrongly spelled English address goes to the proper English one", async () => {
+  const res = await handle(req("/en/o/" + id + "-wrong"), HOME, down, {});
+  assert.equal(res.status, 308);
+  assert.equal(res.headers.get("Location"), gamePath(id, name, "en"));
+});
+
+test("/en and /ru home pages exist; /en without a slash goes to /en/", async () => {
+  const redirect = await handle(req("/en"), HOME, down, {});
+  assert.equal(redirect.status, 308);
+  assert.equal(redirect.headers.get("Location"), "/en/");
+  const res = await handle(req("/ru/"), HOME, down, {CANONICAL_HOST: "framecheck.uk"});
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.ok(html.includes('hreflang="en" href="https://framecheck.uk/en/"'));
+  assert.ok(html.includes('rel="canonical" href="https://framecheck.uk/ru/"'));
+  assert.equal((await handle(req("/fr/"), HOME, down, {})).status, 404);
 });

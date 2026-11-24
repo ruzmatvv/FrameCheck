@@ -71,9 +71,11 @@ function render(){
 }
 function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
 // A game's window has its own address (/o/<id>-<name>): the back button closes it and the link can be shared.
-function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
-function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"","/"+location.search+location.hash)}catch{}}
-window.addEventListener("popstate",()=>{const id=parseGamePath(location.pathname);if(id){if(detailId!==id)readGame(id)}else if($("#modal").open)$("#modal").close()});
+function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name,language);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
+function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"",(routeLanguage(location.pathname)?homePath(language):"/")+location.search+location.hash)}catch{}}
+// the address follows the language, so a link copied from the address bar opens in the same language
+window.addEventListener("framecheck:language",()=>{try{const id=parseGamePath(location.pathname);if(id){history.replaceState(history.state,"",gamePath(id,known.get(id)?.name||data.games[id]?.name,language)+location.search+location.hash)}else if(parseHomePath(location.pathname)!==null&&(routeLanguage(location.pathname)||language!=="uz"))history.replaceState(history.state,"",homePath(language)+location.search+location.hash)}catch{}});
+window.addEventListener("popstate",()=>{const id=parseGamePath(location.pathname);if(id){if(detailId!==id)readGame(id)}else{if($("#modal").open)$("#modal").close();const home=parseHomePath(location.pathname);if(home!==null&&(home!=="uz"||language!=="uz")&&location.pathname!==homePath(language))try{history.replaceState(history.state,"",homePath(language)+location.search+location.hash)}catch{}}});
 function show(title,html){const d=$("#modal");$("#modal-body").innerHTML='<div class="modal-head"><h2 id="modal-title">'+E(title)+(`</h2><button class="icon" data-close aria-label="${tr("Yopish")}">`)+I("close")+'</button></div><div class="modal-inner">'+html+'</div>';if(!d.open)d.showModal();d.scrollTop=0}
 function remember(g){data.history=[{id:g.id,at:new Date().toISOString()},...data.history.filter(x=>x.id!==g.id)].slice(0,100);persist()}
 function toggleSave(id){account?.markSaved(id,!data.saved.includes(id));data.saved=data.saved.includes(id)?data.saved.filter(x=>x!==id):[id,...data.saved];persist();render();if($("#modal").open&&detailId===id)detail(game(id),false);if(storeOK)notify(data.saved.includes(id)?tr("Saqlanganlarga qo‘shildi"):tr("Saqlanganlardan olib tashlandi"))}
@@ -201,7 +203,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  for(const [input,box] of [["#game-q","#search"],["#catalog-query","#library-search"]]){
   attachSuggestions($(input),$(box),allTitles,id=>readGame(id),picture,api,prices);
  }
- window.addEventListener("framecheck:language",()=>{render();$("#toast").textContent="";});
+ window.addEventListener("framecheck:language",()=>{render();$("#toast").textContent="";if($("#modal").open&&detailId&&game(detailId))detail(game(detailId),false)});
  const searchField=$("#game-q");
  searchField.addEventListener("invalid",()=>{if(searchField.validity.valueMissing)searchField.setCustomValidity(tr("O‘yin nomi yoki Steam havolasini kirit."))});
  searchField.addEventListener("input",()=>searchField.setCustomValidity(""));
