@@ -26,7 +26,7 @@ const games = JSON.parse(read("src/catalog.json"));
 const css = read("src/ui.css").replace("__HERO__", () => img("hero.jpg"));
 
 // Client script: data first, then the modules in dependency order (import/export lines are stripped).
-const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "settings.mjs", "score.mjs", "search.mjs", "dxdiag.mjs", "devices.mjs", "sync.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs", "device-picker.js", "settings-ui.js", "score-ui.js", "account.js", "privacy.js", "compare.js", "upgrade.js", "deals.js", "reports.js", "admin-ui.js"].map(n => "src/" + n);
+const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "settings.mjs", "score.mjs", "routes.mjs", "search.mjs", "dxdiag.mjs", "devices.mjs", "sync.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs", "device-picker.js", "settings-ui.js", "score-ui.js", "account.js", "privacy.js", "compare.js", "upgrade.js", "deals.js", "reports.js", "admin-ui.js"].map(n => "src/" + n);
 const data = "const ru=" + safeJSON(JSON.parse(read("src/data/ru.json"))) + ";\n"
   + "const STEAM_UZ=" + safeJSON(JSON.parse(read("src/data/steam-uz.json"))) + ";\n"
   + "window.FRAME_ART=" + safeJSON(art) + ";\n"
@@ -58,7 +58,8 @@ writeAtomic("dist/public/apple-touch-icon.png", Buffer.from(pwa.icons["apple-tou
 writeAtomic("dist/public/favicon.ico", makeIco(32));
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
-const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+const gameNames = "const GAME_NAMES=" + safeJSON(Object.fromEntries(games.map(g => [g.id, g.name]))) + ";\n";
+const worker = gameNames + ["src/routes.mjs", "src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
 writeAtomic("dist/server/index.js", worker + "\nconst home=null;\nconst pwa={};\nexport default {fetch:(request,env,ctx)=>handle(request,home,undefined,env,pwa,ctx)};\n");
 if (process.argv.includes("--portable")) writeAtomic("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

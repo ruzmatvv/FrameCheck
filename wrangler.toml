@@ -23,6 +23,8 @@ CANONICAL_HOST = "framecheck.uk"
 # Headers for these files are in src/headers.txt (copied to dist/public/_headers).
 [assets]
 directory = "./dist/public"
+# The Worker reads the page through this binding to add a game's title and cover to its head (/o/<id>).
+binding = "ASSETS"
 
 # Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
 [[d1_databases]]

@@ -12,6 +12,8 @@ if(process.env.FRAMECHECK_LOCAL_DB==="1"){
  const {openDatabase}=await import("./src/d1-sqlite.mjs");
  env.DB=openDatabase(new URL("./.data/framecheck.sqlite",import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,"$1"),new URL("./migrations/",import.meta.url));
 }
+// On Cloudflare the Worker reads the page through the ASSETS binding; locally the same file is read from disk.
+env.ASSETS={fetch:async()=>new Response(await readFile(new URL("./dist/public/index.html",import.meta.url)),{headers:{"Content-Type":"text/html; charset=utf-8"}})};
 async function probe(){
  if(process.platform!=="win32")return null;
  try{const script=await readFile(new URL("./windows-profile.ps1",import.meta.url),"utf8");

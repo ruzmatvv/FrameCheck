@@ -2,6 +2,8 @@ import {handleAccount} from "./auth.mjs";
 import "./recovery.mjs";
 import "./fps.mjs";
 import "./admin.mjs";
+import {GAME_NAMES} from "./game-names.mjs";
+import {gamePath, parseGamePath} from "./routes.mjs";
 const steam="https://store.steampowered.com";
 const COVER_HOSTS=["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/","https://cdn.cloudflare.steamstatic.com/steam/apps/","https://cdn.akamai.steamstatic.com/steam/apps/"];
 const security={"X-Content-Type-Options":"nosniff"};
@@ -91,6 +93,56 @@ function installAsset(pathname,assets){
  return null;
 }
 
+// ---- single game pages: /o/<id>-<name>. The page is the same app; only the head differs, so a link shared in a chat or
+// found by a search engine shows the game's title and cover.
+const PAGE_SECURITY={"X-Frame-Options":"DENY","Content-Security-Policy":"frame-ancestors 'none'","Permissions-Policy":"camera=(), microphone=(), geolocation=(), payment=()"};
+const escapeHtml=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function gameMeta(id,origin,canonicalHost){
+ const name=GAME_NAMES[id],base=canonicalHost?"https://"+canonicalHost:origin,path=gamePath(id,name),url=base+path,image=base+"/img/"+id+".jpg";
+ const title=name?name+" — Framecheck":"Framecheck — O‘yin tekshiruvi";
+ const description=name?name+": tizim talablari va sizning qurilmangizda taxminiy FPS. Framecheck o‘yin kompyuteringizda ishlashini tekshiradi.":"Qurilmangiz uchun o‘yin talablari va taxminiy FPS.";
+ const ld=name?{"@context":"https://schema.org","@type":"VideoGame",name,url,image,applicationCategory:"Game",operatingSystem:"Windows"}:null;
+ const tag=(attr,key,value)=>'<meta '+attr+'="'+key+'" content="'+escapeHtml(value)+'">';
+ const tags=['<link rel="canonical" href="'+escapeHtml(url)+'">',tag("property","og:type","website"),tag("property","og:site_name","Framecheck"),tag("property","og:title",title),tag("property","og:description",description),
+  tag("property","og:url",url),tag("property","og:image",image),tag("name","twitter:card","summary_large_image"),tag("name","twitter:title",title),tag("name","twitter:description",description),tag("name","twitter:image",image),
+  ld?'<script type="application/ld+json">'+JSON.stringify(ld).replace(/</g,"\\u003c")+'</script>':""].join("");
+ return {name,path,url,title,description,tags};
+}
+async function gamePage(request,home,env,id){
+ const url=new URL(request.url),meta=gameMeta(id,url.origin,env?.CANONICAL_HOST);
+ // a known game asked for with another spelling of the address goes to its one proper address
+ if(meta.name&&url.pathname!==meta.path)return new Response(null,{status:308,headers:{Location:meta.path+url.search,"Cache-Control":"public, max-age=3600",...security}});
+ const source=home!=null?new Response(home):await env?.ASSETS?.fetch(new Request(url.origin+"/"));
+ if(!source||!source.ok)return json({code:"not_found"},404);
+ const headers=new Headers({"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache",...security,...PAGE_SECURITY});
+ if(typeof HTMLRewriter!=="undefined"){ // on Cloudflare: changes the head while the page streams through
+  return new HTMLRewriter().on("title",{element(e){e.setInnerContent(meta.title)}}).on('meta[name="description"]',{element(e){e.setAttribute("content",meta.description)}})
+   .on("head",{element(e){e.append(meta.tags,{html:true})}}).transform(new Response(request.method==="HEAD"?null:source.body,{headers}));
+ }
+ const text=(await source.text()).replace(/<title>[^<]*<\/title>/,()=>"<title>"+escapeHtml(meta.title)+"</title>").replace(/(<meta name="description" content=")[^"]*(")/,(_,a,b)=>a+escapeHtml(meta.description)+b).replace("</head>",()=>meta.tags+"</head>");
+ return new Response(request.method==="HEAD"?null:text,{headers});
+}
+function sitemap(url,env){
+ const base=env?.CANONICAL_HOST?"https://"+env.CANONICAL_HOST:url.origin;
+ const paths=["/",...Object.entries(GAME_NAMES).map(([id,name])=>gamePath(id,name))];
+ const body='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+paths.map(p=>"<url><loc>"+escapeHtml(base+p)+"</loc></url>").join("\n")+"\n</urlset>\n";
+ return new Response(body,{headers:{"Content-Type":"application/xml; charset=utf-8","Cache-Control":"public, max-age=3600",...security}});
+}
+
+// Screenshots and trailers of a game (for its page): only https addresses on Steam's own hosts, and only a few of them.
+const steamMedia=u=>typeof u==="string"&&/^https:\/\/[\w.-]+\.(?:steamstatic\.com|akamaihd\.net)\//.test(u)?u:null;
+function pickMedia(game){
+ const list=value=>Array.isArray(value)?value:[];
+ const people=value=>list(value).filter(x=>typeof x==="string"&&x.length<=80).slice(0,3);
+ return {
+  short_description:typeof game.short_description==="string"?game.short_description.slice(0,600):"",
+  screenshots:list(game.screenshots).slice(0,12).map(s=>({thumb:steamMedia(s?.path_thumbnail),full:steamMedia(s?.path_full)})).filter(s=>s.thumb&&s.full),
+  movies:list(game.movies).slice(0,3).map(m=>({name:String(m?.name||"").slice(0,120),thumb:steamMedia(m?.thumbnail),mp4:steamMedia(m?.mp4?.["480"]||m?.mp4?.max),webm:steamMedia(m?.webm?.["480"]||m?.webm?.max)})).filter(m=>m.thumb&&(m.mp4||m.webm)),
+  metacritic:Number.isFinite(Number(game.metacritic?.score))&&Number(game.metacritic.score)>0?Number(game.metacritic.score):null,
+  developers:people(game.developers),publishers:people(game.publishers),
+ };
+}
+
 // Other host names of the site (a mistyped domain, www) send visitors to the main address, keeping path and query.
 function canonicalRedirect(url,env){
  const canonical=env?.CANONICAL_HOST;if(!canonical)return null;
@@ -122,6 +174,8 @@ async function respond(request,home,fetchSteam,env,assets,ctx){
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if((pathname==="/"||pathname==="/index.html")&&home)return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
  if(pathname==="/favicon.ico")return new Response(null,{status:204});
+ if(pathname==="/sitemap.xml")return sitemap(new URL(request.url),env);
+ if(pathname.startsWith("/o/")){const id=parseGamePath(pathname);return id?gamePage(request,home,env,id):json({code:"not_found"},404)}
  const asset=installAsset(pathname,assets);if(asset)return request.method==="HEAD"?new Response(null,{status:asset.status,headers:asset.headers}):asset;
  if(pathname.startsWith("/img/")){const id=pathname.slice(5).replace(/\.jpg$/,"");return cached(request,validId(id)?"img/"+id:null,86400,()=>cover(id,fetchSteam),ctx)}
  if(pathname==="/api/prices")return cached(request,priceKey(searchParams),600,()=>prices(searchParams,fetchSteam),ctx);
@@ -140,6 +194,6 @@ async function steamLookup(isSearch,key,fetchSteam){
   if(isSearch){if(!Array.isArray(payload.items))return json({code:"steam_unavailable"},503);const items=payload.items.filter(x=>Number.isInteger(+x.id)&&x.name).slice(0,14).map(x=>({id:+x.id,name:x.name}));return json({items})}
   const record=payload[key];if(!record?.success||!record.data)return json({code:"not_found"},404);
   const game=record.data;if(!["game","demo"].includes(game.type))return json({code:"not_game"},422);
-  return json(Object.fromEntries(["steam_appid","name","pc_requirements","mac_requirements","linux_requirements","genres","platforms","header_image","release_date"].map(field=>[field,game[field]])));
+  return json({...Object.fromEntries(["steam_appid","name","pc_requirements","mac_requirements","linux_requirements","genres","platforms","header_image","release_date"].map(field=>[field,game[field]])),...pickMedia(game)});
  }catch{return json({code:"steam_unavailable"},503)}
 }
