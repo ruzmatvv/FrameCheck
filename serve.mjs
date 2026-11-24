@@ -24,7 +24,7 @@ async function probe(){
 const localHardware=probe();
 // The page and the other static files come from dist/public (on Cloudflare they are served without the Worker).
 const publicDir=fileURLToPath(new URL("./dist/public/",import.meta.url));
-const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".webmanifest":"application/manifest+json; charset=utf-8",".png":"image/png"};
+const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".webmanifest":"application/manifest+json; charset=utf-8",".png":"image/png",".jpg":"image/jpeg",".webp":"image/webp",".json":"application/json; charset=utf-8",".txt":"text/plain; charset=utf-8"};
 async function staticFile(req,res){
  if(req.method!=="GET"&&req.method!=="HEAD")return false;
  const name=decodeURIComponent(new URL(req.url,homeURL).pathname).replace(/^\/+/,"")||"index.html";

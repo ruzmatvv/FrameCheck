@@ -23,3 +23,13 @@
 
 /icons/*
   Cache-Control: public, max-age=604800
+
+/data/*
+  Cache-Control: public, max-age=3600
+
+/maps/*
+  Cache-Control: public, max-age=86400
+
+/licenses/*
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8

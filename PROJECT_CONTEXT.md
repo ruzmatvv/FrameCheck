@@ -83,7 +83,7 @@ Asosiy fayllar:
 - **Haqiqiy FPS o'lchovi faqat 3 o'yinda** (`benchmarks.json`: 15 qator). Qolgani hisoblangan taxmin.
 
 ## 7. Test va sinash
-- `npm test` hozir **162 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
+- `npm test` hozir **189 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), cs2 (CS2 sahifalari/narx API), pages (o'yin manzillari/sitemap), pwa, score, server, settings, sw, sync.
 
 ### Zamonaviy to'plam (commit qilingan, hali joylanmagan)
 - **Qurilma bali** (`src/score.mjs`, `score-ui.js`): 0-100 ball + ulashiladigan rasm.
@@ -91,6 +91,11 @@ Asosiy fayllar:
 - **O'yin oynasi**: skrinshotlar, treyler, qisqa tavsif (`game-media.js`; `/api/game` media maydonlari faqat steamstatic/akamaihd https manzillari).
 - **Ctrl+K palitra** (`palette.js`), mobil pastki menyu, yumshoq animatsiyalar (`prefers-reduced-motion` hurmat qilinadi).
 - **Uch til** (uz asosiy, ru, en): matnlar `src/data/ru.json` va `src/data/en.json` (kalit = o'zbekcha matn; ikkala fayl kalitlari bir xil bo'lishi testda tekshiriladi). Manzillar: `/`, `/ru/`, `/en/`, `/o/<id>-<nom>`, `/ru/o/...`, `/en/o/...` (`src/routes.mjs`). Server (`pageMeta`/`servePage`) har til uchun sarlavha, tavsif, `<html lang>`, canonical va hreflang beradi; sitemap har sahifani 3 tilda beradi. Til tanlash: manzil > saqlangan tanlov > uz. Eslatma: Steam tavsifi va talablari doim inglizcha (talablarni tahlil qilish inglizchaga tayanadi).
+- **CS2 markazi** (yon menyuda «O‘YIN MARKAZLARI» → Counter-Strike 2): `#cs2-skinlar` (skinlar katalogi) va `#cs2-xaritalar` (xaritalar). Serverlar ro‘yxati **kechiktirilgan** (UDP/A2S Workers'da ishlamaydi, alohida xizmat kerak). Kod: `src/cs2.js` (sahifalar), `src/cs2-logic.mjs` (filtr/saralash/sahifalash), `src/cs2-names.mjs` (market nomlari, tekshiruv), `src/cs2.mjs` (Worker: `/api/cs2/prices`), migratsiya `0003_cs2_prices.sql`.
+  - Ma'lumot manbalari (hammasi MIT, `THIRD_PARTY_NOTICES.md` va `/licenses/cs2-third-party.txt`): skinlar — ByMykel/CSGO-API; callout va sxematik xaritalar — sink3x/cs2-server-admin-callouts (rasmlari MIT, Valve radari emas, shuning uchun repoda saqlanadi). Yangilash: `node scripts/build-cs2-data.mjs` (natija commit qilinadi).
+  - Skin rasmlari Steam'ning o‘z CDN'idan, yon menyudagi CS2 ikonkasi Steam community serveridan yuklanadi (hotlink, repoga ko‘chirilmagan). Valve radar rasmlari ataylab ishlatilmagan (huquqi noaniq).
+  - Narx: faqat Steam Community Market `priceoverview`, har bir (skin, wear, variant) uchun alohida; D1 `cs2_prices` jadvalida 6 soat saqlanadi, Steam 429 bersa oxirgi qiymat «stale» sana bilan, yo‘q bo‘lsa «Narx mavjud emas». Narx bo‘yicha saralash/filtr yo‘q (barcha skinlar narxi uchun ommaviy manba kerak, hozircha yo‘q).
+  - Float faqat skinning umumiy diapazoni sifatida ko‘rsatiladi (aniq listing floati yo‘q).
 - Qaytarish nuqtasi: git tegi `before-modern-ui`. Deploydan keyin `/o/<id>` va `/sitemap.xml`ni jonli tekshirish, Search Console'ga sitemap yuborish kerak.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
 - Brauzer paneli (Claude ichidagi) eslatmalari: service worker'ni ro'yxatdan o'tkazmaydi (mahalliyda xato chiqadi, jonli HTTPS'da ishlaydi);
@@ -135,6 +140,6 @@ sahifa og'ir; ro'yxatdan o'tishda CAPTCHA yo'q; qurilma nomlari jadvali qo'lda y
 chalg'ituvchi "Vivobook uchun taxmin" yorlig'i qurilma noma'lum bo'lganda boshqa foydalanuvchiga chiqadi; UI avtomatik testlari yo'q (qo'lda sinaladi).
 
 ## 11. Yangi sessiyani boshlash
-1. `git status`, `git log --oneline -5`, `npm test` (162 o'tishi kerak).
+1. `git status`, `git log --oneline -5`, `npm test` (189 o'tishi kerak).
 2. Egasidan so'rang: A bandi (tuzatishni boshlash) yoki boshqa vazifa; B/C bandlari bajarilganmi.
 3. Joylashdan oldin: `git tag` qo'ying, testlar o'tsin, keyin `npm run deploy` va jonli tekshiruv.

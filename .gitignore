@@ -8,3 +8,7 @@ dist/
 *.key
 .data/
 *.tmp
+
+.playwright-mcp/
+mockups/
+logo/

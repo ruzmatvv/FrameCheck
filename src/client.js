@@ -3,12 +3,13 @@
 // On a real domain the page must never be used over plain http (a password typed here would travel unencrypted).
 if(location.protocol==="http:"&&!["localhost","127.0.0.1","[::1]"].includes(location.hostname)){location.replace("https://"+location.host+location.pathname+location.search+location.hash);return}
 initLanguage();
-const paths={scan:'<path d="M8 3H4v4m12-4h4v4M4 17v4h4m12-4v4h-4"/><path d="M6 12h3l2-4 3 8 2-4h2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',bookmark:'<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4z"/>',history:'<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"/>',laptop:'<rect x="4.5" y="4" width="15" height="12" rx="1.5"/><path d="M4 17l-2 3h20l-2-3z"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',panel:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',activity:'<path d="M2 13h5l3-8 4 14 3-8 2 2h3"/>',search:'<circle cx="10" cy="10" r="6.7"/><path d="m15.2 15.2 5 5"/>',flag:'<path d="M4 21V4m0 1c5-5 9 4 16-1v10c-7 5-11-4-16 1"/>',wrench:'<path d="m14 7 3 3 4-4a6 6 0 0 1-8 8l-7 7a2 2 0 0 1-3-3l7-7a6 6 0 0 1 8-8z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v5m10-5v5M3 10h18"/>',sliders:'<path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',down:'<path d="m6 9 6 6 6-6"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',refresh:'<path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/>',game:'<path d="M7 8h10c3 0 4 3 5 8 .5 4-2 5-4 3l-3-3H9l-3 3c-2 2-5 1-4-3 1-5 2-8 5-8zM6 11v4m-2-2h4m7-1h.01m3 2h.01"/>',check:'<path d="m4 12 5 5L20 6"/>',columns:'<rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>'};
+const paths={scan:'<path d="M8 3H4v4m12-4h4v4M4 17v4h4m12-4v4h-4"/><path d="M6 12h3l2-4 3 8 2-4h2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',bookmark:'<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4z"/>',history:'<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"/>',laptop:'<rect x="4.5" y="4" width="15" height="12" rx="1.5"/><path d="M4 17l-2 3h20l-2-3z"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',panel:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',activity:'<path d="M2 13h5l3-8 4 14 3-8 2 2h3"/>',search:'<circle cx="10" cy="10" r="6.7"/><path d="m15.2 15.2 5 5"/>',flag:'<path d="M4 21V4m0 1c5-5 9 4 16-1v10c-7 5-11-4-16 1"/>',wrench:'<path d="m14 7 3 3 4-4a6 6 0 0 1-8 8l-7 7a2 2 0 0 1-3-3l7-7a6 6 0 0 1 8-8z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v5m10-5v5M3 10h18"/>',sliders:'<path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',down:'<path d="m6 9 6 6 6-6"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',refresh:'<path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/>',game:'<path d="M7 8h10c3 0 4 3 5 8 .5 4-2 5-4 3l-3-3H9l-3 3c-2 2-5 1-4-3 1-5 2-8 5-8zM6 11v4m-2-2h4m7-1h.01m3 2h.01"/>',check:'<path d="m4 12 5 5L20 6"/>',columns:'<rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',map:'<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14m6-12v14"/>'};
 const I=k=>'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'+(paths[k]||"")+'</svg>';
 document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=I(e.dataset.i));
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const texts={home:"O‘yin tekshiruvi",catalog:"O‘yinlar katalogi",saved:"Saqlanganlar",history:"Tekshiruv tarixi"};
-const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tarix"};
+const texts={home:"O‘yin tekshiruvi",catalog:"O‘yinlar katalogi",saved:"Saqlanganlar",history:"Tekshiruv tarixi",cs2skins:"Skinlar katalogi",cs2maps:"Xaritalar"};
+const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tarix",cs2skins:"cs2-skinlar",cs2maps:"cs2-xaritalar"};
+const isHub=v=>v==="cs2skins"||v==="cs2maps"; // the Counter-Strike 2 pages (src/cs2.js)
 const K="framecheck.v1",base=JSON.parse($("#catalog-data").textContent),images=window.FRAME_ART||{};
 const prices=attachSteamPrices(STEAM_UZ);
 const order=[1815780,1222680,1551360,227300,690790,271590,2824660,2707900,2737300,3241660,635260,244210,2379780,813230,1643320];
@@ -21,9 +22,11 @@ try {storedSettings=JSON.parse(localStorage.getItem(overrideKey)||"null")}catch{
 let profile=activeProfile(automatic,readOverrides(storedSettings,automatic));
 const rawGame=id=>data.games[id]||known.get(id);
 const game=id=>applySettings(evaluateGame(rawGame(id),profile,BENCHMARKS),settingsPanel?settingsPanel.get():undefined);
-let gameMedia=null;
+let gameMedia=null,cs2=null;
 let localQuery="",view="home",filter=new Set(),verdict="",limit=6,detailId=null,generation=0,toastId,searchSerial=0;
 function notify(s){$("#toast").textContent=s;clearTimeout(toastId);toastId=setTimeout(()=>$("#toast").textContent="",3300)}
+// the sidebar group of Counter-Strike 2 pages opens and closes; the choice is remembered
+function setHub(open,save=true){const t=$("#hub-toggle");if(!t)return;t.setAttribute("aria-expanded",String(open));$("#hub-sub").hidden=!open;if(save)try{localStorage.setItem("framecheck.hub.cs2",open?"open":"closed")}catch{}}
 function setMenu(open){$(".side").classList.toggle("open",open);$("#scrim").hidden=!open;$("#nav-toggle").setAttribute("aria-expanded",String(open))}
 function time(t){return new Intl.DateTimeFormat(locale(),{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date(t))}
 function picture(g){return images[g.id]||g.image||"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/"+g.id+"/header.jpg"}
@@ -42,7 +45,17 @@ function badge(g){const why=g.verdict==="unknown"&&g.unknownParts?.length?' titl
 function fps(g){return g.referenceFps||g.observedFps|| (Array.isArray(g.fps)?g.fps.join("–"):null)}
 function savedButton(id){const on=data.saved.includes(id);return '<button class="save '+(on?'saved':'')+'" data-save="'+id+'" aria-pressed="'+on+'" aria-label="'+E(tr(on?"{0}ni saqlanganlardan olib tashlash":"{0}ni saqlash",game(id).name))+'">'+I("bookmark")+'</button>'}
 function card(g){const h=data.history.find(x=>x.id===g.id);return '<article class="card"><button class="card-body-link" data-open="'+g.id+'" aria-label="'+E(tr("{0} mosligini ko‘rish",g.name))+'">'+figure(g)+'<div class="card-text"><div class="game-meta">'+E([g.genres?.[0]&&genreLabel(g.genres[0]),g.year].filter(Boolean).join("  ·  ")||"Steam")+'</div><h3>'+E(g.name)+'</h3>'+prices.slot(g.id)+'<div class="card-bottom">'+badge(g)+'<span class="fps" title="'+E(tr(g.fpsBasis||g.basis))+'">'+(fps(g)?'<small>'+E(tr(g.fpsLabel))+'</small> '+E(fps(g))+' FPS':tr("Talablar e’lon qilinmagan"))+'</span></div>'+(view==="history"&&h?'<div class="last-check">'+E(time(h.at))+'</div>':'')+'</div></button>'+savedButton(g.id)+(compare?compare.button(g.id):'')+'</article>'}
+function syncNav(){document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")})}
+function hubRender(){
+ syncNav();
+ $("#crumb").textContent="CS2 / "+tr(texts[view]);document.title=tr(texts[view])+" · CS2 · Framecheck";
+ for(const id of ["hero","rig","score-panel","settings-panel","frame-lab","collection"])$("#"+id).hidden=true;
+ $("#savedCount").textContent=data.saved.length||"";
+ cs2?.show(view);
+}
 function render(){
+ if(isHub(view)){hubRender();return}
+ $("#collection").hidden=false;cs2?.hide();
  const ids=view==="saved"?data.saved:view==="history"?data.history.map(x=>x.id):[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])];
  const recent=new Date().getFullYear()-4;
  const queryIds=localQuery.trim()?new Set([...lookup(localQuery,ids.map(rawGame).filter(Boolean)),...suggestions(localQuery,ids.map(rawGame).filter(Boolean),ids.length)].map(g=>g.id)):null;
@@ -69,7 +82,7 @@ function render(){
  compare?.syncButtons();deals?.update();scorePanel?.update();
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
 }
-function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
+function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";if(isHub(view))setHub(true,false);filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
 // A game's window has its own address (/o/<id>-<name>): the back button closes it and the link can be shared.
 function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name,language);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
 function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"",(routeLanguage(location.pathname)?homePath(language):"/")+location.search+location.hash)}catch{}}
@@ -234,9 +247,12 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
  gameMedia=createGameMedia({tr,E,$,api});
+ cs2=createCs2({tr,E,$});
+ {let saved="open";try{saved=localStorage.getItem("framecheck.hub.cs2")||"open"}catch{}setHub(saved!=="closed",false)}
+ $("#hub-toggle").addEventListener("click",()=>setHub($("#hub-toggle").getAttribute("aria-expanded")!=="true"));
  createPalette({tr,E,$,open:id=>readGame(id),find:q=>lookup(q,allTitles()),
   recent:()=>{const byId=new Map(allTitles().map(g=>[g.id,g]));return data.history.map(h=>byId.get(h.id)).filter(Boolean)},
-  actions:()=>[...Object.keys(routes).map(k=>({label:texts[k],run:()=>{location.hash=routes[k]}})),{label:"Qurilmam",run:()=>device()}]});
+  actions:()=>[...Object.keys(routes).map(k=>({label:isHub(k)?"CS2 · "+texts[k]:texts[k],run:()=>{location.hash=routes[k]}})),{label:"Qurilmam",run:()=>device()}]});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});

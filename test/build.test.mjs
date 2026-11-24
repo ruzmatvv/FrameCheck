@@ -57,3 +57,18 @@ test("wrangler.toml statik fayllarni to'g'ri ulaydi va eski manzil o'chiq", () =
   assert.match(toml, /pattern\s*=\s*"framecheck\.uk"/);
   assert.match(toml, /CANONICAL_HOST\s*=\s*"framecheck\.uk"/);
 });
+
+test("CS2 sahifalari: ma'lumot fayllari, xarita rasmlari va litsenziya statik tayyor", () => {
+  const skins = JSON.parse(readFileSync(file("public/data/cs2-skins.json"), "utf8"));
+  const maps = JSON.parse(readFileSync(file("public/data/cs2-maps.json"), "utf8"));
+  assert.ok(skins.items.length > 1500);
+  assert.ok(maps.maps.length >= 3);
+  for (const m of maps.maps) assert.ok(existsSync(file("public/maps/" + m.image)), m.image);
+  assert.match(readFileSync(file("public/licenses/cs2-third-party.txt"), "utf8"), /ByMykel\/CSGO-API/);
+  const headers = readFileSync(file("public/_headers"), "utf8");
+  assert.match(headers, /\/data\/\*\n  Cache-Control: public, max-age=3600/);
+  assert.match(headers, /\/maps\/\*\n  Cache-Control: public, max-age=86400/);
+  // the page stays small: the 500 KB skin list is a separate file, not part of the page or the Worker
+  assert.ok(!readFileSync(file("public/index.html"), "utf8").includes("skin-91a429af4a60") && !readFileSync(file("public/index.html"), "utf8").includes("91a429af4a60"));
+  assert.ok(!readFileSync(file("server/index.js"), "utf8").includes("91a429af4a60"));
+});
