@@ -1,0 +1,977 @@
+[
+  {
+    "id": 892970,
+    "name": "Valheim",
+    "year": 2026,
+    "min": {
+      "cpu": "2.6 GHz Quad Core or similar",
+      "gpu": "GeForce GTX 950 or Radeon HD 7970",
+      "os": "Windows 10 or later",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/892970/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1623730,
+    "name": "Palworld",
+    "year": 2026,
+    "min": {
+      "cpu": "Intel Core i5-9400F",
+      "gpu": "GeForce GTX 1660",
+      "os": "Windows 10 (64-Bit)",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1623730/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1326470,
+    "name": "Sons Of The Forest",
+    "year": 2024,
+    "min": {
+      "cpu": "INTEL CORE I5-8400 or AMD RYZEN 3 3300X",
+      "gpu": "NVIDIA GeForce GTX 1060 3GB or AMD Radeon RX 570 4GB",
+      "os": "64-bit Windows 10",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/1326470/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 264710,
+    "name": "Subnautica",
+    "year": 2018,
+    "min": {
+      "cpu": "Intel Haswell 2 cores / 4 threads @ 2.5Ghz or equivalent",
+      "gpu": "Intel HD 4600 or equivalent - This includes most GPUs scoring greater than 950 points in the 3DMark Fire Strike benchmark",
+      "os": "Windows Vista SP2 or newer, 64-bit",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/264710/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 848450,
+    "name": "Subnautica: Below Zero",
+    "year": 2021,
+    "min": {
+      "cpu": "Intel Core i3 4XXX series / AMD Ryzen 3 2.6ghz+",
+      "gpu": "Intel HD 530 or better",
+      "os": "Windows 7 64-bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/848450/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 648800,
+    "name": "Raft",
+    "year": 2022,
+    "min": {
+      "cpu": "Intel Core i5 2.6GHz or similar",
+      "gpu": "GeForce GTX 700 series or similar",
+      "os": "Windows 7 or later",
+      "ram": 6
+    },
+    "source": "https://store.steampowered.com/app/648800/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 252490,
+    "name": "Rust",
+    "year": 2018,
+    "min": {
+      "cpu": "AMD Ryzen 5 1400 or Intel Core i5-6600",
+      "gpu": "AMD Radeon RX 470, NVIDIA GeForce GTX 1060, Intel® Arc™ A580",
+      "os": "Windows 11 64bit",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/252490/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 346110,
+    "name": "ARK: Survival Evolved",
+    "year": 2017,
+    "min": {
+      "cpu": "Intel Core i5-2400/AMD FX-8320 or better",
+      "gpu": "NVIDIA GTX 670 2GB/AMD Radeon HD 7870 2GB or better",
+      "os": "Windows 7/8.1/10 (64-bit versions)",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/346110/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 2399830,
+    "name": "ARK: Survival Ascended",
+    "year": 2023,
+    "min": {
+      "cpu": "AMD Ryzen 5 2600X, Intel Core i7-6800K",
+      "gpu": "AMD Radeon RX 5600 XT, NVIDIA GeForce 1080",
+      "os": "Windows 10/11 with updates",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/2399830/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1203620,
+    "name": "Enshrouded",
+    "year": 2026,
+    "min": {
+      "cpu": "Intel Core i5-6400 (2.7 GHz 4 Core) / AMD Ryzen 5 1500X (3.5 GHz 4 Core) or equivalent",
+      "gpu": "NVIDIA GeForce GTX 1060 (req. 6GB VRAM) / AMD Radeon RX 580 (req. 6GB VRAM) / Intel ARC A380",
+      "os": "Windows 10",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1203620/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1604030,
+    "name": "V Rising",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core i5-6600, 3.3 GHz or AMD Ryzen 5 1500X, 3.5 GHz",
+      "gpu": "NVIDIA GeForce GTX 750 Ti (Maxwell or newer), 2 GB or AMD Radeon R7 360, 2 GB",
+      "os": "Windows 10 64 bit",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/1604030/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 815370,
+    "name": "Green Hell",
+    "year": 2019,
+    "min": {
+      "cpu": "3.2 GHz Dual Core Processor",
+      "gpu": "GeForce GTX 660, Radeon RX 460 or equivalent with 2 GB of video RAM",
+      "os": "Windows 7/8/10 64-bit",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/815370/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 242760,
+    "name": "The Forest",
+    "year": 2018,
+    "min": {
+      "cpu": "Intel Dual-Core 2.4 GHz",
+      "gpu": "NVIDIA GeForce 8800GT",
+      "os": "Windows 7",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/242760/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 251570,
+    "name": "7 Days to Die",
+    "year": 2024,
+    "min": {
+      "cpu": "2.8 Ghz Quad Core CPU",
+      "gpu": "2 GB Dedicated Memory",
+      "os": "Windows 10 or higher (64-bit)",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/251570/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1149460,
+    "name": "ICARUS",
+    "year": 2021,
+    "min": {
+      "cpu": "Intel i5 8400",
+      "gpu": "Nvidia GTX 1060 6GB",
+      "os": "Windows 10 (64-bit versions)",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1149460/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 322330,
+    "name": "Don't Starve Together",
+    "year": 2016,
+    "min": {
+      "cpu": "1.7+ GHz or better",
+      "gpu": "Radeon HD5450 or better; 256 MB or higher",
+      "os": "Windows Vista/Windows 7/Windows 8",
+      "ram": 1
+    },
+    "source": "https://store.steampowered.com/app/322330/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 305620,
+    "name": "The Long Dark",
+    "year": 2017,
+    "min": {
+      "cpu": "Dual-Core Intel i5 CPU @ 2GHz+",
+      "gpu": "Intel 4xxx Series w/ 512MB VRAM or better",
+      "os": "Windows 10",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/305620/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 962130,
+    "name": "Grounded",
+    "year": 2022,
+    "min": {
+      "cpu": "Intel Core i3-3225",
+      "gpu": "Nvidia GTX 650 Ti",
+      "os": "Windows 10 64bit",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/962130/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 361420,
+    "name": "ASTRONEER",
+    "year": 2016,
+    "min": {
+      "cpu": "X64 Dual Core CPU, 2+ GHz",
+      "gpu": "Discrete Non Mobile GPU with 1 GB Ram",
+      "os": "Windows 10 (64-bit)",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/361420/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 768200,
+    "name": "Smalland: Survive the Wilds",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel(R) Core(TM) i5-9400 CPU @ 2.90GHz or equivalent",
+      "gpu": "NVIDIA GeForce GTX 1650 or equivalent",
+      "os": "Windows 7 SP1",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/768200/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1458140,
+    "name": "Pacific Drive",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core i5 8600",
+      "gpu": "Nvidia GTX 1060 6GB",
+      "os": "Windows 10",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1458140/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1284190,
+    "name": "The Planet Crafter",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core2 Duo 2.4GHz or equivalent",
+      "gpu": "3GB VRAM",
+      "os": "Windows 10 - 64-bit",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/1284190/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 2198510,
+    "name": "New Cycle",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core i5-4590 @ 3.3 GHz | AMD FX 8320 @ 3.5 GHz",
+      "gpu": "GeForce GTX 960 (4GB VRAM) | AMD Radeon R9 290 (4GB VRAM) or equivalent",
+      "os": "Windows 10/11 64-bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/2198510/",
+    "genres": [
+      "Survival",
+      "Strategiya",
+      "Simulyator"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 914620,
+    "name": "Mist Survival",
+    "year": 2018,
+    "min": {
+      "cpu": "Intel Core i5",
+      "gpu": "NVIDIA® GeForce® GTX 1060 or better",
+      "os": "Windows 10 / 11",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/914620/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 108600,
+    "name": "Project Zomboid",
+    "year": 2013,
+    "min": {
+      "cpu": "Intel 2.77GHz Quad-core",
+      "gpu": "Dedicated 4 GB VRAM GPU, OpenGL 2.1 and GLSL 1.2",
+      "os": "Windows 10 / 11 - 64 Bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/108600/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1377380,
+    "name": "Night of the Dead",
+    "year": 2020,
+    "min": {
+      "cpu": "Intel® Core™ i3-8100",
+      "gpu": "Intel® Arc™ A380 / NVIDIA® GeForce GTX 960",
+      "os": "Windows 10 64-bit",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1377380/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1641960,
+    "name": "Forever Skies",
+    "year": 2025,
+    "min": {
+      "cpu": "Intel Core i5-7600 / AMD Ryzen 5 1600",
+      "gpu": "RX 580 8GB VRAM / GeForce GTX 1060 6GB VRAM / Intel Arc A750",
+      "os": "Windows 10/11",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/1641960/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1963370,
+    "name": "No One Survived",
+    "year": 2025,
+    "min": {
+      "cpu": "Intel Core i5-2400/AMD FX-8320",
+      "gpu": "NVIDIA GTX 1060 6GB",
+      "os": "Windows 10+ (64 bit)",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/1963370/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 282070,
+    "name": "This War of Mine",
+    "year": 2014,
+    "min": {
+      "cpu": "2.4 GHz Dual Core",
+      "gpu": "GeForce GTX 260, Radeon HD 5770, 1024 MB, Shader Model 3.0",
+      "os": "Windows 7/8/10",
+      "ram": 2
+    },
+    "source": "https://store.steampowered.com/app/282070/",
+    "genres": [
+      "Survival",
+      "Strategiya",
+      "Simulyator"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 457140,
+    "name": "Oxygen Not Included",
+    "year": 2019,
+    "min": {
+      "cpu": "Dual Core 2 GHz",
+      "gpu": "Intel HD 4600 (AMD or NVIDIA equivalent)",
+      "os": "Windows 10 version 21H1 or later",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/457140/",
+    "genres": [
+      "Survival",
+      "Strategiya",
+      "Simulyator"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 313120,
+    "name": "Stranded Deep",
+    "year": 2022,
+    "min": {
+      "cpu": "X64 Quad Core CPU 2.0GHz+",
+      "gpu": "2GB VRAM",
+      "os": "Windows 7",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/313120/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 440900,
+    "name": "Conan Exiles Enhanced",
+    "year": 2018,
+    "min": {
+      "cpu": "AMD Ryzen 5 3600 or Intel Core i5-10400F",
+      "gpu": "NVIDIA GeForce GTX 1650 or Radeon RX 580",
+      "os": "Windows 10 64bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/440900/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 418030,
+    "name": "Subsistence",
+    "year": 2016,
+    "min": {
+      "cpu": "Intel Core 2 Duo E4600 2.4ghz or Athlon 64 x2 Dual Core 5200",
+      "gpu": "Geforce GT 460 or Radeon HD 3800",
+      "os": "Windows 7+",
+      "ram": 2
+    },
+    "source": "https://store.steampowered.com/app/418030/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 846770,
+    "name": "DYSMANTLE",
+    "year": 2021,
+    "min": {
+      "cpu": "64-bit",
+      "gpu": "SM 4.0+",
+      "os": "Windows Vista / 7 / 8 / 10 / 11",
+      "ram": 2
+    },
+    "source": "https://store.steampowered.com/app/846770/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 427410,
+    "name": "Abiotic Factor",
+    "year": 2025,
+    "min": {
+      "cpu": "i5-9th Gen CPU or similar",
+      "gpu": "GeForce GTX 1660 or AMD Radeon RX 5600 XT",
+      "os": "Windows 10 or later",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/427410/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 105600,
+    "name": "Terraria",
+    "year": 2011,
+    "min": {
+      "cpu": "2.0 GHz",
+      "gpu": "128 MB VRAM, Shader Model 2.0+",
+      "os": "Windows Xp, Vista, 7, 8/8.1, 10",
+      "ram": 2.5
+    },
+    "source": "https://store.steampowered.com/app/105600/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 275850,
+    "name": "No Man's Sky",
+    "year": 2016,
+    "min": {
+      "cpu": "Intel Core i3",
+      "gpu": "Nvidia GTX 1060 3GB, AMD RX 470 4GB, Intel UHD graphics 630",
+      "os": "Windows 10/11 (64-bit versions)",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/275850/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 704270,
+    "name": "Generation Zero®",
+    "year": 2019,
+    "min": {
+      "cpu": "Intel i5 Quad Core",
+      "gpu": "nVidia GTX 660 / ATI HD7870 - 2GB VRAM / Intel® Iris™ Pro Graphics 580",
+      "os": "64bit OS - Windows 7 with Service Pack 1",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/704270/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 239140,
+    "name": "Dying Light",
+    "year": 2015,
+    "min": {
+      "cpu": "Intel® Core™ i5-4670K @3.4 GHz / AMD FX-8350 @4.0 GHz",
+      "gpu": "NVIDIA® GeForce® GTX 780 / AMD Radeon™ R9 290 (2GB VRAM)",
+      "os": "Windows® 7 64-bit / Windows® 8 64-bit / Windows® 8.1 64-bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/239140/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1096570,
+    "name": "SONG OF HORROR COMPLETE EDITION",
+    "year": 2019,
+    "min": {
+      "cpu": "Intel or AMD 64bit, 2.6 GHz.",
+      "gpu": "NVIDIA GeForce 660 GTX, Radeon HD 7950 or similar",
+      "os": "Windows 7, 8 or 10",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/1096570/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 286690,
+    "name": "METRO 2033 Redux",
+    "year": 2014,
+    "min": {
+      "cpu": "Intel Core i5-4690 / AMD Ryzen 3 1200",
+      "gpu": "GeForce GTX 750 Ti 2 GB / Radeon R7 260X 2 GB",
+      "os": "Windows 10 / Windows 11 (64-bit)",
+      "ram": 4
+    },
+    "source": "https://store.steampowered.com/app/286690/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 493520,
+    "name": "GTFO",
+    "year": 2021,
+    "min": {
+      "cpu": "Intel Core i5 2500K or AMD equivalent",
+      "gpu": "NVIDIA GeForce GT 1030 or Radeon HD 7850",
+      "os": "Windows 7 64-Bit or later",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/493520/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1172710,
+    "name": "Dune: Awakening",
+    "year": 2025,
+    "min": {
+      "cpu": "Intel Core i5-7400 / AMD Ryzen 3 1200",
+      "gpu": "NVIDIA GeForce GTX 1060 (6 GB) / AMD Radeon 5600XT (6 GB)",
+      "os": "Windows 10 64-bit (or newer)",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/1172710/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1943950,
+    "name": "Escape the Backrooms",
+    "year": 2025,
+    "min": {
+      "cpu": "Quad-core Intel or AMD 2.5 GHz or superior",
+      "gpu": "Any DirectX 11 or 12 compatible card",
+      "os": "Windows 10/11 64-bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/1943950/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 747660,
+    "name": "Five Nights at Freddy's: Security Breach",
+    "year": 2021,
+    "min": {
+      "cpu": "AMD Ryzen 5 3600, Core i5 6600K",
+      "gpu": "Nvidia GeForce GTX 1050 Ti",
+      "os": "Windows 10 (64 bit)",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/747660/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1808500,
+    "name": "ARC Raiders",
+    "year": 2025,
+    "min": {
+      "cpu": "Intel Core i5-6600K or AMD Ryzen R5 1600 processor",
+      "gpu": "NVIDIA GeForce GTX 1050 Ti or AMD Radeon RX 580 or Intel Arc A380",
+      "os": "Windows 10 or later 64-bit (latest update)",
+      "ram": 12
+    },
+    "source": "https://store.steampowered.com/app/1808500/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 219740,
+    "name": "Don't Starve",
+    "year": 2013,
+    "min": {
+      "cpu": "1.7+ GHz or better",
+      "gpu": "Radeon HD5450 or better; 256 MB or higher",
+      "os": "Windows XP/Vista/Windows 7/Windows 8",
+      "ram": 1
+    },
+    "source": "https://store.steampowered.com/app/219740/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 1211600,
+    "name": "ZED ZONE",
+    "year": 2026,
+    "min": {
+      "cpu": "INTEL i3/ AMD R3",
+      "gpu": "Nvidia GTX 660",
+      "os": "Win XP",
+      "ram": 2
+    },
+    "source": "https://store.steampowered.com/app/1211600/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 2646460,
+    "name": "Soulmask",
+    "year": 2026,
+    "min": {
+      "cpu": "Intel Core i5-8400 / AMD Ryzen 3 3300X",
+      "gpu": "GTX 970 4GB / AMD RX 580 4GB",
+      "os": "64bit -win10",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/2646460/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 221100,
+    "name": "DayZ",
+    "year": 2018,
+    "min": {
+      "cpu": "Intel Core i5-4430 or AMD Ryzen 5 2600 Six-Core",
+      "gpu": "NVIDIA GeForce GTX 760 or AMD R9 270X",
+      "os": "Windows 10 64-bit",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/221100/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 513710,
+    "name": "SCUM",
+    "year": 2025,
+    "min": {
+      "cpu": "Intel Core i5-4430 / AMD FX-6300",
+      "gpu": "NVIDIA GeForce GTX 1060 3GB / AMD Radeon RX 480 4GB",
+      "os": "Windows 10 64-bit",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/513710/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 1360000,
+    "name": "The Infected",
+    "year": 2020,
+    "min": {
+      "cpu": "Intel Core i5-2400/AMD FX-8320",
+      "gpu": "NVIDIA GeForce GTX 1060 3GB or AMD Radeon RX 570 4GB",
+      "os": "Windows 7+ (64 bit)",
+      "ram": 6
+    },
+    "source": "https://store.steampowered.com/app/1360000/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  },
+  {
+    "id": 2139460,
+    "name": "Once Human",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core i5-4460 / Snapdragon® X",
+      "gpu": "Nvidia GTX 750ti 4G / AMD Radeon RX550 / Qualcomm® Adreno X1 GPU",
+      "os": "Windows 10 64-bit Operating System",
+      "ram": 8
+    },
+    "source": "https://store.steampowered.com/app/2139460/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": true,
+    "curated": false
+  },
+  {
+    "id": 2828860,
+    "name": "The Forever Winter",
+    "year": 2024,
+    "min": {
+      "cpu": "Intel Core i7-9700 / AMD Ryzen 7 3700X",
+      "gpu": "NVIDIA GeForce RTX 2080 Super (VRAM 8 GB) / Radeon RX 5700XT (8GB)",
+      "os": "Windows 10 64bit",
+      "ram": 16
+    },
+    "source": "https://store.steampowered.com/app/2828860/",
+    "genres": [
+      "Survival",
+      "Sarguzasht"
+    ],
+    "popular": false,
+    "curated": false
+  }
+]

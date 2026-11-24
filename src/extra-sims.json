@@ -1,0 +1,807 @@
+[
+  {
+    "id": 270880,
+    "name": "American Truck Simulator",
+    "year": 2016,
+    "genres": [
+      "Simulyator",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-6400 / AMD Ryzen 3 1200",
+      "gpu": "NVIDIA GeForce GTX 660 / AMD Radeon RX 460 / Intel HD 630 (2GB VRAM)",
+      "ram": 8,
+      "os": "Windows 10 64-bit"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/270880/",
+    "curated": false
+  },
+  {
+    "id": 1248130,
+    "name": "Farming Simulator 22",
+    "year": 2021,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-3330 / AMD FX-8320",
+      "gpu": "GeForce GTX 660 / AMD Radeon R7 265 (min 2GB VRAM)",
+      "ram": 8,
+      "os": "Windows 10 Home (x64)"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1248130/",
+    "curated": false
+  },
+  {
+    "id": 2300320,
+    "name": "Farming Simulator 25",
+    "year": 2024,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-6400, AMD Ryzen 5 1400",
+      "gpu": "Nvidia GeForce GTX 1050Ti, AMD Radeon RX 470 graphics card (min 3GB VRAM, DX12 support)",
+      "ram": 8,
+      "os": "Windows 10 64bit"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/2300320/",
+    "curated": false
+  },
+  {
+    "id": 1190000,
+    "name": "Car Mechanic Simulator 2021",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Intel Core i5 4690 / AMD Ryzen 5 1500X",
+      "gpu": "NVidia GeForce GTX 760 2GB",
+      "ram": 8,
+      "os": "Windows(64-bit) 8.1 / 10"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1190000/",
+    "curated": false
+  },
+  {
+    "id": 621060,
+    "name": "PC Building Simulator",
+    "year": 2019,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-2500K / AMD Athlon X4 740",
+      "gpu": "GeForce GTX 660 2 GB / Radeon R9 285 2 GB. Integratsiyalashgan GPU rasmiy qo‘llab-quvvatlanmaydi.",
+      "ram": 4,
+      "os": "Windows 7"
+    },
+    "source": "https://store.steampowered.com/app/621060/",
+    "curated": false
+  },
+  {
+    "id": 613100,
+    "name": "House Flipper",
+    "year": 2018,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i3 3,20GHz / AMD Phenom II X4 955 3,2 GHz",
+      "gpu": "GeForce GTX 560 / AMD R7-260X",
+      "ram": 4,
+      "os": "Windows 7 (64-bit) / newer"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/613100/",
+    "curated": false
+  },
+  {
+    "id": 1190970,
+    "name": "House Flipper 2",
+    "year": 2023,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "AMD Ryzen 5 1st gen / Intel Core i5 7th gen",
+      "gpu": "AMD Radeon RX 580 4GB / NVIDIA GeForce GTX 1060 6GB",
+      "ram": 8,
+      "os": "Windows 10 64bit"
+    },
+    "source": "https://store.steampowered.com/app/1190970/",
+    "curated": false
+  },
+  {
+    "id": 1244630,
+    "name": "House Builder",
+    "year": 2024,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5",
+      "gpu": "NVidia GeForce GTX 750",
+      "ram": 8,
+      "os": "Windows 7"
+    },
+    "source": "https://store.steampowered.com/app/1244630/",
+    "curated": false
+  },
+  {
+    "id": 1290000,
+    "name": "PowerWash Simulator",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel i5-760 (4*2800), AMD Phenom II",
+      "gpu": "GeForce GTX 760, AMD R7-260X",
+      "ram": 4,
+      "os": "Windows 8 (64-bit) / newer"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1290000/",
+    "curated": false
+  },
+  {
+    "id": 2968420,
+    "name": "PowerWash Simulator 2",
+    "year": 2025,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Core i3-10100TE / i5-7400 / i7-8650U / Ryzen 3 1300X / Ryzen 5 PRO 2500U",
+      "gpu": "GeForce GTX 1060 6GB, NVIDIA GeForce RTX 2060 Mobile 6GB, AMD Radeon RX 5600M 6GB",
+      "ram": 8,
+      "os": "Win 10 (64 Bit)"
+    },
+    "source": "https://store.steampowered.com/app/2968420/",
+    "curated": false
+  },
+  {
+    "id": 2670630,
+    "name": "Supermarket Simulator",
+    "year": 2025,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "i5 3550 / RYZEN 5 2500X",
+      "gpu": "NVIDIA GTX 1050 / AMD R9 270X",
+      "ram": 8,
+      "os": "Windows (64-bit) 10"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/2670630/",
+    "curated": false
+  },
+  {
+    "id": 2709570,
+    "name": "Supermarket Together",
+    "year": 2024,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core i5",
+      "gpu": "GTX 960",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/2709570/",
+    "curated": false
+  },
+  {
+    "id": 3070070,
+    "name": "TCG Card Shop Simulator",
+    "year": 2026,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-3550",
+      "gpu": "NVidia GeForce GTX 1050",
+      "ram": 8,
+      "os": "Windows (64-bit) 10"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/3070070/",
+    "curated": false
+  },
+  {
+    "id": 1214470,
+    "name": "Hotel Renovator",
+    "year": 2023,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "AMD FX-4300 X4 / Intel Core i3-4130",
+      "gpu": "AMD Radeon RX 560 / Geforce GTX 750 Ti - 4GB VRAM",
+      "ram": 8,
+      "os": "Windows 10 (64 bits)"
+    },
+    "source": "https://store.steampowered.com/app/1214470/",
+    "curated": false
+  },
+  {
+    "id": 1122340,
+    "name": "Chef Life: A Restaurant Simulator",
+    "year": 2023,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i3-2100 / AMD FX-4100",
+      "gpu": "NVIDIA GeForce GTS 450, 1 GB / AMD Radeon HD 5750, 1 GB / Intel HD Graphics 630",
+      "ram": 6,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1122340/",
+    "curated": false
+  },
+  {
+    "id": 641320,
+    "name": "Cooking Simulator",
+    "year": 2019,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "i5 3550 / FX-8350",
+      "gpu": "GTX 660Ti 3GB / R9 270X 4GB",
+      "ram": 6,
+      "os": "Windows 7 x64"
+    },
+    "source": "https://store.steampowered.com/app/641320/",
+    "curated": false
+  },
+  {
+    "id": 1066780,
+    "name": "Transport Fever 2",
+    "year": 2019,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5-2300 / AMD FX-6300",
+      "gpu": "NVIDIA GeForce GTX 560 / AMD Radeon HD 7850, 2 GB VRAM",
+      "ram": 8,
+      "os": "Windows 7, 8 / 10 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/1066780/",
+    "curated": false
+  },
+  {
+    "id": 255710,
+    "name": "Cities: Skylines",
+    "year": 2015,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core I7 930 / AMD FX 6350",
+      "gpu": "Nvidia GeForce GTS 450 (1 GB) / AMD R7 250 (2 GB) / Intel Iris Xe G7 (Tiger Lake)",
+      "ram": 8,
+      "os": "Windows 10 Home 64 Bit"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/255710/",
+    "curated": false
+  },
+  {
+    "id": 949230,
+    "name": "Cities: Skylines II",
+    "year": 2023,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core i7-6700K / AMD Ryzen 5 2600X",
+      "gpu": "Nvidia GeForce GTX 970 (4 GB) / AMD Radeon RX 480 (8 GB)",
+      "ram": 8,
+      "os": "Windows 10 Home 64 Bit"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/949230/",
+    "curated": false
+  },
+  {
+    "id": 518790,
+    "name": "theHunter: Call of the Wild",
+    "year": 2017,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel i3-4170",
+      "gpu": "NVIDIA GTX 660 / ATI HD7870 - 1GB VRAM",
+      "ram": 4,
+      "os": "64bit OS - Windows 7"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/518790/",
+    "curated": false
+  },
+  {
+    "id": 1408610,
+    "name": "Call of the Wild: The Angler",
+    "year": 2022,
+    "genres": [
+      "Simulyator",
+      "Sport"
+    ],
+    "min": {
+      "cpu": "Intel i5-6400 (4C / 4T) (Q3 ‘15) / AMD Ryzen 5 1600",
+      "gpu": "NVIDIA GTX 960 4 GB / AMD RX 480 4 GB",
+      "ram": 8,
+      "os": "64 bit OS - Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1408610/",
+    "curated": false
+  },
+  {
+    "id": 380600,
+    "name": "Fishing Planet",
+    "year": 2015,
+    "genres": [
+      "Simulyator",
+      "Sport"
+    ],
+    "min": {
+      "cpu": "Intel Core i3-10100 / AMD Ryzen 3 3100",
+      "gpu": "NVIDIA GeForce GTX 1050/AMD Radeon RX 570",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/380600/",
+    "curated": false
+  },
+  {
+    "id": 269950,
+    "name": "X-Plane 11",
+    "year": 2017,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Kamida 2 yadroli Intel Core i3/i5/i7 yoki AMD muqobili",
+      "gpu": "DirectX 11, NVIDIA yoki AMD, 512 MB VRAM",
+      "ram": 8,
+      "os": "Windows 7, 8.1, / 10, 64-bit"
+    },
+    "source": "https://store.steampowered.com/app/269950/",
+    "curated": false
+  },
+  {
+    "id": 2014780,
+    "name": "X-Plane 12",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Kamida 4 yadroli Intel Core i3/i5/i7/i9 yoki AMD Ryzen 3/5/7/9",
+      "gpu": "NVIDIA / AMD / Intel Arc, Vulkan 1.3, 2 GB VRAM",
+      "ram": 8,
+      "os": "Windows 10 / 11"
+    },
+    "source": "https://store.steampowered.com/app/2014780/",
+    "curated": false
+  },
+  {
+    "id": 2537590,
+    "name": "Microsoft Flight Simulator 2024",
+    "year": 2024,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "AMD Ryzen 5 2600X / Intel Core i7-6800K",
+      "gpu": "Radeon RX 5700 / GeForce GTX 970",
+      "ram": 16,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/2537590/",
+    "curated": false
+  },
+  {
+    "id": 588030,
+    "name": "Derail Valley",
+    "year": 2019,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel i5-7400",
+      "gpu": "Nvidia GTX 650 (VR: GTX 970)",
+      "ram": 16,
+      "os": "Windows 64-bit"
+    },
+    "source": "https://store.steampowered.com/app/588030/",
+    "curated": false
+  },
+  {
+    "id": 1167630,
+    "name": "Teardown",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "4 yadroli protsessor",
+      "gpu": "NVIDIA GeForce GTX 1060. 4 Gb VRAM.",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1167630/",
+    "curated": false
+  },
+  {
+    "id": 1069190,
+    "name": "Flight Of Nova",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5",
+      "gpu": "Nvidia Geforce GTX 1070",
+      "ram": 16,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1069190/",
+    "curated": false
+  },
+  {
+    "id": 1465360,
+    "name": "SnowRunner",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Intel i3-4130 3.4 GHz / AMD Ryzen 3 2200U 3.4 GHz",
+      "gpu": "2 GB, GeForce GTX 660 / Radeon R9 270",
+      "ram": 8,
+      "os": "Windows 7/8/10 (64-bit)"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1465360/",
+    "curated": false
+  },
+  {
+    "id": 2477340,
+    "name": "Expeditions: A MudRunner Game",
+    "year": 2024,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i3-9100 / AMD Ryzen 3 1300X",
+      "gpu": "2 GB VRAM, Nvidia GeForce GTX 660 / AMD Radeon R7 370",
+      "ram": 8,
+      "os": "Windows 10/11 64-bit"
+    },
+    "source": "https://store.steampowered.com/app/2477340/",
+    "curated": false
+  },
+  {
+    "id": 2104890,
+    "name": "RoadCraft",
+    "year": 2025,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "AMD Ryzen 5 1500X / Intel Core i5-8400",
+      "gpu": "6 GB VRAM, AMD Radeon RX 590 / Nvidia GeForce GTX 1060 / Intel ARC A580",
+      "ram": 8,
+      "os": "Windows 10 (18362 min)/11 64-bit"
+    },
+    "source": "https://store.steampowered.com/app/2104890/",
+    "curated": false
+  },
+  {
+    "id": 1273400,
+    "name": "Construction Simulator",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-4460 3.2 GHz / AMD FX-8350 Eight-Core",
+      "gpu": "Nvidia GTX 960 (4GB) / AMD Radeon Pro 570 (4GB)",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1273400/",
+    "curated": false
+  },
+  {
+    "id": 976590,
+    "name": "Bus Simulator 21 Next Stop",
+    "year": 2021,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i3-2120 / AMD Phenom II X4 830",
+      "gpu": "NVIDIA GeForce GTX 760 (2GB VRAM) / AMD Radeon R9 280 (2GB VRAM)",
+      "ram": 8,
+      "os": "Windows 10 64-Bit"
+    },
+    "source": "https://store.steampowered.com/app/976590/",
+    "curated": false
+  },
+  {
+    "id": 491540,
+    "name": "The Bus",
+    "year": 2026,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-4460",
+      "gpu": "GeForce GTX 1650 / Radeon RX 5500",
+      "ram": 8,
+      "os": "Windows 10/11 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/491540/",
+    "curated": false
+  },
+  {
+    "id": 849100,
+    "name": "Alaskan Road Truckers",
+    "year": 2023,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i7-6700 / AMD Ryzen 5 3600",
+      "gpu": "Nvidia GeForce RTX 2060",
+      "ram": 16,
+      "os": "Windows 10 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/849100/",
+    "curated": false
+  },
+  {
+    "id": 1369670,
+    "name": "Motor Town: Behind The Wheel",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Intel Core i5-4460 / AMD FX-8120",
+      "gpu": "GeForce GTX 750 4GB, Radeon RX 460 4GB",
+      "ram": 4,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1369670/",
+    "curated": false
+  },
+  {
+    "id": 1161580,
+    "name": "Hardspace: Shipbreaker",
+    "year": 2022,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel i5-6600K / AMD Ryzen 3 1300X",
+      "gpu": "4 GB VRAM, GeForce GTX 770 / Radeon R9 380",
+      "ram": 8,
+      "os": "Windows 10 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/1161580/",
+    "curated": false
+  },
+  {
+    "id": 1480560,
+    "name": "Lawn Mowing Simulator",
+    "year": 2021,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "AMD FX-8350 (4 * 4000) / Intel Core i3-8350K (4 * 4000)",
+      "gpu": "Radeon R9 390X (8192 VRAM) / GeForce GTX 960 (4096 VRAM)",
+      "ram": 8,
+      "os": "Windows 10 x64"
+    },
+    "source": "https://store.steampowered.com/app/1480560/",
+    "curated": false
+  },
+  {
+    "id": 1696810,
+    "name": "Railroads Online",
+    "year": 2024,
+    "genres": [
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Intel Core i3-8100",
+      "gpu": "NVIDIA GeForce GTX 760 (2 GB VRAM) / AMD Radeon R9 285 (2 GB VRAM)",
+      "ram": 4,
+      "os": "Windows 10 / Windows 11 64-bit"
+    },
+    "source": "https://store.steampowered.com/app/1696810/",
+    "curated": false
+  },
+  {
+    "id": 703080,
+    "name": "Planet Zoo",
+    "year": 2019,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5-2500 / AMD FX-6350",
+      "gpu": "NVIDIA GeForce GTX 770 (2GB) / AMD Radeon R9 270X (2GB)",
+      "ram": 8,
+      "os": "Windows 7 (SP1+)/8.1/10 64bit"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/703080/",
+    "curated": false
+  },
+  {
+    "id": 493340,
+    "name": "Planet Coaster",
+    "year": 2016,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5-2300/AMD FX-4300",
+      "gpu": "nVidia GTX 560 (2GB)/AMD Radeon 7850 (2GB)",
+      "ram": 8,
+      "os": "Windows 7 (SP1+)/8.1/10 64bit"
+    },
+    "source": "https://store.steampowered.com/app/493340/",
+    "curated": false
+  },
+  {
+    "id": 2688950,
+    "name": "Planet Coaster 2",
+    "year": 2024,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5-6600K / AMD Ryzen 5 2600",
+      "gpu": "NVIDIA GeForce GTX 1060 (6GB VRAM) / AMD Radeon RX 5600XT (6GB VRAM) / Intel Arc A750 (8GB VRAM)",
+      "ram": 16,
+      "os": "Windows 10 64bit (22H2)"
+    },
+    "source": "https://store.steampowered.com/app/2688950/",
+    "curated": false
+  },
+  {
+    "id": 1244460,
+    "name": "Jurassic World Evolution 2",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5-4590/AMD FX 8370",
+      "gpu": "(4GB VRAM) NVIDIA GeForce GTX 1050Ti (Legacy GPU: GeForce GTX 960) / AMD Radeon RX 470",
+      "ram": 8,
+      "os": "Windows 10 64bit (min version 1809)"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1244460/",
+    "curated": false
+  },
+  {
+    "id": 784150,
+    "name": "Workers & Resources: Soviet Republic",
+    "year": 2024,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Pentium G3250 (dual-core) / AMD FX-Series FX-9590 (quad-core)",
+      "gpu": "NVIDIA GeForce GTX 650 (2 GB) / AMD Radeon HD 7770 (2 GB)",
+      "ram": 6,
+      "os": "Windows 10 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/784150/",
+    "curated": false
+  },
+  {
+    "id": 673610,
+    "name": "Airport CEO",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core i5 2.4 GHz / AMD 3 GHz",
+      "gpu": "Kamida 2 GB alohida videoxotira",
+      "ram": 4,
+      "os": "Windows 10 (64-bit)"
+    },
+    "source": "https://store.steampowered.com/app/673610/",
+    "curated": false
+  },
+  {
+    "id": 362620,
+    "name": "Software Inc.",
+    "year": 2015,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "4 yadro, 3 GHz",
+      "gpu": "512 MB alohida videoxotira, Shader Model 4.0",
+      "ram": 2,
+      "os": "Windows 7+"
+    },
+    "source": "https://store.steampowered.com/app/362620/",
+    "curated": false
+  },
+  {
+    "id": 1331550,
+    "name": "Big Ambitions",
+    "year": 2026,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel i5",
+      "gpu": "NVIDIA Geforce GTX 960 (Minimum 2GB vram)",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "source": "https://store.steampowered.com/app/1331550/",
+    "curated": false
+  },
+  {
+    "id": 1366540,
+    "name": "Dyson Sphere Program",
+    "year": 2021,
+    "genres": [
+      "Simulyator",
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "i3-530 2.93GHZ 2 Core",
+      "gpu": "Dedicated graphics card, GTX 750 Ti 2GB",
+      "ram": 8,
+      "os": "Windows 7(64-Bit)"
+    },
+    "popular": true,
+    "source": "https://store.steampowered.com/app/1366540/",
+    "curated": false
+  }
+]

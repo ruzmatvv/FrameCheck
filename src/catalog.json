@@ -1,0 +1,372 @@
+[
+  {
+    "id": 1815780,
+    "name": "Asphalt Legends",
+    "year": 2022,
+    "genres": [
+      "Poyga",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core i3-3110M / Ryzen 3 3300U",
+      "gpu": "Intel HD 4600 / GeForce GT 630 / Radeon HD 6570",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "fps": null,
+    "preset": "Avvalgi sozlama",
+    "resolution": "Avvalgi o‘lcham",
+    "verdict": "play",
+    "note": "Bepul o‘rnat. Oldingi sozlamalaringdan boshlab ko‘r.",
+    "source": "https://store.steampowered.com/app/1815780/",
+    "basis": "Bu Vivobook’da avval 50 FPS dan yuqori natija ko‘rgansan. O‘sha sinovda ekran o‘lchami va grafik sifati aniq qayd etilmagan.",
+    "observedFps": "50+"
+  },
+  {
+    "id": 1222680,
+    "name": "Need for Speed Heat",
+    "year": 2019,
+    "genres": [
+      "Poyga",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core i5-3570 / FX-6350",
+      "gpu": "GeForce GTX 760 / Radeon HD 7970 / R9 280X",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "fps": [
+      20,
+      35
+    ],
+    "preset": "Past",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "O‘yin o‘zingda bor. Avval 720p va 100% render masshtabida sinab ko‘r. Kadrlar yetishmasa, soyalarni pasaytir.",
+    "source": "https://store.steampowered.com/app/1222680/",
+    "perfSource": "https://www.notebookcheck.net/Need-for-Speed-Heat-Laptop-and-Desktop-Benchmarks.442666.0.html",
+    "basis": "O‘xshash 96 EU Intel grafikasi past sozlamalarda 37 FPS atrofida natija ko‘rsatgan. Bitta 8 GB modul uchun pastroq oraliq olindi."
+  },
+  {
+    "id": 2824660,
+    "name": "Old School Rally",
+    "year": 2025,
+    "genres": [
+      "Poyga",
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Core 2 Duo 1.6 GHz yoki tengi",
+      "gpu": "Intel HD 3000 / GeForce 6800 / Radeon X1300",
+      "ram": 2,
+      "os": "Windows 7"
+    },
+    "fps": [
+      45,
+      60
+    ],
+    "preset": "Standart",
+    "resolution": "1280 × 720",
+    "verdict": "play",
+    "note": "Retro grafikali ralli yoqsa, sotib olishga arziydi. Oddiy sozlamada 60 FPS chegarasini tanla.",
+    "source": "https://store.steampowered.com/app/2824660/",
+    "perfSource": "https://www.youtube.com/watch?v=7nJ9fCQWIXI",
+    "basis": "Ishlab chiquvchi tavsiya qilgan Intel HD 5200 ushbu videoyadrodan eski. 60 FPS maqsadi Steam Deck sinovi va grafik talablarga asoslangan."
+  },
+  {
+    "id": 1551360,
+    "name": "Forza Horizon 5",
+    "year": 2021,
+    "genres": [
+      "Poyga",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core i5-4460 / Ryzen 3 1200",
+      "gpu": "GeForce GTX 970 / Radeon RX 470 / Intel Arc A380",
+      "ram": 8,
+      "os": "Windows 10 (18362+)"
+    },
+    "fps": [
+      20,
+      35
+    ],
+    "preset": "Eng past",
+    "resolution": "1280 × 720",
+    "verdict": "avoid",
+    "note": "Silliq poyga uchun shu noutbukka sotib olishni tavsiya etmayman. O‘yin o‘zingda bo‘lsa, eng past sozlamada ichki testni ishga tushir.",
+    "source": "https://store.steampowered.com/app/1551360/",
+    "perfSource": "https://www.youtube.com/watch?v=hW-MY01N8oU",
+    "basis": "Iris Xe va 8 GB RAM bilan 720p sinovi bor. Intel Graphics tizim xotirasini o‘yin bilan bo‘lishgani uchun ayrim joylarda kadrlar keskin tushishi mumkin."
+  },
+  {
+    "id": 227300,
+    "name": "Euro Truck Simulator 2",
+    "year": 2012,
+    "genres": [
+      "Simulyator",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core i5-6400 / Ryzen 3 1200",
+      "gpu": "Intel HD 630 / GeForce GTX 660 / Radeon RX 460 (2 GB)",
+      "ram": 8,
+      "os": "Windows 10 (64-bit)"
+    },
+    "fps": [
+      25,
+      45
+    ],
+    "preset": "Past",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "Sotib olishdan oldin Steam’dagi demoni shaharda haydab ko‘r. Ko‘zgular sifatini pastga, masshtabni 100% ga qo‘y.",
+    "source": "https://store.steampowered.com/app/227300/",
+    "perfSource": "https://www.reddit.com/r/lowendgaming/comments/1v6yfna/can_i_run_ets2_with_an_iris_xe/",
+    "basis": "8 GB va Iris Xe ishlatadigan o‘xshash tizim uchun 720p’da 30–40 FPS taxmin qilingan. Tirbandlik, shahar va modlar natijani o‘zgartiradi."
+  },
+  {
+    "id": 2707900,
+    "name": "NIGHT-RUNNERS PROLOGUE",
+    "year": 2024,
+    "genres": [
+      "Poyga",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core i5-4460 / Ryzen 3 1200",
+      "gpu": "GeForce GTX 750 / Radeon R9 270 (2 GB)",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "fps": null,
+    "preset": "Past",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "Bepul prologni o‘rnatib ko‘r. Mashinaning tashqi ko‘rinishi va ehtiyot qismlarini o‘zgartirish mumkin.",
+    "source": "https://store.steampowered.com/app/2707900/",
+    "basis": "Nashriyotchi GTX 750 uchun 1080p’da 60 FPS ko‘rsatgan. Intel Graphics va bitta 8 GB modul uchun ishonchli FPS sinovi topilmadi."
+  },
+  {
+    "id": 690790,
+    "name": "DiRT Rally 2.0",
+    "year": 2019,
+    "genres": [
+      "Poyga",
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Core i3-2130 / FX-4300",
+      "gpu": "GeForce GTX 650 Ti / Radeon HD 7750",
+      "ram": 8,
+      "os": "Windows 7 / 8 / 10 (64-bit)"
+    },
+    "fps": [
+      40,
+      75
+    ],
+    "preset": "Eng past",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "Realistik ralli xohlasang, chegirmada olishga arziydi. Avval bitta trassada 720p bilan sinab ko‘r.",
+    "source": "https://store.steampowered.com/app/690790/",
+    "perfSource": "https://www.notebookcheck.net/Tiger-Lake-Iris-Xe-G7-and-GeForce-MX350-are-neck-to-neck-in-3DMark-so-why-is-the-Intel-chip-still-so-much-slower-when-gaming.496466.0.html",
+    "basis": "Notebookcheck’da Iris Xe 96 EU eng past 720p rejimida 100 FPS dan oshgan. Bitta RAM moduli va umumiy 8 GB xotira uchun oraliq pasaytirildi."
+  },
+  {
+    "id": 2737300,
+    "name": "Parking Garage Rally Circuit",
+    "year": 2024,
+    "genres": [
+      "Poyga"
+    ],
+    "min": {
+      "cpu": "x86 (SSE2) / x64",
+      "gpu": "Vulkan 1.0 qo‘llaydigan integratsiyalashgan grafika",
+      "ram": 4,
+      "os": "Windows 7+"
+    },
+    "fps": [
+      40,
+      60
+    ],
+    "preset": "Standart",
+    "resolution": "1280 × 720",
+    "verdict": "play",
+    "note": "Tor avtoturargohlarda drift va vaqtga poyga yoqsa, olishga arziydi. 720p dan boshla.",
+    "source": "https://store.steampowered.com/app/2737300/",
+    "perfSource": "https://www.youtube.com/watch?v=_374nVpX9rY",
+    "basis": "Ishlab chiquvchi ichki grafikani qo‘llaydi. Steam Deck 60 FPS ko‘rsatgan, Vivobook uchun qiymat taxminiy."
+  },
+  {
+    "id": 271590,
+    "name": "Grand Theft Auto V Legacy",
+    "year": 2015,
+    "genres": [
+      "Ekshen",
+      "Sarguzasht",
+      "Tyuning"
+    ],
+    "min": {
+      "cpu": "Core 2 Quad Q6600 / Phenom 9850",
+      "gpu": "GeForce 9800 GT / Radeon HD 4870 (1 GB)",
+      "ram": 4,
+      "os": "Windows 10 (64-bit)"
+    },
+    "fps": [
+      30,
+      50
+    ],
+    "preset": "Normal, MSAA o‘chiq",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "Steam kutubxonasidan Legacy versiyasini o‘rnat. Syujet rejimida MSAA’ni o‘chirib sinab ko‘r.",
+    "source": "https://store.steampowered.com/app/271590/",
+    "perfSource": "https://www.youtube.com/watch?v=BPWpV2MxoCg",
+    "basis": "16 GB ikki kanalli Intel Iris Xe tizimida 720p Normal/Low rejimida taxminan 50 FPS qayd etilgan. Bitta 8 GB modul uchun oraliq kengroq."
+  },
+  {
+    "id": 635260,
+    "name": "CarX Drift Racing Online",
+    "year": 2017,
+    "genres": [
+      "Poyga",
+      "Tyuning",
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Core i5-6400 / Ryzen 5 1600",
+      "gpu": "GeForce GTX 960 / Radeon RX 470 (4 GB)",
+      "ram": 8,
+      "os": "Windows 10+"
+    },
+    "fps": null,
+    "preset": "Past",
+    "resolution": "1280 × 720",
+    "verdict": "avoid",
+    "note": "Hozirgi talablarga ko‘ra, shu Vivobook uchun sotib olishni tavsiya etmayman. O‘yin o‘zingda bo‘lsa, modsiz sinab ko‘r.",
+    "source": "https://store.steampowered.com/app/635260/",
+    "basis": "Minimal talabda 4 GB alohida videoxotira ko‘rsatilgan. Ishlab chiquvchi ichki Intel grafikalarida barqarorlikni kafolatlamaydi."
+  },
+  {
+    "id": 3241660,
+    "name": "R.E.P.O.",
+    "year": 2025,
+    "genres": [
+      "Ekshen"
+    ],
+    "min": {
+      "cpu": "Core i5-6600",
+      "gpu": "GeForce GTX 970",
+      "ram": 8,
+      "os": "Windows 10"
+    },
+    "fps": null,
+    "preset": "Past",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "O‘yin o‘zingda bor. Do‘sting bilan 720p va past sozlamani sinab, kadrlarni buyumlar ko‘p xonada tekshir.",
+    "source": "https://store.steampowered.com/app/3241660/",
+    "perfSource": "https://www.youtube.com/watch?v=S5kmgRVAZmA",
+    "basis": "Intel Iris Xe va 16 GB RAM bilan o‘ynalgan sinov bor. 8 GB Vivobook’da shu sinov asosida aniq FPS aytib bo‘lmaydi."
+  },
+  {
+    "id": 2379780,
+    "name": "Balatro",
+    "year": 2024,
+    "genres": [
+      "Strategiya"
+    ],
+    "min": {
+      "cpu": "Intel Core i3",
+      "gpu": "OpenGL 2.1 qo‘llaydigan integratsiyalashgan grafika",
+      "ram": 1,
+      "os": "Windows 7 / 8 / 10 / 11 (64-bit)"
+    },
+    "fps": [
+      50,
+      60
+    ],
+    "preset": "Standart, VSync",
+    "resolution": "1920 × 1080",
+    "verdict": "play",
+    "note": "Karta kombinatsiyalari yoqsa, olishga arziydi. Standart sozlama va 60 Hz rejimi yetadi.",
+    "source": "https://store.steampowered.com/app/2379780/",
+    "perfSource": "https://steamdeckhq.com/game-reviews/steam-deck/balantro/",
+    "basis": "Kam tizim talablari va portativ qurilmadagi sinovga asoslangan 60 Hz rejimi uchun taxmin. Bu Vivobook’da FPS o‘lchanmagan."
+  },
+  {
+    "id": 813230,
+    "name": "ANIMAL WELL",
+    "year": 2024,
+    "genres": [
+      "Sarguzasht"
+    ],
+    "min": {
+      "cpu": "1 GHz protsessor",
+      "gpu": "DirectX 12 qo‘llaydigan integratsiyalashgan grafika",
+      "ram": 1,
+      "os": "Windows 10 (64-bit)"
+    },
+    "fps": [
+      45,
+      60
+    ],
+    "preset": "Good",
+    "resolution": "1280 × 720",
+    "verdict": "play",
+    "note": "Jumboqli metroidvaniya yoqsa, o‘rnatishga arziydi. Yorug‘lik effektlarida kadr tushsa, Good rejimini ishlat.",
+    "source": "https://store.steampowered.com/app/813230/",
+    "perfSource": "https://steamdeckhq.com/game-reviews/animal-well/",
+    "basis": "O‘yin 60 FPS bilan cheklangan. Steam Deck sinovi va yengil minimal talablar asosida Vivobook uchun ehtiyotkor baho berildi."
+  },
+  {
+    "id": 1643320,
+    "name": "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+    "year": 2024,
+    "genres": [
+      "Ekshen",
+      "Sarguzasht"
+    ],
+    "min": {
+      "cpu": "Core i7-7700K / Ryzen 5 1600X",
+      "gpu": "GeForce GTX 1060 (6 GB) / Radeon RX 580 (8 GB) / Intel Arc A750",
+      "ram": 16,
+      "os": "Windows 10 / 11 (64-bit)"
+    },
+    "fps": null,
+    "preset": "Mos rejim aniqlanmadi",
+    "resolution": "—",
+    "verdict": "avoid",
+    "note": "Bu Vivobook uchun sotib olma. Minimal talabning o‘zida 16 GB RAM, alohida videokarta va SSD kerak.",
+    "source": "https://store.steampowered.com/app/1643320/",
+    "basis": "Rasmiy 30 FPS maqsadi minimal konfiguratsiyaga tegishli. 8 GB integratsiyalashgan grafikada ishga tushishi ham tasdiqlanmagan."
+  },
+  {
+    "id": 244210,
+    "name": "Assetto Corsa",
+    "year": 2014,
+    "genres": [
+      "Poyga",
+      "Simulyator"
+    ],
+    "min": {
+      "cpu": "Core 2 Duo 2.4 GHz / Athlon X2 2.8 GHz",
+      "gpu": "Radeon HD 6450 yoki DirectX 10.1 qo‘llaydigan tengi",
+      "ram": 2,
+      "os": "Windows 7 SP1 / 8 / 8.1 / 10"
+    },
+    "fps": [
+      30,
+      50
+    ],
+    "preset": "Past, modlarsiz",
+    "resolution": "1280 × 720",
+    "verdict": "adjust",
+    "note": "Asosiy o‘yinni chegirmada olsa bo‘ladi. Avval yolg‘iz mashina bilan hayda. Grafik modlar va ko‘p raqib kadrlarni pasaytiradi.",
+    "source": "https://store.steampowered.com/app/244210/",
+    "perfSource": "https://fpshq.com/en/games-for/intel-iris-xe-graphics/",
+    "basis": "Iris Xe uchun e’lon qilingan 720p model bahosi asosida olindi. 8 GB Vivobook’dagi haqiqiy natija trassa va mashinalar soniga bog‘liq."
+  }
+]
