@@ -13,7 +13,7 @@ const games = JSON.parse(read("src/catalog.json"));
 const css = read("src/ui.css").replace("__HERO__", () => img("hero.jpg"));
 
 // Client script: data first, then the modules in dependency order (import/export lines are stripped).
-const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "search.mjs", "dxdiag.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs"].map(n => "src/" + n);
+const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "search.mjs", "dxdiag.mjs", "sync.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs", "account.js"].map(n => "src/" + n);
 const data = "const ru=" + safeJSON(JSON.parse(read("src/data/ru.json"))) + ";\n"
   + "const STEAM_UZ=" + safeJSON(JSON.parse(read("src/data/steam-uz.json"))) + ";\n"
   + "window.FRAME_ART=" + safeJSON(art) + ";\n"
@@ -29,6 +29,8 @@ const html = read("src/index.html")
 fs.mkdirSync("dist/server", {recursive: true});
 fs.mkdirSync("dist/.openai", {recursive: true});
 fs.copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
-fs.writeFileSync("dist/server/index.js", read("src/server.mjs").replace(/^export /gm, "") + "\nconst home=" + JSON.stringify(html) + ";\nexport default {fetch:request=>handle(request,home)};\n");
+// Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped).
+const worker = ["src/sync.mjs", "src/auth.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+fs.writeFileSync("dist/server/index.js", worker + "\nconst home=" + JSON.stringify(html) + ";\nexport default {fetch:(request,env)=>handle(request,home,undefined,env)};\n");
 if (process.argv.includes("--portable")) fs.writeFileSync("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

@@ -1,3 +1,4 @@
+import {handleAccount} from "./auth.mjs";
 const steam="https://store.steampowered.com";
 const COVER_HOSTS=["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/","https://cdn.cloudflare.steamstatic.com/steam/apps/","https://cdn.akamai.steamstatic.com/steam/apps/"];
 const security={"X-Content-Type-Options":"nosniff"};
@@ -46,8 +47,9 @@ async function cover(id,fetchSteam){
  return json({code:"not_found"},404);
 }
 
-export async function handle(request,home,fetchSteam=fetch){
+export async function handle(request,home,fetchSteam=fetch,env={}){
  const {pathname,searchParams}=new URL(request.url);
+ const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
  if(pathname==="/favicon.ico")return new Response(null,{status:204});

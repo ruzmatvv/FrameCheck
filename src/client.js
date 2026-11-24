@@ -1,7 +1,7 @@
 ;
 (() => {
 initLanguage();
-const paths={scan:'<path d="M8 3H4v4m12-4h4v4M4 17v4h4m12-4v4h-4"/><path d="M6 12h3l2-4 3 8 2-4h2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',bookmark:'<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4z"/>',history:'<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"/>',laptop:'<rect x="4.5" y="4" width="15" height="12" rx="1.5"/><path d="M4 17l-2 3h20l-2-3z"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',panel:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',activity:'<path d="M2 13h5l3-8 4 14 3-8 2 2h3"/>',search:'<circle cx="10" cy="10" r="6.7"/><path d="m15.2 15.2 5 5"/>',flag:'<path d="M4 21V4m0 1c5-5 9 4 16-1v10c-7 5-11-4-16 1"/>',wrench:'<path d="m14 7 3 3 4-4a6 6 0 0 1-8 8l-7 7a2 2 0 0 1-3-3l7-7a6 6 0 0 1 8-8z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v5m10-5v5M3 10h18"/>',sliders:'<path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',down:'<path d="m6 9 6 6 6-6"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',refresh:'<path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/>',game:'<path d="M7 8h10c3 0 4 3 5 8 .5 4-2 5-4 3l-3-3H9l-3 3c-2 2-5 1-4-3 1-5 2-8 5-8zM6 11v4m-2-2h4m7-1h.01m3 2h.01"/>',check:'<path d="m4 12 5 5L20 6"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>'};
+const paths={scan:'<path d="M8 3H4v4m12-4h4v4M4 17v4h4m12-4v4h-4"/><path d="M6 12h3l2-4 3 8 2-4h2"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>',bookmark:'<path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4z"/>',history:'<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"/>',laptop:'<rect x="4.5" y="4" width="15" height="12" rx="1.5"/><path d="M4 17l-2 3h20l-2-3z"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',panel:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',activity:'<path d="M2 13h5l3-8 4 14 3-8 2 2h3"/>',search:'<circle cx="10" cy="10" r="6.7"/><path d="m15.2 15.2 5 5"/>',flag:'<path d="M4 21V4m0 1c5-5 9 4 16-1v10c-7 5-11-4-16 1"/>',wrench:'<path d="m14 7 3 3 4-4a6 6 0 0 1-8 8l-7 7a2 2 0 0 1-3-3l7-7a6 6 0 0 1 8-8z"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v5m10-5v5M3 10h18"/>',sliders:'<path d="M3 7h9m4 0h5M3 17h3m4 0h11"/><circle cx="14" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',down:'<path d="m6 9 6 6 6-6"/>',close:'<path d="m6 6 12 12M18 6 6 18"/>',refresh:'<path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/>',game:'<path d="M7 8h10c3 0 4 3 5 8 .5 4-2 5-4 3l-3-3H9l-3 3c-2 2-5 1-4-3 1-5 2-8 5-8zM6 11v4m-2-2h4m7-1h.01m3 2h.01"/>',check:'<path d="m4 12 5 5L20 6"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>'};
 const I=k=>'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'+(paths[k]||"")+'</svg>';
 document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=I(e.dataset.i));
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -10,9 +10,9 @@ const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tari
 const K="framecheck.v1",base=JSON.parse($("#catalog-data").textContent),images=window.FRAME_ART||{};
 const prices=attachSteamPrices(STEAM_UZ);
 const order=[1815780,1222680,1551360,227300,690790,271590,2824660,2707900,2737300,3241660,635260,244210,2379780,813230,1643320];
-const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;
+const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;let account=null;
 try {const v=JSON.parse(localStorage.getItem(K)||"null");if(v){data.saved=Array.isArray(v.saved)?v.saved.filter(Number.isInteger):[];data.history=Array.isArray(v.history)?v.history.filter(h=>Number.isInteger(h.id)&&h.at):[];data.games=v.games&&typeof v.games==="object"?v.games:{}}}catch{}
-function persist(){try{localStorage.setItem(K,JSON.stringify(data));storeOK=true}catch{storeOK=false;notify(tr("Brauzer saqlashga ruxsat bermadi. Natija shu sahifada ko‘rinadi."))}}
+function persist(){try{localStorage.setItem(K,JSON.stringify(data));storeOK=true;account?.touch()}catch{storeOK=false;notify(tr("Brauzer saqlashga ruxsat bermadi. Natija shu sahifada ko‘rinadi."))}}
 const autoInitial=browserProfile(navigator,document),overrideKey="framecheck.device.v2";
 let automatic=autoInitial,storedSettings=null,profileBusy=false,returnToId=null,profileOpened=false;
 try {storedSettings=JSON.parse(localStorage.getItem(overrideKey)||"null")}catch{}
@@ -68,7 +68,7 @@ function render(){
 function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
 function show(title,html){const d=$("#modal");$("#modal-body").innerHTML='<div class="modal-head"><h2 id="modal-title">'+E(title)+(`</h2><button class="icon" data-close aria-label="${tr("Yopish")}">`)+I("close")+'</button></div><div class="modal-inner">'+html+'</div>';if(!d.open)d.showModal();d.scrollTop=0}
 function remember(g){data.history=[{id:g.id,at:new Date().toISOString()},...data.history.filter(x=>x.id!==g.id)].slice(0,100);persist()}
-function toggleSave(id){data.saved=data.saved.includes(id)?data.saved.filter(x=>x!==id):[id,...data.saved];persist();render();if($("#modal").open&&detailId===id)detail(game(id),false);if(storeOK)notify(data.saved.includes(id)?tr("Saqlanganlarga qo‘shildi"):tr("Saqlanganlardan olib tashlandi"))}
+function toggleSave(id){account?.markSaved(id,!data.saved.includes(id));data.saved=data.saved.includes(id)?data.saved.filter(x=>x!==id):[id,...data.saved];persist();render();if($("#modal").open&&detailId===id)detail(game(id),false);if(storeOK)notify(data.saved.includes(id)?tr("Saqlanganlarga qo‘shildi"):tr("Saqlanganlardan olib tashlandi"))}
 const labels={ok:"Mos",low:"Talabdan past",near:"Chegarada",edge:"Minimal hajm",na:"Aniq emas"},parts={cpu:"Protsessor",gpu:"Videokarta",ram:"RAM",os:"Tizim"};
 function detail(g,record=true,msg=""){if(!g)return;detailId=g.id;if(record)remember(g);const r=g.ratings;const f=fps(g),rows=Object.keys(parts).map(k=>'<tr><td>'+tr(parts[k])+'</td><td>'+E(g.min[k]==null?tr("Ko‘rsatilmagan"):k==="ram"?memorySize(g.min[k]):hardwareText(g.min[k]))+'</td><td>'+E(displaySpecs(profile)[k])+'<br><small class="badge '+({ok:"play",low:"avoid",near:"adjust",edge:"adjust",na:"unknown"}[r[k]])+'">'+tr(labels[r[k]])+'</small></td></tr>').join("");
  const stamp=g.checkedAt?tr("Steam talablari {0} da tekshirildi.",time(g.checkedAt)):tr("Talablar katalogdagi yozuvdan olindi.");
@@ -106,6 +106,7 @@ function profileData(values){
 function updateProfile(values,back=true){
  storedSettings=profileData(values);profile=activeProfile(automatic,readOverrides(storedSettings,automatic));
  try{localStorage.setItem(overrideKey,JSON.stringify(storedSettings))}catch{notify(tr("Profil faqat shu ochiq sahifada ishlaydi."))}
+ account?.markProfile();
  render();
  if(back&&returnToId){const id=returnToId;returnToId=null;profileOpened=false;detail(game(id),false)}
  else if(back){$("#modal").close()}
@@ -196,5 +197,24 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  searchField.addEventListener("invalid",()=>{if(searchField.validity.valueMissing)searchField.setCustomValidity(tr("O‘yin nomi yoki Steam havolasini kirit."))});
  searchField.addEventListener("input",()=>searchField.setCustomValidity(""));
  window.addEventListener("framecheck:language",()=>searchField.setCustomValidity(""));
- route();detectMore();window.FramecheckDuel.openIncoming();
+ const refreshProfile=()=>{profile=activeProfile(automatic,readOverrides(storedSettings,automatic))};
+ account=createAccount({
+  tr,E,$,I,show,notify,time,
+  closeMenu:()=>setMenu(false),
+  openDevice:()=>{setMenu(false);device()},
+  read:()=>({saved:data.saved,history:data.history,games:data.games,profile:storedSettings}),
+  // Replace local data with the merged copy from the server.
+  write:({saved,history,games,profile:settings})=>{
+   data.saved=saved;data.history=history;data.games=games;storedSettings=settings;
+   try{if(settings)localStorage.setItem(overrideKey,JSON.stringify(settings));else localStorage.removeItem(overrideKey)}catch{}
+   refreshProfile();persist();render();
+  },
+  // Forget this account's data on this device (signing out, or deleting the account).
+  wipe:()=>{
+   data={saved:[],history:[],games:{}};storedSettings=null;
+   try{localStorage.removeItem(overrideKey)}catch{}
+   refreshProfile();persist();render();
+  },
+ });
+ route();detectMore();window.FramecheckDuel.openIncoming();account.init();
 })();

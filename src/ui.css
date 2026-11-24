@@ -142,3 +142,27 @@ dialog.fc-fps {
 #device-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:24ch}
 @media(max-width:700px){.top{padding-inline:12px}.top-actions{gap:6px}.crumb{min-width:0}.crumb strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.language-menu select{font-size:.78rem}#device-label{max-width:10ch}}
 @media(max-width:460px){.top-actions .device-pill #device-label,.top-actions .device-pill .status-dot{display:none}.top-actions .device-pill{width:34px;height:34px;justify-content:center}.top-actions{flex-shrink:0}.hero h1{overflow-wrap:break-word}}
+
+/* Accounts */
+button.user{width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--border);border-radius:0;color:inherit;cursor:pointer}
+button.user:hover{background:#202424}
+.user-text{display:block;min-width:0}
+.user-text strong,.user-text small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-text small{color:var(--muted);font-size:.78rem}
+.account-pill{cursor:pointer}
+.account-pill #account-pill-label{max-width:12ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.account-pill[hidden]{display:none}
+@media(max-width:740px){.account-pill #account-pill-label{display:none}}
+.account-fields{display:grid;gap:12px;margin:16px 0}
+.account-switch{margin:0 0 12px}
+.account-switch button[aria-pressed=true]{background:var(--lime);color:#141b0f;border-color:var(--lime)}
+.check-line{display:flex;gap:8px;align-items:center;font-size:.86rem;color:#cdd3cc;cursor:pointer}
+.form-error{display:block;min-height:1.3em;margin-top:8px;color:#ff9f93;font-size:.86rem}
+.account-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.account-head strong,.account-head small{display:block}
+.account-head small{color:var(--muted);font-size:.8rem}
+.account-section{margin-top:18px;border:1px solid var(--border);border-radius:9px;padding:0 14px}
+.account-section>summary{cursor:pointer;padding:12px 0;font-weight:600}
+.account-section[open]{padding-bottom:12px}
+.account-section.danger>summary{color:#ff9f93}
+.danger-btn{border-color:#7a3b35;color:#ffb3a8}
