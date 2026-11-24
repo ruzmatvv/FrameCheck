@@ -21,16 +21,17 @@ function createGameMedia(ctx) {
   function lightbox(info, index) {
     const shots = info.screenshots;
     let i = index;
-    const box = document.createElement("div");
+    const box = document.createElement("dialog"); // its own dialog, so it sits above the game window and fills the whole screen
+    box.addEventListener("close", () => box.remove());
     box.className = "lightbox"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", tr("Skrinshotlar"));
     const draw = () => { box.innerHTML = '<img src="' + E(shots[i].full) + '" alt=""><button type="button" class="lb-prev" aria-label="' + E(tr("Oldingisi")) + '">‹</button><button type="button" class="lb-next" aria-label="' + E(tr("Keyingisi")) + '">›</button><button type="button" class="lb-close" aria-label="' + E(tr("Yopish")) + '">×</button>'; };
     draw();
     box.addEventListener("click", e => {
       if (e.target.closest(".lb-prev")) { i = (i + shots.length - 1) % shots.length; draw(); }
       else if (e.target.closest(".lb-next")) { i = (i + 1) % shots.length; draw(); }
-      else box.remove();
+      else box.close();
     });
-    $("#modal").append(box);
+    document.body.append(box); box.showModal();
     box.querySelector(".lb-close").focus();
   }
 
