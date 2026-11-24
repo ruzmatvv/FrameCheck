@@ -1,4 +1,7 @@
 import {handleAccount} from "./auth.mjs";
+import "./recovery.mjs";
+import "./fps.mjs";
+import "./admin.mjs";
 const steam="https://store.steampowered.com";
 const COVER_HOSTS=["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/","https://cdn.cloudflare.steamstatic.com/steam/apps/","https://cdn.akamai.steamstatic.com/steam/apps/"];
 const security={"X-Content-Type-Options":"nosniff"};

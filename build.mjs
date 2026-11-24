@@ -30,7 +30,7 @@ fs.mkdirSync("dist/server", {recursive: true});
 fs.mkdirSync("dist/.openai", {recursive: true});
 fs.copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped).
-const worker = ["src/sync.mjs", "src/auth.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
 fs.writeFileSync("dist/server/index.js", worker + "\nconst home=" + JSON.stringify(html) + ";\nexport default {fetch:(request,env)=>handle(request,home,undefined,env)};\n");
 if (process.argv.includes("--portable")) fs.writeFileSync("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");

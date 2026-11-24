@@ -11,17 +11,17 @@ const MAX_BODY = 300000;
 const enc = new TextEncoder();
 const WEAK = new Set(["password", "password1", "12345678", "123456789", "1234567890", "qwertyui", "qwertyuiop", "11111111", "iloveyou", "00000000", "abcd1234", "asdfghjk", "parol123", "parol1234"]);
 
-const accountJson = (value, status = 200, headers = {}) => new Response(status === 204 ? null : JSON.stringify(value), {
+export const accountJson = (value, status = 200, headers = {}) => new Response(status === 204 ? null : JSON.stringify(value), {
   status,
   headers: {"Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", ...headers},
 });
-const fail = (code, status, extra = {}, headers = {}) => accountJson({code, ...extra}, status, headers);
+export const fail = (code, status, extra = {}, headers = {}) => accountJson({code, ...extra}, status, headers);
 
 // ---- encoding helpers
-const toB64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+export const toB64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const fromB64u = text => Uint8Array.from(atob(text.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
 const toHex = bytes => [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
-const sha256 = async text => toHex(new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(text))));
+export const sha256 = async text => toHex(new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(text))));
 
 // ---- passwords
 async function derive(password, salt, iterations) {
@@ -73,13 +73,13 @@ const sessionCookie = (request, token, maxAge) =>
   `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}` + (new URL(request.url).protocol === "https:" ? "; Secure" : "");
 
 // Requests that change data must come from this site. Browsers always send Origin on such requests.
-function sameSite(request) {
+export function sameSite(request) {
   const origin = request.headers.get("Origin");
   if (origin) return origin === new URL(request.url).origin;
   const site = request.headers.get("Sec-Fetch-Site");
   return !site || site === "same-origin" || site === "none";
 }
-async function readJson(request) {
+export async function readJson(request) {
   if (!/^application\/json\b/i.test(request.headers.get("Content-Type") || "")) return {error: fail("bad_request", 415)};
   const declared = Number(request.headers.get("Content-Length") || 0);
   if (declared > MAX_BODY) return {error: fail("too_large", 413)};
@@ -91,15 +91,15 @@ async function readJson(request) {
     return {body};
   } catch { return {error: fail("bad_request", 400)}; }
 }
-const clientKey = request => request.headers.get("CF-Connecting-IP") || "local";
+export const clientKey = request => request.headers.get("CF-Connecting-IP") || "local";
 
 // ---- rate limiting (fixed window kept in D1)
-async function limited(db, key, limit, windowMs, now) {
+export async function limited(db, key, limit, windowMs, now) {
   const row = await db.prepare("SELECT count, window_start FROM rate_limits WHERE key = ?").bind(key).first();
   if (!row || now - row.window_start >= windowMs) return 0;
   return row.count >= limit ? Math.ceil((row.window_start + windowMs - now) / 1000) : 0;
 }
-async function strike(db, key, windowMs, now) {
+export async function strike(db, key, windowMs, now) {
   const row = await db.prepare("SELECT count, window_start FROM rate_limits WHERE key = ?").bind(key).first();
   if (!row || now - row.window_start >= windowMs) await db.prepare("INSERT OR REPLACE INTO rate_limits (key, count, window_start) VALUES (?, 1, ?)").bind(key, now).run();
   else await db.prepare("UPDATE rate_limits SET count = count + 1 WHERE key = ?").bind(key).run();
@@ -107,7 +107,7 @@ async function strike(db, key, windowMs, now) {
 const forget = (db, key) => db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(key).run();
 
 // ---- sessions
-async function openSession(db, request, userId, now) {
+export async function openSession(db, request, userId, now) {
   const token = toB64u(crypto.getRandomValues(new Uint8Array(32)));
   await db.prepare("DELETE FROM sessions WHERE user_id = ? AND expires_at <= ?").bind(userId, now).run();
   await db.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)").bind(await sha256(token), userId, now, now + SESSION_MS).run();
@@ -115,15 +115,23 @@ async function openSession(db, request, userId, now) {
   await db.prepare("DELETE FROM sessions WHERE user_id = ? AND token_hash NOT IN (SELECT token_hash FROM sessions WHERE user_id = ? ORDER BY created_at DESC, rowid DESC LIMIT ?)").bind(userId, userId, MAX_SESSIONS).run();
   return sessionCookie(request, token, Math.floor(SESSION_MS / 1000));
 }
-async function currentUser(db, request, now) {
+export async function currentUser(db, request, now) {
   const token = cookieValue(request, COOKIE);
   if (!/^[A-Za-z0-9_-]{40,50}$/.test(token)) return null;
   const hash = await sha256(token);
-  const row = await db.prepare("SELECT u.id, u.username, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?").bind(hash, now).first();
-  return row ? {id: row.id, username: row.username, expiresAt: row.expires_at, hash} : null;
+  const row = await db.prepare("SELECT u.id, u.username, u.is_admin, u.email IS NOT NULL AS has_email, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?").bind(hash, now).first();
+  return row ? {id: row.id, username: row.username, admin: row.is_admin === 1, hasEmail: row.has_email === 1, expiresAt: row.expires_at, hash} : null;
 }
 
 // ---- handlers
+// An email is optional and only used to send a password reset link.
+export function cleanEmail(value) {
+  if (value === undefined || value === null || value === "") return {email: null};
+  if (typeof value !== "string" || value.length > 254 || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/.test(value.trim())) return {error: "email_invalid"};
+  return {email: value.trim().toLowerCase()};
+}
+export const recoveryEnabled = env => Boolean(env?.RESEND_API_KEY && env?.MAIL_FROM);
+
 async function register(request, db, now) {
   const {body, error} = await readJson(request);
   if (error) return error;
@@ -131,13 +139,15 @@ async function register(request, db, now) {
   if (!checkUsername(username)) return fail("username_invalid", 400);
   const weak = checkPassword(password, username);
   if (weak) return fail(weak, 400);
+  const mail = cleanEmail(body.email);
+  if (mail.error) return fail(mail.error, 400);
   const key = "register:" + clientKey(request), windowMs = 3600000;
   const wait = await limited(db, key, 10, windowMs, now);
   if (wait) return fail("rate_limited", 429, {retryAfter: wait}, {"Retry-After": String(wait)});
   if (await db.prepare("SELECT 1 AS x FROM users WHERE username = ? COLLATE NOCASE").bind(username).first()) return fail("username_taken", 409);
   const record = await hashPassword(password);
   try {
-    const result = await db.prepare("INSERT INTO users (username, pass_hash, pass_salt, iterations, created_at) VALUES (?, ?, ?, ?, ?)").bind(username, record.hash, record.salt, record.iterations, now).run();
+    const result = await db.prepare("INSERT INTO users (username, pass_hash, pass_salt, iterations, created_at, email) VALUES (?, ?, ?, ?, ?, ?)").bind(username, record.hash, record.salt, record.iterations, now, mail.email).run();
     await strike(db, key, windowMs, now);
     const cookie = await openSession(db, request, result.meta.last_row_id, now);
     return accountJson({user: {username}}, 201, {"Set-Cookie": cookie});
@@ -173,15 +183,16 @@ async function logout(request, db, now) {
   return accountJson(null, 204, {"Set-Cookie": sessionCookie(request, "", 0)});
 }
 
-async function me(request, db, now) {
+async function me(request, db, now, env) {
   const user = await currentUser(db, request, now);
-  if (!user) return accountJson({user: null, available: true});
+  const recovery = recoveryEnabled(env);
+  if (!user) return accountJson({user: null, available: true, recovery});
   const headers = {};
   if (user.expiresAt - now < SESSION_MS / 2) {
     await db.prepare("UPDATE sessions SET expires_at = ? WHERE token_hash = ?").bind(now + SESSION_MS, user.hash).run();
     headers["Set-Cookie"] = sessionCookie(request, cookieValue(request, COOKIE), Math.floor(SESSION_MS / 1000));
   }
-  return accountJson({user: {username: user.username}, available: true}, 200, headers);
+  return accountJson({user: {username: user.username, admin: user.admin, hasEmail: user.hasEmail}, available: true, recovery}, 200, headers);
 }
 
 async function changePassword(request, db, now) {
@@ -220,6 +231,8 @@ async function deleteAccount(request, db, now) {
   }
   await db.batch([
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(user.id),
+    db.prepare("DELETE FROM reset_tokens WHERE user_id = ?").bind(user.id),
+    db.prepare("DELETE FROM fps_reports WHERE user_id = ?").bind(user.id),
     db.prepare("DELETE FROM user_data WHERE user_id = ?").bind(user.id),
     db.prepare("DELETE FROM users WHERE id = ?").bind(user.id),
   ]);
@@ -254,7 +267,8 @@ async function writeSync(request, db, now) {
   return fail("conflict", 409, {rev: current?.rev ?? 0, doc: current ? JSON.parse(current.doc) : emptyDoc()});
 }
 
-const ROUTES = {
+// Other modules (recovery, reports, admin) add their routes here when they are loaded.
+export const ROUTES = {
   "POST /api/auth/register": register,
   "POST /api/auth/login": login,
   "POST /api/auth/logout": logout,
@@ -268,7 +282,7 @@ const ROUTES = {
 // Returns a Response for account routes, or null when the path is not one of ours.
 export async function handleAccount(request, env, now = Date.now()) {
   const {pathname} = new URL(request.url);
-  if (!pathname.startsWith("/api/auth/") && pathname !== "/api/sync") return null;
+  if (!/^\/api\/(?:auth\/|admin\/|fps$|sync$)/.test(pathname)) return null;
   const method = request.method === "HEAD" ? "GET" : request.method;
   const route = ROUTES[method + " " + pathname];
   if (!route) {
@@ -278,7 +292,7 @@ export async function handleAccount(request, env, now = Date.now()) {
   if (!env?.DB) return method === "GET" && pathname === "/api/auth/me" ? accountJson({user: null, available: false}) : fail("accounts_unavailable", 503);
   if (method !== "GET" && !sameSite(request)) return fail("forbidden", 403);
   try {
-    return await route(request, env.DB, now);
+    return await route(request, env.DB, now, env);
   } catch {
     return fail("server_error", 500);
   }
