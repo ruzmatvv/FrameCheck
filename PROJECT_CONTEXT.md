@@ -1,4 +1,4 @@
-# Framecheck: loyiha konteksti
+﻿# Framecheck: loyiha konteksti
 
 Yangi sessiyada loyihani davom ettirish uchun shu faylni birinchi o'qing, keyin `README.md` ni. Oxirgi yangilanish: 2026-11-24.
 Bu faylda parol, token yoki shaxsiy email yo'q. Ular hech qachon repoga yozilmasin.
@@ -57,7 +57,7 @@ Asosiy fayllar:
 - `workers_dev = false`, `preview_urls = false`. `flamecheck.bid` xato yozib sotib olingan edi: Worker'dan ajratilgan, hisobda hali turadi (avtomatik yangilashni o'chirish tavsiya).
 - Statik fayllar Worker'siz beriladi (limitdan yemaydi). Worker faqat `/api/*` va `/img/*` ni biladi. Steam javoblari kesh (`X-Cache` sarlavhasi: HIT/MISS).
 - Joylash: `npm run deploy` (testlar, build, migratsiya, `wrangler deploy`). Cloudflare'ga kirish tokeni vaqti-vaqti bilan tugaydi: `npx wrangler login`.
-- Oxirgi joylangan versiya: `81894dc5-7c90-44cd-a29b-a018d1e129ef` (kod: commit `c342559`).
+- Oxirgi joylangan versiya: `86abc677-21d2-41f8-8dec-4c1c6de237b4` (kod: commit `7ce7f4b`, 143 test).
 - Bepul limitlar: Worker ~100 000 so'rov/kun; D1 ~100 000 yozuv/kun. Asosiy xavf: ommaviy API cheklovsiz.
 - Resend (parolni email orqali tiklash) **sozlanmagan**: `RESEND_API_KEY` (secret) va `MAIL_FROM` yo'q, shuning uchun email maydoni va "parolni unutdingmi" yashirin.
 
@@ -83,14 +83,14 @@ Asosiy fayllar:
 - **Haqiqiy FPS o'lchovi faqat 3 o'yinda** (`benchmarks.json`: 15 qator). Qolgani hisoblangan taxmin.
 
 ## 7. Test va sinash
-- `npm test` hozir **130 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), pwa, server, settings, sw, sync.
+- `npm test` hozir **143 test**, hammasi o'tadi. Fayllar: auth, build, cache, compat, data, devices, extras (tiklash/FPS/admin), pwa, server, settings, sw, sync.
 - Mahalliy: `npm run build` keyin `npm start` (http://127.0.0.1:4672). Hisoblar bilan: `npm run start:accounts` (SQLite `.data/`, git'da yo'q).
 - Brauzer paneli (Claude ichidagi) eslatmalari: service worker'ni ro'yxatdan o'tkazmaydi (mahalliyda xato chiqadi, jonli HTTPS'da ishlaydi);
   `127.0.0.1` va `localhost` alohida "qurilma" sifatida ishlatiladi (ikki qurilma sinxronini sinash uchun); manzilning faqat `#` qismi o'zgarsa sahifa qayta yuklanmaydi.
 - Jonli tekshirish: `curl.exe` bilan sarlavhalar, `X-Cache`; Worker chaqiruvlari `npx wrangler tail framecheck-samir --format json`.
 
 ## 8. Ma'lum tuzoqlar (takrorlamang)
-- **PowerShell'da burama tirnoq** (`‘ ’ “ ”`) qator ichidagi matnni buzadi (bir marta `index.html` buzilgan). O'zbekcha matnli o'zgartirishni `Edit` vositasi yoki `.mjs` fayl orqali qiling.
+- **PowerShell'da burama tirnoq** (`вЂ вЂ™ вЂњ вЂќ`) qator ichidagi matnni buzadi (bir marta `index.html` buzilgan). O'zbekcha matnli o'zgartirishni `Edit` vositasi yoki `.mjs` fayl orqali qiling.
 - **Cloudflare Workers'da javob tanasi**: `clone()` ni tana boshqa `Response`ga berilishidan OLDIN oling (Node'da ishlaydi, Cloudflare'da 500). Kesh yozuvi shunday qilingan.
 - `wrangler.toml` ga `routes` qo'shilsa `workers_dev` o'chadi (404): kerak bo'lsa aniq yozing.
 - Konsolda o'zbekcha belgilar buzuq ko'rinishi mumkin (faqat ko'rsatish); fayllar UTF-8 va to'g'ri.
@@ -102,7 +102,7 @@ Asosiy fayllar:
 **A. BAJARILDI (2026-11-24): "Ma'lumot yetarli emas" kamaytirildi.** Qaytish nuqtasi: tag `before-unknown-fix`.
    - Natija (215 o'yin, noma'lumlar soni oldin -> keyin): to'liq stol kompyuteri 47 -> 1; Ryzen noutbuk ("AMD Radeon Graphics") 168 -> 1; Intel umumiy grafika 168 -> 1;
      MX250 noutbuk 211 -> 0; versiyasiz "Windows" 215 -> 4; Vivobook 34 -> 0; eski kompyuter 22 -> 15. Hech narsa kiritilmagan qurilmada 215 (to'g'ri).
-   - Nima qilindi (`src/compat.mjs`): Windows matnidan `®/™/(64-bit)` tozalanadi; Windows 10 build raqami bo'lmasa 22H2 (19045) deb olinadi; versiyasiz "Windows" 10/11 deb
+   - Nima qilindi (`src/compat.mjs`): Windows matnidan `В®/в„ў/(64-bit)` tozalanadi; Windows 10 build raqami bo'lmasa 22H2 (19045) deb olinadi; versiyasiz "Windows" 10/11 deb
      olinadi (izoh bilan); modelsiz GPU talablari (DirectX/VRAM/Shader Model) va CPU talablari ("Intel Core i5", "i5-9th Gen", "R3", "4 yadroli", "64-bit") darajaga solishtiriladi,
      lekin kuchsiz qurilma bunda "low" emas, "na" bo'ladi; umumiy ichki grafika nomi protsessordan taxmin qilinadi (`inferGpuClass`, izoh chiqadi); MX seriyasi va eski kartalar
      (GTX 680, GT 640, 8800GT, HD 5870...) jadvalga qo'shildi; natijada `unknownParts` bor va "Ma'lumot yetarli emas" belgisi ustida qaysi qism noma'lumligi chiqadi.
