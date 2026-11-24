@@ -8,15 +8,21 @@ workers_dev = false
 preview_urls = false
 
 # Own domain. Cloudflare creates the DNS records and the certificate for a custom domain.
+# (www is not attached: static files are answered by Cloudflare without the Worker, so a www host could not redirect.
+#  To add it, create a Redirect Rule in the Cloudflare dashboard and attach www here.)
 routes = [
   { pattern = "framecheck.uk", custom_domain = true },
-  { pattern = "www.framecheck.uk", custom_domain = true },
 ]
 
-# framecheck.uk is the main address. www only redirects to it (see canonicalRedirect in src/server.mjs).
+# framecheck.uk is the main address: plain http is sent to https and responses carry HSTS (see src/server.mjs).
 [vars]
 CANONICAL_HOST = "framecheck.uk"
-REDIRECT_HOSTS = "www.framecheck.uk"
+
+# The page, manifest, service worker and icons are static files. Cloudflare serves them itself, so they do not use
+# the Worker's free request limit and the page opens even when that limit is used up. The Worker only answers /api and /img.
+# Headers for these files are in src/headers.txt (copied to dist/public/_headers).
+[assets]
+directory = "./dist/public"
 
 # Accounts and sync. The id is not a secret; access is controlled by the Cloudflare account.
 [[d1_databases]]

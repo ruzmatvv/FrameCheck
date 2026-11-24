@@ -8,6 +8,29 @@ const security={"X-Content-Type-Options":"nosniff"};
 const json=(value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",...security,...extra}});
 const validId=value=>/^\d{1,10}$/.test(value);
 
+// Edge cache for answers that are the same for everybody (Steam data). It exists on the own domain; without it
+// (tests, local run) every request is simply answered fresh. Errors that Steam would repeat are kept for a minute so
+// random ids cannot make us ask Steam again and again. Nothing about accounts is ever cached.
+async function cached(request,key,seconds,produce,ctx){
+ const store=typeof caches!=="undefined"?caches.default:null;
+ if(!store||!key||request.method!=="GET")return produce();
+ const cacheKey=new Request(new URL(request.url).origin+"/__cache/"+key);
+ try{const hit=await store.match(cacheKey);if(hit)return hit}catch{}
+ const res=await produce();
+ const ttl=res.status===200?seconds:(res.status===404||res.status===422)?60:0;
+ if(!ttl)return res;
+ const headers=new Headers(res.headers),own=headers.get("Cache-Control")||"";
+ if(!/max-age/.test(own)||/no-store/.test(own))headers.set("Cache-Control","public, max-age="+Math.min(ttl,300)+", s-maxage="+ttl);
+ const final=new Response(res.body,{status:res.status,headers});
+ const write=Promise.resolve().then(()=>store.put(cacheKey,final.clone())).catch(()=>{});
+ if(ctx?.waitUntil)ctx.waitUntil(write);else await write;
+ return final;
+}
+function priceKey(searchParams){
+ const ids=[...new Set((searchParams.get("ids")||"").split(",").filter(Boolean))].sort();
+ return !ids.length||ids.length>25||!ids.every(validId)?null:"prices/"+ids.join(",")+"/"+(searchParams.get("lang")==="ru"?"ru":"en");
+}
+
 function priceURL(ids,lang){
  const input={ids:ids.map(appid=>({appid})),context:{language:lang==="ru"?"russian":"english",country_code:"UZ"},data_request:{include_all_purchase_options:true,include_release:true}};
  const url=new URL("https://api.steampowered.com/IStoreBrowseService/GetItems/v1/");
@@ -23,7 +46,7 @@ async function prices(searchParams,fetchSteam){
   if(!res.ok)return json({code:"steam_unavailable"},503);
   const payload=await res.json();
   if(!Array.isArray(payload?.response?.store_items))return json({code:"steam_unavailable"},503);
-  return json({response:{store_items:payload.response.store_items},checkedAt:Date.now()},200,{"Cache-Control":"public, max-age=120"});
+  return json({response:{store_items:payload.response.store_items},checkedAt:Date.now()},200,{"Cache-Control":"public, max-age=120, s-maxage=600"});
  }catch{return json({code:"steam_unavailable"},503)}
 }
 
@@ -76,27 +99,31 @@ function httpsRedirect(url,env){
 }
 const HSTS="max-age=15552000"; // browsers keep using https for this site for 180 days
 
-export async function handle(request,home,fetchSteam=fetch,env={},assets={}){
+export async function handle(request,home,fetchSteam=fetch,env={},assets={},ctx=undefined){
  const url=new URL(request.url);
  const early=httpsRedirect(url,env)||canonicalRedirect(url,env);if(early)return early;
- const res=await respond(request,home,fetchSteam,env,assets);
+ const res=await respond(request,home,fetchSteam,env,assets,ctx);
  if(!env?.CANONICAL_HOST||url.protocol!=="https:")return res;
  const headers=new Headers(res.headers);headers.set("Strict-Transport-Security",HSTS);
  return new Response(res.body,{status:res.status,statusText:res.statusText,headers});
 }
 
-async function respond(request,home,fetchSteam,env,assets){
+async function respond(request,home,fetchSteam,env,assets,ctx){
  const {pathname,searchParams}=new URL(request.url);
  const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
- if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
+ if((pathname==="/"||pathname==="/index.html")&&home)return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
  if(pathname==="/favicon.ico")return new Response(null,{status:204});
  const asset=installAsset(pathname,assets);if(asset)return request.method==="HEAD"?new Response(null,{status:asset.status,headers:asset.headers}):asset;
- if(pathname.startsWith("/img/"))return cover(pathname.slice(5).replace(/\.jpg$/,""),fetchSteam);
- if(pathname==="/api/prices")return prices(searchParams,fetchSteam);
+ if(pathname.startsWith("/img/")){const id=pathname.slice(5).replace(/\.jpg$/,"");return cached(request,validId(id)?"img/"+id:null,86400,()=>cover(id,fetchSteam),ctx)}
+ if(pathname==="/api/prices")return cached(request,priceKey(searchParams),600,()=>prices(searchParams,fetchSteam),ctx);
  const isSearch=pathname==="/api/search";if(!isSearch&&pathname!=="/api/game")return json({code:"not_found"},404);
  const key=isSearch?(searchParams.get("q")||"").trim():searchParams.get("id")||"";
  if(isSearch?key.length<1||key.length>180:!validId(key))return json({code:"invalid"},400);
+ return cached(request,(isSearch?"search/"+key.toLowerCase():"game/"+key),isSearch?600:900,()=>steamLookup(isSearch,key,fetchSteam),ctx);
+}
+
+async function steamLookup(isSearch,key,fetchSteam){
  const url=new URL(isSearch?"/api/storesearch/":"/api/appdetails/",steam);url.searchParams.set(isSearch?"term":"appids",key);url.searchParams.set("l","english");url.searchParams.set("cc","uz");
  try{
   const res=await fetchSteam(url.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(9000)});

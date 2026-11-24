@@ -2,6 +2,8 @@ import http from "node:http";
 import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {readFile} from "node:fs/promises";
+import path from "node:path";
+import {fileURLToPath} from "node:url";
 import app from "./dist/server/index.js";
 const port=Number(process.env.PORT||4672), homeURL="http://127.0.0.1:"+port;
 // Accounts need a database. Locally they are off unless FRAMECHECK_LOCAL_DB=1 (then a SQLite file in .data/ is used).
@@ -18,6 +20,18 @@ async function probe(){
  }catch{return null}
 }
 const localHardware=probe();
+// The page and the other static files come from dist/public (on Cloudflare they are served without the Worker).
+const publicDir=fileURLToPath(new URL("./dist/public/",import.meta.url));
+const types={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".webmanifest":"application/manifest+json; charset=utf-8",".png":"image/png"};
+async function staticFile(req,res){
+ if(req.method!=="GET"&&req.method!=="HEAD")return false;
+ const name=decodeURIComponent(new URL(req.url,homeURL).pathname).replace(/^\/+/,"")||"index.html";
+ const file=path.resolve(publicDir,name);
+ if(!file.startsWith(publicDir)||path.basename(file).startsWith("_"))return false;
+ let body;try{body=await readFile(file)}catch{return false}
+ res.writeHead(200,{"Content-Type":types[path.extname(file)]||"application/octet-stream","Cache-Control":"no-cache","X-Content-Type-Options":"nosniff",...(name==="sw.js"?{"Service-Worker-Allowed":"/"}:{})});
+ res.end(req.method==="HEAD"?undefined:body);return true;
+}
 const forwarded=["cookie","origin","content-type","sec-fetch-site","accept"];
 async function body(req){
  const chunks=[];let size=0;
@@ -32,6 +46,7 @@ const server=http.createServer(async(req,res)=>{
    if(req.headers["sec-fetch-site"]==="cross-site"||(req.headers.origin&&!["http://"+req.headers.host].includes(req.headers.origin))){res.writeHead(403);res.end();return}
    res.writeHead(200,{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"});res.end(JSON.stringify(await localHardware));return;
   }
+  if(await staticFile(req,res))return;
   const headers=Object.fromEntries(forwarded.filter(k=>req.headers[k]).map(k=>[k,req.headers[k]]));
   const hasBody=!["GET","HEAD"].includes(req.method);
   const payload=hasBody?await body(req):undefined;

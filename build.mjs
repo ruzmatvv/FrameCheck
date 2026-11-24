@@ -7,7 +7,17 @@ process.chdir(root);
 const read = f => fs.readFileSync(f, "utf8");
 const img = name => "data:image/jpeg;base64," + fs.readFileSync("media/" + name).toString("base64");
 // Write to a temporary file and rename it, so a test or server reading at the same moment never sees half a file.
-const writeAtomic = (file, text) => { const tmp = file + "." + process.pid + ".tmp"; fs.writeFileSync(tmp, text); fs.renameSync(tmp, file); };
+// Unchanged files are left alone, and a rename that fails because another build is touching the file is tried again.
+const writeAtomic = (file, content) => {
+  const data = Buffer.isBuffer(content) ? content : Buffer.from(content);
+  try { if (fs.readFileSync(file).equals(data)) return; } catch {}
+  const tmp = file + "." + process.pid + ".tmp";
+  fs.writeFileSync(tmp, data);
+  for (let attempt = 0; ; attempt++) {
+    try { fs.renameSync(tmp, file); return; }
+    catch (e) { if (attempt >= 20) { try { fs.rmSync(tmp); } catch {} throw e; } Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25 * (attempt + 1)); }
+  }
+};
 const safeJSON = v => JSON.stringify(v).replace(/</g, "\\u003c");
 
 // Offline covers: media/<steam id>.jpg
@@ -30,11 +40,22 @@ const html = read("src/index.html")
   .replace("/*__CLIENT__*/", () => client);
 
 fs.mkdirSync("dist/server", {recursive: true});
+fs.mkdirSync("dist/public/icons", {recursive: true});
 fs.mkdirSync("dist/.openai", {recursive: true});
 fs.copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
-// Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped).
-const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+
+// Static files (page, manifest, service worker, icons). Cloudflare serves these itself ("Static Assets") without
+// starting the Worker, so they do not count against the free request limit, and the page still opens when the
+// Worker's daily limit is used up.
 const pwa = buildPwa(read("src/sw.js"), html);
-writeAtomic("dist/server/index.js", worker + "\nconst home=" + JSON.stringify(html) + ";\nconst pwa=" + JSON.stringify(pwa) + ";\nexport default {fetch:(request,env)=>handle(request,home,undefined,env,pwa)};\n");
+writeAtomic("dist/public/index.html", html);
+writeAtomic("dist/public/manifest.webmanifest", pwa.manifest);
+writeAtomic("dist/public/sw.js", pwa.sw);
+for (const [name, base64] of Object.entries(pwa.icons)) writeAtomic("dist/public/icons/" + name, Buffer.from(base64, "base64"));
+writeAtomic("dist/public/_headers", read("src/headers.txt"));
+
+// Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
+const worker = ["src/sync.mjs", "src/auth.mjs", "src/recovery.mjs", "src/fps.mjs", "src/admin.mjs", "src/server.mjs"].map(f => strip(read(f))).join("\n");
+writeAtomic("dist/server/index.js", worker + "\nconst home=null;\nconst pwa={};\nexport default {fetch:(request,env,ctx)=>handle(request,home,undefined,env,pwa,ctx)};\n");
 if (process.argv.includes("--portable")) writeAtomic("Framecheck.html", html);
 console.log("Built " + games.length + " games and " + Object.keys(art).length + " offline covers.");
