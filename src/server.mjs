@@ -1,13 +1,61 @@
 const steam="https://store.steampowered.com";
-const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
+const COVER_HOSTS=["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/","https://cdn.cloudflare.steamstatic.com/steam/apps/","https://cdn.akamai.steamstatic.com/steam/apps/"];
+const security={"X-Content-Type-Options":"nosniff"};
+const json=(value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",...security,...extra}});
+const validId=value=>/^\d{1,10}$/.test(value);
+
+function priceURL(ids,lang){
+ const input={ids:ids.map(appid=>({appid})),context:{language:lang==="ru"?"russian":"english",country_code:"UZ"},data_request:{include_all_purchase_options:true,include_release:true}};
+ const url=new URL("https://api.steampowered.com/IStoreBrowseService/GetItems/v1/");
+ url.searchParams.set("input_json",JSON.stringify(input));
+ return url;
+}
+
+async function prices(searchParams,fetchSteam){
+ const ids=[...new Set((searchParams.get("ids")||"").split(",").filter(Boolean))];
+ if(!ids.length||ids.length>25||!ids.every(validId))return json({code:"invalid"},400);
+ try{
+  const res=await fetchSteam(priceURL(ids.map(Number),searchParams.get("lang")).toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(12000)});
+  if(!res.ok)return json({code:"steam_unavailable"},503);
+  const payload=await res.json();
+  if(!Array.isArray(payload?.response?.store_items))return json({code:"steam_unavailable"},503);
+  return json({response:{store_items:payload.response.store_items},checkedAt:Date.now()},200,{"Cache-Control":"public, max-age=120"});
+ }catch{return json({code:"steam_unavailable"},503)}
+}
+
+// Game covers are proxied so they still show on networks where the Steam CDN is blocked or slow.
+async function cover(id,fetchSteam){
+ if(!validId(id))return json({code:"invalid"},400);
+ for(const host of COVER_HOSTS){
+  try{
+   const res=await fetchSteam(host+id+"/header.jpg",{signal:AbortSignal.timeout(8000)});
+   const type=res.headers?.get("content-type")||"";
+   if(res.ok&&/^image\//.test(type))return new Response(res.body,{headers:{"Content-Type":type,"Cache-Control":"public, max-age=604800, immutable",...security}});
+  }catch{}
+ }
+ // Newer games keep their cover under a hashed path; Steam's own record has the exact address.
+ try{
+  const info=await fetchSteam(steam+"/api/appdetails/?appids="+id+"&filters=basic&cc=uz&l=english",{headers:{Accept:"application/json"},signal:AbortSignal.timeout(8000)});
+  const image=info.ok?(await info.json())?.[id]?.data?.header_image:null;
+  if(typeof image==="string"&&/^https:\/\/[\w.-]+\.steamstatic\.com\//.test(image)){
+   const res=await fetchSteam(image,{signal:AbortSignal.timeout(8000)});
+   const type=res.headers?.get("content-type")||"";
+   if(res.ok&&/^image\//.test(type))return new Response(res.body,{headers:{"Content-Type":type,"Cache-Control":"public, max-age=86400",...security}});
+  }
+ }catch{}
+ return json({code:"not_found"},404);
+}
+
 export async function handle(request,home,fetchSteam=fetch){
  const {pathname,searchParams}=new URL(request.url);
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
- if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","X-Content-Type-Options":"nosniff","Referrer-Policy":"strict-origin-when-cross-origin"}});
+ if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});
  if(pathname==="/favicon.ico")return new Response(null,{status:204});
+ if(pathname.startsWith("/img/"))return cover(pathname.slice(5).replace(/\.jpg$/,""),fetchSteam);
+ if(pathname==="/api/prices")return prices(searchParams,fetchSteam);
  const isSearch=pathname==="/api/search";if(!isSearch&&pathname!=="/api/game")return json({code:"not_found"},404);
  const key=isSearch?(searchParams.get("q")||"").trim():searchParams.get("id")||"";
- if(isSearch?key.length<1||key.length>180:!/^\d{1,10}$/.test(key))return json({code:"invalid"},400);
+ if(isSearch?key.length<1||key.length>180:!validId(key))return json({code:"invalid"},400);
  const url=new URL(isSearch?"/api/storesearch/":"/api/appdetails/",steam);url.searchParams.set(isSearch?"term":"appids",key);url.searchParams.set("l","english");url.searchParams.set("cc","uz");
  try{
   const res=await fetchSteam(url.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(9000)});

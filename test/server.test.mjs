@@ -63,6 +63,68 @@ test("Steam ishlamasa 503 beradi", async () => {
   assert.equal((await handle(req("/api/search?q=x"), "x", boom)).status, 503);
 });
 
+const imageRes = (ok = true, type = "image/jpeg") => ({ok, headers: new Headers({"content-type": type}), body: "bytes"});
+
+test("/api/prices noto'g'ri ID'larni rad etadi", async () => {
+  for (const q of ["", "?ids=", "?ids=abc", "?ids=1,x", "?ids=" + Array.from({length: 26}, (_, i) => i + 1).join(",")])
+    assert.equal((await handle(req("/api/prices" + q), "x", down)).status, 400, q);
+});
+
+test("/api/prices Steam javobini checkedAt bilan qaytaradi va keshlaydi", async () => {
+  let called;
+  const fake = async url => { called = url; return {ok: true, json: async () => ({response: {store_items: [{id: 570}]}, junk: 1})}; };
+  const res = await handle(req("/api/prices?ids=570,570,730&lang=ru"), "x", fake);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("cache-control"), /max-age=120/);
+  const body = await res.json();
+  assert.equal(body.response.store_items[0].id, 570);
+  assert.ok(body.checkedAt > 0);
+  assert.equal("junk" in body, false);
+  const input = JSON.parse(new URL(called).searchParams.get("input_json"));
+  assert.deepEqual(input.ids, [{appid: 570}, {appid: 730}]);
+  assert.equal(input.context.language, "russian");
+  assert.equal(input.context.country_code, "UZ");
+});
+
+test("/api/prices Steam ishlamasa 503 beradi", async () => {
+  assert.equal((await handle(req("/api/prices?ids=1"), "x", down)).status, 503);
+  assert.equal((await handle(req("/api/prices?ids=1"), "x", steam({}))).status, 503);
+});
+
+test("/img/ noto'g'ri ID'ni rad etadi", async () => {
+  assert.equal((await handle(req("/img/abc.jpg"), "x", down)).status, 400);
+});
+
+test("/img/ birinchi ishlamagan CDN'dan keyingisiga o'tadi", async () => {
+  const seen = [];
+  const fake = async url => { seen.push(url); return seen.length < 3 ? imageRes(false) : imageRes(true); };
+  const res = await handle(req("/img/570.jpg"), "x", fake);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("content-type"), "image/jpeg");
+  assert.match(res.headers.get("cache-control"), /max-age=604800/);
+  assert.equal(seen.length, 3);
+  assert.match(seen[0], /fastly/);
+  assert.match(seen[2], /akamai/);
+});
+
+test("/img/ standart manzil bo'lmasa Steam yozuvidagi manzilni ishlatadi", async () => {
+  const hashed = "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/9/abc/header.jpg";
+  const fake = async url => {
+    if (url === hashed) return imageRes(true);
+    if (url.includes("appdetails")) return {ok: true, json: async () => ({9: {data: {header_image: hashed + "?t=1"}}})};
+    return imageRes(false);
+  };
+  const fake2 = async (url, o) => url.startsWith(hashed) ? imageRes(true) : fake(url, o);
+  const res = await handle(req("/img/9.jpg"), "x", fake2);
+  assert.equal(res.status, 200);
+});
+
+test("/img/ hech narsa topilmasa 404 beradi va begona manzilni olmaydi", async () => {
+  const evil = async url => url.includes("appdetails") ? {ok: true, json: async () => ({9: {data: {header_image: "https://evil.example/x.jpg"}}})} : imageRes(false);
+  assert.equal((await handle(req("/img/9.jpg"), "x", evil)).status, 404);
+  assert.equal((await handle(req("/img/9.jpg"), "x", async () => { throw new Error("net"); })).status, 404);
+});
+
 test("build to'liq sahifa va server faylini yaratadi", () => {
   execFileSync(process.execPath, ["build.mjs"], {cwd: new URL("..", import.meta.url), stdio: "pipe"});
   assert.ok(existsSync(new URL("../dist/server/index.js", import.meta.url)));
