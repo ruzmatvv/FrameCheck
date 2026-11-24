@@ -350,15 +350,11 @@ dialog[open]#modal,dialog.palette[open]{animation:pop .2s ease both}
 .cs2-dot{width:8px;height:8px;border-radius:50%;background:#59d36a;box-shadow:0 0 0 3px rgba(89,211,106,.18);flex:none}
 .cs2-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;margin-bottom:14px}
 .cs2-search{display:flex;align-items:center;gap:9px;flex:1 1 200px;min-width:180px;height:46px;padding:0 14px;background:#161a1a;border:1px solid var(--border);border-radius:12px;color:#848b88}
-.cs2-search:focus-within,.cs2-sel:focus-within{border-color:var(--lime);box-shadow:0 0 0 3px rgba(195,252,101,.14)}
+.cs2-search:focus-within{border-color:var(--lime);box-shadow:0 0 0 3px rgba(195,252,101,.14)}
 .cs2-search svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2}
 .cs2-search input{all:unset;flex:1;min-width:0;color:#f4f5f2;font-size:.95rem}
 .cs2-search input::placeholder{color:#848b88}
 .cs2-search.small{height:40px;flex:none}
-.cs2-sel{display:flex;align-items:center;gap:8px;height:46px;padding:0 9px 0 12px;background:#161a1a;border:1px solid var(--border);border-radius:12px;color:#dfe4dd;font-size:.92rem}
-.cs2-sel small{color:#848b88;font-size:.76rem}
-.cs2-sel select{all:unset;cursor:pointer;color:#f4f5f2;max-width:104px;padding-right:4px;font-size:.92rem;text-overflow:ellipsis}
-.cs2-sel select option,.cs2-sel select optgroup{background:#161a1a;color:#f4f5f2}
 .cs2-count{margin:0 0 14px;color:var(--muted);font-size:.86rem;min-height:1.2em}
 .cs2-skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .cs2-skin{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
@@ -466,15 +462,47 @@ dialog[open]#modal,dialog.palette[open]{animation:pop .2s ease both}
  .cs2-skins{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
  .cs2-body{padding:11px}.cs2-name{font-size:.92rem}.cs2-price strong{font-size:1.15rem}.cs2-market{height:34px;font-size:.78rem}
  .cs2-wear{padding:7px 0;font-size:.68rem}
- .cs2-tools{gap:8px}.cs2-sel{flex:1 1 calc(50% - 8px);min-width:0}.cs2-sel select{max-width:none;flex:1;min-width:0}
+ .cs2-tools{gap:8px}
  .cs2-head h1{font-size:1.6rem}
 }
 @media(max-width:400px){.cs2-skins{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.cs2-sk,.cs2-radar-skel{animation:none}.cs2-stage.animate{transition:none}.hub-chev{transition:none}}
-.cs2-sel::after{content:"";flex:none;width:7px;height:7px;border-right:2px solid #848b88;border-bottom:2px solid #848b88;transform:translateY(-2px) rotate(45deg);pointer-events:none;margin-left:2px}
 .cs2,.cs2 *,.cs2 *::before,.cs2 *::after,.hub-group,.hub-group *{box-sizing:border-box}
-@media(max-width:740px){.cs2-sel{padding:0 6px 0 9px;gap:6px}.cs2-sel small{font-size:.68rem}.cs2-sel select{font-size:.84rem;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}}
 .cs2-source .warn{color:#f0c24b}
 .cs2-source.old{border-color:#6b5a1f}
 .cs2-source{flex-wrap:wrap}
-#cs2-sort{max-width:156px}.cs2-sel select{white-space:nowrap}
+
+/* ===== Counter-Strike 2: dropdown menus (replace the browser's own select, so the list matches the site) ===== */
+.cs2-dd{position:relative;flex:0 1 auto;min-width:0}
+.cs2-dd-btn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:8px;height:46px;padding:0 10px 0 13px;background:#161a1a;border:1px solid var(--border);border-radius:12px;color:#f4f5f2;font-size:.92rem;max-width:100%;transition:border-color .15s,background .15s}
+.cs2-dd-btn:hover{border-color:#4a5250;background:#1a1f1f}
+.cs2-dd-btn:focus-visible,.cs2-dd.open .cs2-dd-btn{border-color:var(--lime);box-shadow:0 0 0 3px rgba(195,252,101,.14);outline:none}
+.cs2-dd-btn small{color:#848b88;font-size:.76rem;flex:none}
+.cs2-dd-btn .val{min-width:0;max-width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cs2-dd-btn .chev{flex:none;width:15px;height:15px;fill:none;stroke:#848b88;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+.cs2-dd.open .cs2-dd-btn .chev{transform:rotate(180deg);stroke:var(--lime)}
+.cs2-dd.on .cs2-dd-btn{border-color:#4b6b2a;background:#171d12}
+.cs2-dd-menu{position:absolute;z-index:40;top:calc(100% + 8px);left:0;min-width:100%;width:max-content;max-width:min(320px,calc(100vw - 32px));max-height:min(380px,62vh);overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#161a1a;border:1px solid #394140;border-radius:14px;box-shadow:0 22px 60px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4);scrollbar-width:thin;scrollbar-color:#3a4140 transparent;outline:none;animation:cs2-pop .14s ease-out}
+.cs2-dd-menu[hidden]{display:none}
+.cs2-dd-menu.right{left:auto;right:0}
+@keyframes cs2-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.cs2-dd-grp{font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:#848b88;font-weight:800;padding:10px 12px 5px}
+.cs2-dd-grp:first-child{padding-top:6px}
+.cs2-dd-opt{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:9px;color:#dfe4dd;font-size:.92rem;cursor:pointer;white-space:nowrap;user-select:none}
+.cs2-dd-opt.act{background:#202626}
+.cs2-dd-opt[aria-selected="true"]{color:var(--lime);font-weight:700}
+.cs2-dd-opt[aria-selected="true"].act{background:#26302a;box-shadow:inset 3px 0 var(--lime)}
+.cs2-dd-opt .tick{margin-left:auto;flex:none;width:15px;height:15px;fill:none;stroke:var(--lime);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;visibility:hidden}
+.cs2-dd-opt[aria-selected="true"] .tick{visibility:visible}
+@media(max-width:740px){
+ .cs2-dd{flex:1 1 calc(50% - 8px)}
+ .cs2-dd-btn{width:100%;padding:0 9px 0 11px;gap:6px}
+ .cs2-dd-btn small{font-size:.68rem}
+ .cs2-dd-btn .val{flex:1;max-width:none;font-size:.85rem}
+ .cs2-dd-menu{max-width:calc(100vw - 32px)}
+}
+@media (prefers-reduced-motion:reduce){.cs2-dd-menu{animation:none}.cs2-dd-btn .chev{transition:none}}
+.cs2-search{flex:1 1 230px;min-width:230px}
+@media(max-width:740px){.cs2-search{flex:1 1 100%;min-width:0}}
+.cs2-source{flex-wrap:nowrap;align-items:flex-start;border-radius:16px;line-height:1.4}
+.cs2-source .cs2-dot{margin-top:.38em}

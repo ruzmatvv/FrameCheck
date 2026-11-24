@@ -16,6 +16,8 @@ function createCs2(ctx) {
     right: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>',
     ext: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
     refresh: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 10a8 8 0 0 0-14-4L3 9m0-6v6h6m-5 5a8 8 0 0 0 14 4l3-3m0 6v-6h-6"/></svg>',
+    tick: '<svg class="tick" aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+    chev: '<svg class="chev" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
   };
   let current = null, shellView = null, shellLang = "";
 
@@ -32,6 +34,65 @@ function createCs2(ctx) {
   }
   const errorBox = (retryKey, local) => '<div class="cs2-state" role="alert"><p>' + E(local ? tr("Bu sahifa uchun Framecheck serverli nusxasini oching.") : tr("Ma’lumotlarni yuklab bo‘lmadi. Internetni tekshirib, qayta urinib ko‘ring.")) + '</p>'
     + (local ? '' : '<button type="button" class="subtle-btn" data-cs2-retry="' + retryKey + '">' + E(tr("Qayta urinish")) + '</button>') + '</div>';
+
+  // ---------------------------------------------------------------- dropdown menus
+  // One small component for the five filters: a button that opens a list. It follows the "select-only combobox" pattern:
+  // arrows, Home/End, Enter, Escape and typing the first letters all work, and the list is read as a listbox by screen readers.
+  const ddState = {open: null, buffer: "", timer: 0};
+  const ddItems = new Map();
+  function ddHtml(id, label, items, value) {
+    ddItems.set(id, items);
+    const current = items.find(item => item.value === String(value)) || items[0];
+    let body = "", group = null;
+    items.forEach((item, i) => {
+      if (item.group !== group) { if (group != null) body += "</div>"; group = item.group; if (group != null) body += '<div role="group" aria-label="' + E(group) + '"><div class="cs2-dd-grp" aria-hidden="true">' + E(group) + '</div>'; }
+      body += '<div class="cs2-dd-opt" role="option" id="cs2-dd-' + id + '-' + i + '" data-i="' + i + '" data-value="' + E(item.value) + '" aria-selected="' + (item === current) + '">' + E(item.label) + icon.tick + '</div>';
+    });
+    if (group != null) body += "</div>";
+    return '<div class="cs2-dd' + (current.value !== items[0].value ? " on" : "") + '" data-dd="' + id + '"><button type="button" class="cs2-dd-btn" id="cs2-dd-' + id + '-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="cs2-dd-' + id + '-menu">'
+      + '<small>' + E(label) + '</small><span class="val">' + E(current.label) + '</span>' + icon.chev + '</button>'
+      + '<div class="cs2-dd-menu" id="cs2-dd-' + id + '-menu" role="listbox" tabindex="-1" aria-labelledby="cs2-dd-' + id + '-btn" hidden>' + body + '</div></div>';
+  }
+  function ddActive(menu, index) {
+    const options = menu.querySelectorAll(".cs2-dd-opt");
+    if (!options.length) return;
+    const i = Math.min(options.length - 1, Math.max(0, index));
+    options.forEach((o, n) => o.classList.toggle("act", n === i));
+    menu.setAttribute("aria-activedescendant", options[i].id);
+    options[i].scrollIntoView({block: "nearest"});
+  }
+  function ddClose(focusButton) {
+    const wrap = ddState.open; if (!wrap) return;
+    ddState.open = null;
+    wrap.classList.remove("open");
+    wrap.querySelector(".cs2-dd-menu").hidden = true;
+    const button = wrap.querySelector(".cs2-dd-btn"); button.setAttribute("aria-expanded", "false");
+    if (focusButton) button.focus({preventScroll: true});
+  }
+  function ddOpen(wrap) {
+    if (ddState.open === wrap) return;
+    ddClose(false);
+    const menu = wrap.querySelector(".cs2-dd-menu");
+    menu.hidden = false; menu.classList.remove("right");
+    if (menu.getBoundingClientRect().right > window.innerWidth - 12) menu.classList.add("right"); // would run off the right edge: open to the left
+    wrap.classList.add("open"); wrap.querySelector(".cs2-dd-btn").setAttribute("aria-expanded", "true");
+    ddState.open = wrap;
+    const selected = menu.querySelector('[aria-selected="true"]');
+    ddActive(menu, selected ? Number(selected.dataset.i) : 0);
+    menu.focus({preventScroll: true});
+  }
+  // what each filter changes in the state, and how its value is read
+  const FILTERS = {weapon: ["weapon", v => v], rarity: ["rarity", Number], wear: ["wear", Number], price: ["price", v => v], sort: ["sort", v => v]};
+  function ddChoose(wrap, value) {
+    const id = wrap.dataset.dd, [key, read] = FILTERS[id];
+    ddClose(true);
+    skins[key] = read(value); skins.page = 1;
+    if (key === "wear") for (const pick of skins.picks.values()) delete pick.fixed;
+    const items = ddItems.get(id), label = wrap.querySelector(".cs2-dd-btn small").textContent;
+    wrap.outerHTML = ddHtml(id, label, items, skins[key]);
+    $('.cs2-dd[data-dd="' + id + '"] .cs2-dd-btn')?.focus({preventScroll: true});
+    skinsUpdate();
+  }
 
   // ---------------------------------------------------------------- skins
   const skins = {status: "idle", file: null, prices: null, all: [], q: "", weapon: "", rarity: -1, wear: -1, price: "", sort: "name", page: 1, picks: new Map()};
@@ -80,12 +141,14 @@ function createCs2(ctx) {
   function skinsShell() {
     const f = skins.file, cats = [], used = new Map();
     for (const s of skins.all) { if (!used.has(s.category)) { used.set(s.category, new Set()); cats.push(s.category); } used.get(s.category).add(s.weapon); }
-    const weaponOptions = '<option value="">' + E(tr("Barchasi")) + '</option>' + cats.map(c => '<optgroup label="' + E(tr(CATEGORY_LABEL[c] || CATEGORY_LABEL.Other)) + '">'
-      + [...used.get(c)].sort((a, b) => a.localeCompare(b, "en")).map(w => '<option value="' + E(w) + '">' + E(w) + '</option>').join("") + '</optgroup>').join("");
-    const rarityOptions = '<option value="-1">' + E(tr("Barchasi")) + '</option>' + f.rarities.map(([n], i) => ({n, i})).sort((a, b) => cs2RarityRank(b.n) - cs2RarityRank(a.n)).map(({n, i}) => '<option value="' + i + '">' + E(n) + '</option>').join("");
-    const wearOptions = '<option value="-1">' + E(tr("Barchasi")) + '</option>' + CS2_WEARS.map((w, i) => '<option value="' + i + '">' + E(w.name) + '</option>').join("");
-    const priceOptions = '<option value="">' + E(tr("Barchasi")) + '</option><option value="lt1">' + E(tr("$1 gacha")) + '</option><option value="1-10">$1 – $10</option><option value="10-100">$10 – $100</option><option value="gt100">' + E(tr("$100 dan yuqori")) + '</option>';
-    const sel = (id, label, options) => '<label class="cs2-sel"><small>' + E(label) + '</small><select id="' + id + '">' + options + '</select></label>';
+    const all = {value: "", label: tr("Barchasi")};
+    const weaponItems = [all];
+    for (const category of cats) for (const weapon of [...used.get(category)].sort((x, y) => x.localeCompare(y, "en"))) weaponItems.push({value: weapon, label: weapon, group: tr(CATEGORY_LABEL[category] || CATEGORY_LABEL.Other)});
+    const rarityItems = [{value: "-1", label: tr("Barchasi")}, ...f.rarities.map(([name], i) => ({name, i})).sort((x, y) => cs2RarityRank(y.name) - cs2RarityRank(x.name)).map(({name, i}) => ({value: String(i), label: name}))];
+    const wearItems = [{value: "-1", label: tr("Barchasi")}, ...CS2_WEARS.map((w, i) => ({value: String(i), label: w.name}))];
+    const priceItems = [all, {value: "lt1", label: tr("$1 gacha")}, {value: "1-10", label: "$1 – $10"}, {value: "10-100", label: "$10 – $100"}, {value: "gt100", label: tr("$100 dan yuqori")}];
+    const sortItems = [{value: "name", label: tr("Nomi bo‘yicha")}, {value: "rarity", label: tr("Noyoblik bo‘yicha")}, {value: "weapon", label: tr("Qurol turi bo‘yicha")}];
+    if (skins.prices) sortItems.push({value: "price-up", label: tr("Narx: arzonidan")}, {value: "price-down", label: tr("Narx: qimmatidan")});
     const age = skins.prices ? cs2SnapshotAge(skins.prices.generated) : null, old = age != null && age > 14;
     const source = skins.prices
       ? E(tr("Narx manbasi")) + ': <b>' + E(skins.prices.source) + '</b> · ' + E(tr("yangilangan")) + ': ' + E(dateText(skins.prices.generated)) + (old ? ' · <b class="warn">' + E(tr("eskirgan bo‘lishi mumkin")) + '</b>' : '')
@@ -94,14 +157,12 @@ function createCs2(ctx) {
       + '<p>' + E(tr("Qurol, noyoblik, wear va narx bo‘yicha qidiring. Har bir skin uchun Steam Market havolasi bor.")) + '</p></div>'
       + '<div class="cs2-source' + (old ? ' old' : '') + '"><span class="cs2-dot"></span><span>' + source + '</span></div></div>'
       + '<form class="cs2-tools" role="search" id="cs2-tools"><label class="cs2-search">' + icon.search + '<span class="sr">' + E(tr("Skin nomi bo‘yicha qidirish")) + '</span><input id="cs2-q" type="search" maxlength="80" autocomplete="off" spellcheck="false" placeholder="' + E(tr("Skin nomi bo‘yicha qidirish…")) + '"></label>'
-      + sel("cs2-weapon", tr("Qurol"), weaponOptions) + sel("cs2-rarity", tr("Noyoblik"), rarityOptions) + sel("cs2-wear", "Wear", wearOptions) + (skins.prices ? sel("cs2-price", tr("Narx"), priceOptions) : "")
-      + sel("cs2-sort", tr("Saralash"), '<option value="name">' + E(tr("Nomi bo‘yicha")) + '</option><option value="rarity">' + E(tr("Noyoblik bo‘yicha")) + '</option><option value="weapon">' + E(tr("Qurol turi bo‘yicha")) + '</option>'
-        + (skins.prices ? '<option value="price-up">' + E(tr("Narx: arzonidan")) + '</option><option value="price-down">' + E(tr("Narx: qimmatidan")) + '</option>' : '')) + '</form>'
+      + ddHtml("weapon", tr("Qurol"), weaponItems, skins.weapon) + ddHtml("rarity", tr("Noyoblik"), rarityItems, skins.rarity) + ddHtml("wear", "Wear", wearItems, skins.wear)
+      + (skins.prices ? ddHtml("price", tr("Narx"), priceItems, skins.price) : "") + ddHtml("sort", tr("Saralash"), sortItems, skins.sort) + '</form>'
       + '<p class="cs2-count" id="cs2-count" role="status" aria-live="polite"></p><div class="cs2-skins" id="cs2-grid"></div><nav class="cs2-pager" id="cs2-pager" aria-label="' + E(tr("Sahifalar")) + '"></nav>'
       + '<p class="cs2-note">' + E(tr("Narx — Skinport bozoridagi eng arzon e’lon (USD), vaqti-vaqti bilan yangilanadi; Steam Market narxidan farq qilishi mumkin. Steam Market tugmasi bilan aniq narxni tekshiring. Narx bo‘yicha saralash va filtr tanlangan wear (yoki eng arzon wear) bo‘yicha ishlaydi.")) + '</p>'
       + legal([link("https://github.com/ByMykel/CSGO-API", "ByMykel/CSGO-API (MIT)") + " — " + E(tr("skinlar ro‘yxati")), E(tr("Rasmlar: Steam CDN, © Valve Corporation")), link("https://skinport.com/", "Skinport") + " — " + E(tr("narxlar (ochiq API)"))]);
-    $("#cs2-q").value = skins.q; $("#cs2-weapon").value = skins.weapon; $("#cs2-rarity").value = String(skins.rarity); $("#cs2-wear").value = String(skins.wear); $("#cs2-sort").value = skins.sort;
-    if ($("#cs2-price")) $("#cs2-price").value = skins.price;
+    $("#cs2-q").value = skins.q;
   }
 
   function skinsUpdate(scroll = false) {
@@ -281,16 +342,31 @@ function createCs2(ctx) {
     if (e.target.id === "cs2-q") { clearTimeout(skins.timer); skins.timer = setTimeout(() => { skins.q = e.target.value; skins.page = 1; skinsUpdate(); }, 140); }
     else if (e.target.id === "cs2-pq") { maps.query = e.target.value; drawList(); }
   });
-  root.addEventListener("change", e => {
-    const map = {"cs2-weapon": ["weapon", v => v], "cs2-rarity": ["rarity", Number], "cs2-wear": ["wear", Number], "cs2-price": ["price", v => v], "cs2-sort": ["sort", v => v]}[e.target.id];
-    if (!map) return;
-    skins[map[0]] = map[1](e.target.value); skins.page = 1;
-    if (map[0] === "wear") for (const pick of skins.picks.values()) delete pick.fixed;
-    skinsUpdate();
-  });
   root.addEventListener("submit", e => e.preventDefault());
+  root.addEventListener("keydown", e => {
+    const wrap = e.target.closest?.(".cs2-dd"); if (!wrap) return;
+    const menu = wrap.querySelector(".cs2-dd-menu");
+    if (menu.hidden) { if (e.target.classList.contains("cs2-dd-btn") && ["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) { e.preventDefault(); ddOpen(wrap); } return; }
+    const options = [...menu.querySelectorAll(".cs2-dd-opt")], at = Math.max(0, options.findIndex(o => o.classList.contains("act")));
+    if (e.key === "ArrowDown") { e.preventDefault(); ddActive(menu, at + 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); ddActive(menu, at - 1); }
+    else if (e.key === "Home") { e.preventDefault(); ddActive(menu, 0); }
+    else if (e.key === "End") { e.preventDefault(); ddActive(menu, options.length - 1); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ddChoose(wrap, options[at].dataset.value); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); ddClose(true); }
+    else if (e.key === "Tab") ddClose(false);
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { // typing the first letters of an item jumps to it
+      clearTimeout(ddState.timer); ddState.buffer += e.key.toLowerCase(); ddState.timer = setTimeout(() => { ddState.buffer = ""; }, 700);
+      const from = ddState.buffer.length > 1 ? at : at + 1, ordered = [...options.slice(from), ...options.slice(0, from)];
+      const hit = ordered.find(o => o.textContent.trim().toLowerCase().startsWith(ddState.buffer)); if (hit) ddActive(menu, options.indexOf(hit));
+    }
+  });
+  root.addEventListener("mousemove", e => { const option = e.target.closest?.(".cs2-dd-opt"); if (option && !option.classList.contains("act")) ddActive(option.closest(".cs2-dd-menu"), Number(option.dataset.i)); });
+  document.addEventListener("click", e => { if (ddState.open && !ddState.open.contains(e.target)) ddClose(false); });
   root.addEventListener("click", e => {
     const t = e.target;
+    const option = t.closest(".cs2-dd-opt"); if (option) { ddChoose(option.closest(".cs2-dd"), option.dataset.value); return; }
+    const toggle = t.closest(".cs2-dd-btn"); if (toggle) { const wrap = toggle.closest(".cs2-dd"); if (ddState.open === wrap) ddClose(true); else ddOpen(wrap); return; }
     const page = t.closest("[data-page]"); if (page && !page.disabled) { skins.page = Number(page.dataset.page); skinsUpdate(true); return; }
     const wear = t.closest("[data-wear]"), variant = t.closest("[data-variant]"), card = t.closest(".cs2-skin");
     if ((wear || variant) && card) {
@@ -330,7 +406,7 @@ function createCs2(ctx) {
     if (same) return; // the page is already drawn: nothing to rebuild when the app only redraws itself
     (view === "cs2skins" ? showSkins : showMaps)();
   }
-  function hide() { current = null; root.hidden = true; }
+  function hide() { ddClose(false); current = null; root.hidden = true; }
   return {show, hide};
 }
 
