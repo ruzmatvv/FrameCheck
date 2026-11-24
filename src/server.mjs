@@ -68,9 +68,25 @@ function canonicalRedirect(url,env){
  return new Response(null,{status:308,headers:{Location:"https://"+canonical+url.pathname+url.search,"Cache-Control":"public, max-age=3600",...security}});
 }
 
+// On the real site (CANONICAL_HOST is set) plain http is sent to https at once, so a password or a session cookie
+// never travels unencrypted. Local runs and tests have no CANONICAL_HOST and are left alone.
+function httpsRedirect(url,env){
+ if(!env?.CANONICAL_HOST||url.protocol!=="http:")return null;
+ return new Response(null,{status:308,headers:{Location:"https://"+url.host+url.pathname+url.search,"Cache-Control":"no-store",...security}});
+}
+const HSTS="max-age=15552000"; // browsers keep using https for this site for 180 days
+
 export async function handle(request,home,fetchSteam=fetch,env={},assets={}){
+ const url=new URL(request.url);
+ const early=httpsRedirect(url,env)||canonicalRedirect(url,env);if(early)return early;
+ const res=await respond(request,home,fetchSteam,env,assets);
+ if(!env?.CANONICAL_HOST||url.protocol!=="https:")return res;
+ const headers=new Headers(res.headers);headers.set("Strict-Transport-Security",HSTS);
+ return new Response(res.body,{status:res.status,statusText:res.statusText,headers});
+}
+
+async function respond(request,home,fetchSteam,env,assets){
  const {pathname,searchParams}=new URL(request.url);
- const moved=canonicalRedirect(new URL(request.url),env);if(moved)return moved;
  const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});

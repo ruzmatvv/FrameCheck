@@ -147,6 +147,36 @@ test("asosiy manzil, workers.dev va local yo'naltirilmaydi; sozlama bo'lmasa hec
   assert.equal((await handle(withHost("flamecheck.bid"), "home", down, {CANONICAL_HOST: "framecheck.uk"})).status, 200);
 });
 
+test("haqiqiy saytda oddiy http darrov https'ga yo'naltiriladi (parol shifrlanmagan yurmasin)", async () => {
+  for (const [url, expected] of [["http://framecheck.uk/", "https://framecheck.uk/"], ["http://framecheck.uk/api/auth/login?x=1", "https://framecheck.uk/api/auth/login?x=1"]]) {
+    for (const method of ["GET", "POST"]) {
+      const res = await handle(new Request(url, {method}), "home", down, site);
+      assert.equal(res.status, 308, method + " " + url);
+      assert.equal(res.headers.get("location"), expected);
+    }
+  }
+  const wwwHttp = await handle(new Request("http://www.framecheck.uk/a"), "home", down, site);
+  assert.equal(wwwHttp.status, 308);
+  assert.match(wwwHttp.headers.get("location"), /^https:\/\//);
+});
+
+test("mahalliy ishga tushirish va sozlamasiz holatda http o'zgarmaydi", async () => {
+  assert.equal((await handle(new Request("http://127.0.0.1:4672/"), "home", down, {})).status, 200);
+  assert.equal((await handle(new Request("http://localhost:4672/"), "home", down, {})).status, 200);
+  assert.equal((await handle(new Request("http://127.0.0.1:4672/"), "home", down, {})).headers.get("strict-transport-security"), null);
+});
+
+test("haqiqiy saytda https javoblariga HSTS qo'shiladi, har xil javoblarda ham", async () => {
+  for (const [path, status] of [["/", 200], ["/api/auth/me", 200], ["/api/nope", 404], ["/favicon.ico", 204]]) {
+    const res = await handle(new Request("https://framecheck.uk" + path), "home", down, site);
+    assert.equal(res.status, status, path);
+    assert.equal(res.headers.get("strict-transport-security"), "max-age=15552000", path);
+  }
+  assert.equal((await handle(new Request("https://framecheck.uk/"), "home", down, {})).headers.get("strict-transport-security"), null, "sozlamasiz: yo'q");
+  const body = await (await handle(new Request("https://framecheck.uk/"), "home", down, site)).text();
+  assert.equal(body, "home", "javob tanasi buzilmaydi");
+});
+
 test("build to'liq sahifa va server faylini yaratadi", () => {
   execFileSync(process.execPath, ["build.mjs"], {cwd: new URL("..", import.meta.url), stdio: "pipe"});
   assert.ok(existsSync(new URL("../dist/server/index.js", import.meta.url)));
