@@ -2,8 +2,9 @@ name = "framecheck-samir"
 main = "dist/server/index.js"
 compatibility_date = "2026-11-23"
 
-# Keep the old *.workers.dev address working next to the own domain (adding routes turns it off otherwise).
-workers_dev = true
+# The old *.workers.dev address is switched off: the Worker is not started for it, so it cannot use up the free request limit.
+# Set it back to true to bring that address back.
+workers_dev = false
 preview_urls = false
 
 # Own domain. Cloudflare creates the DNS records and the certificate for a custom domain.

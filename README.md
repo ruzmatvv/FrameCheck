@@ -74,8 +74,8 @@ Signed-in users can send one FPS measurement per game. It appears for everyone o
 ## Addresses
 - Main address: **https://framecheck.uk**. `www.framecheck.uk`, `flamecheck.bid` and `www.flamecheck.bid` redirect to it (308).
   The list lives in `wrangler.toml` (`CANONICAL_HOST`, `REDIRECT_HOSTS`); the rule is `canonicalRedirect` in `src/server.mjs`.
-- The old `framecheck-samir.ruzmatvv.workers.dev` still serves the site (`workers_dev = true`). Set it to `false` to switch it off:
-  the Worker is then not even started for that address, so nothing is counted against the free request limit.
+- The old `framecheck-samir.ruzmatvv.workers.dev` is switched off (`workers_dev = false`): the Worker is not started for that
+  address, so nothing is counted against the free request limit. Set it to `true` to bring it back.
 - Cloudflare creates the DNS records and certificates for the custom domains on deploy. A brand-new `.uk` name can take a few
   minutes before HTTPS answers.
 
