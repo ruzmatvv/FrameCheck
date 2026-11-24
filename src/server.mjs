@@ -60,8 +60,17 @@ function installAsset(pathname,assets){
  return null;
 }
 
+// Other host names of the site (a mistyped domain, www) send visitors to the main address, keeping path and query.
+function canonicalRedirect(url,env){
+ const canonical=env?.CANONICAL_HOST;if(!canonical)return null;
+ const from=String(env.REDIRECT_HOSTS||"").split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+ if(!from.includes(url.hostname.toLowerCase()))return null;
+ return new Response(null,{status:308,headers:{Location:"https://"+canonical+url.pathname+url.search,"Cache-Control":"public, max-age=3600",...security}});
+}
+
 export async function handle(request,home,fetchSteam=fetch,env={},assets={}){
  const {pathname,searchParams}=new URL(request.url);
+ const moved=canonicalRedirect(new URL(request.url),env);if(moved)return moved;
  const account=await handleAccount(request,env);if(account)return account;
  if(request.method!=="GET"&&request.method!=="HEAD")return json({code:"method"},405);
  if(pathname==="/"||pathname==="/index.html")return new Response(request.method==="HEAD"?null:home,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-cache","Referrer-Policy":"strict-origin-when-cross-origin",...security}});

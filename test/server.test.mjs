@@ -125,6 +125,28 @@ test("/img/ hech narsa topilmasa 404 beradi va begona manzilni olmaydi", async (
   assert.equal((await handle(req("/img/9.jpg"), "x", async () => { throw new Error("net"); })).status, 404);
 });
 
+const withHost = (host, path = "/", method = "GET") => new Request("https://" + host + path, {method});
+const site = {CANONICAL_HOST: "framecheck.uk", REDIRECT_HOSTS: "flamecheck.bid, www.flamecheck.bid,www.framecheck.uk"};
+
+test("boshqa domenlar asosiy manzilga yo'naltiriladi (yo'l va so'rov saqlanadi)", async () => {
+  for (const host of ["flamecheck.bid", "www.flamecheck.bid", "WWW.FRAMECHECK.UK", "www.framecheck.uk"]) {
+    const res = await handle(withHost(host, "/api/prices?ids=570&lang=uz"), "home", down, site);
+    assert.equal(res.status, 308, host);
+    assert.equal(res.headers.get("location"), "https://framecheck.uk/api/prices?ids=570&lang=uz");
+    assert.equal(await res.text(), "");
+  }
+  const post = await handle(withHost("flamecheck.bid", "/api/sync", "POST"), "home", down, site);
+  assert.equal(post.status, 308, "POST ham yo'naltiriladi, usuli o'zgarmaydi (308)");
+});
+
+test("asosiy manzil, workers.dev va local yo'naltirilmaydi; sozlama bo'lmasa hech narsa o'zgarmaydi", async () => {
+  for (const host of ["framecheck.uk", "framecheck-samir.ruzmatvv.workers.dev", "127.0.0.1:4672", "evilframecheck.uk", "framecheck.uk.evil.example"]) {
+    assert.equal((await handle(withHost(host), "home", down, site)).status, 200, host);
+  }
+  assert.equal((await handle(withHost("flamecheck.bid"), "home", down, {})).status, 200);
+  assert.equal((await handle(withHost("flamecheck.bid"), "home", down, {CANONICAL_HOST: "framecheck.uk"})).status, 200);
+});
+
 test("build to'liq sahifa va server faylini yaratadi", () => {
   execFileSync(process.execPath, ["build.mjs"], {cwd: new URL("..", import.meta.url), stdio: "pipe"});
   assert.ok(existsSync(new URL("../dist/server/index.js", import.meta.url)));

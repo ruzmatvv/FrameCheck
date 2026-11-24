@@ -71,6 +71,14 @@ email field and the "Forgot password?" link stay hidden. Reset links last 30 min
 ### FPS reports from users
 Signed-in users can send one FPS measurement per game. It appears for everyone only after an admin approves it.
 
+## Addresses
+- Main address: **https://framecheck.uk**. `www.framecheck.uk`, `flamecheck.bid` and `www.flamecheck.bid` redirect to it (308).
+  The list lives in `wrangler.toml` (`CANONICAL_HOST`, `REDIRECT_HOSTS`); the rule is `canonicalRedirect` in `src/server.mjs`.
+- The old `framecheck-samir.ruzmatvv.workers.dev` still serves the site (`workers_dev = true`). Set it to `false` to switch it off:
+  the Worker is then not even started for that address, so nothing is counted against the free request limit.
+- Cloudflare creates the DNS records and certificates for the custom domains on deploy. A brand-new `.uk` name can take a few
+  minutes before HTTPS answers.
+
 ## Installable app
 `npm run build` also produces the manifest, icons and `sw.js`. The service worker serves the last copy of the page offline and
 caches covers; `/api` requests are never cached. The version inside `sw.js` follows the page, so every deploy refreshes it.
