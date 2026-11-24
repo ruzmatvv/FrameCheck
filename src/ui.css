@@ -236,3 +236,25 @@ body.has-compare{padding-bottom:78px}
 .settings-head strong{display:block;font-size:1rem}
 .settings-head small{display:block;margin-top:3px;color:var(--muted);font-size:.8rem;line-height:1.4}
 .settings-panel .choice-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+/* Device score */
+.score-panel{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin:16px 0 0;padding:20px 24px;border:1px solid #3b4a33;border-radius:12px;background:linear-gradient(135deg,#1c2818 0%,var(--card) 58%)}
+.score-panel[hidden]{display:none}
+.score-panel.is-empty{grid-template-columns:1fr}
+.score-ring{position:relative;width:148px;height:148px;flex:none}
+.score-ring svg{width:100%;height:100%;display:block}
+.score-track{fill:none;stroke:#273127;stroke-width:9}
+.score-arc{fill:none;stroke:var(--lime);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.score-number{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.score-number strong{font-size:2.7rem;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.score-number small{color:var(--muted);font-size:.78rem;margin-top:3px}
+.score-kicker{display:block;font:700 .68rem/1.3 "DM Sans","Segoe UI",sans-serif;letter-spacing:.14em;color:var(--lime)}
+.score-body h2{margin:4px 0 6px;font-size:1.5rem;letter-spacing:-.02em}
+.score-line{margin:0 0 12px;color:#cdd3cc;font-size:.92rem}
+.score-parts{display:grid;gap:7px;margin:0 0 10px;max-width:420px}
+.score-part{display:grid;grid-template-columns:96px 1fr 62px;gap:10px;align-items:center;font-size:.8rem;color:#b6bdb4}
+.score-part em{font-style:normal;text-align:right;color:#dfe3dd}
+.score-bar{display:block;height:7px;border-radius:5px;background:#273127;overflow:hidden}
+.score-bar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#8fd04a,var(--lime))}
+.score-weak{margin:0 0 4px}
+@media(max-width:620px){.score-panel{grid-template-columns:1fr;justify-items:center;text-align:center;padding:18px}.score-parts{justify-items:stretch;text-align:left;width:100%}.score-panel .row-actions{justify-content:center}}
+@media(prefers-reduced-motion:reduce){.score-arc{transition:none}}

@@ -78,7 +78,7 @@ test("yig'ilgan sahifada buzilgan belgilar va xom plejholderlar yo'q", () => {
 
 test("bosh sahifadagi asosiy tugmalar joyida (shablon buzilmagan)", () => {
   const html = readFileSync(new URL("../src/index.html", import.meta.url), "utf8");
-  for (const piece of ['data-fps-demo="30"', "data-duel", "data-upgrade", 'id="deal-strip"', 'id="account-link"', 'id="account-pill"', "data-privacy", 'id="install-app"', 'rel="manifest"', 'id="cards"'])
+  for (const piece of ['data-fps-demo="30"', "data-duel", "data-upgrade", 'id="deal-strip"', 'id="score-panel"', 'id="settings-panel"', 'id="account-link"', 'id="account-pill"', "data-privacy", 'id="install-app"', 'rel="manifest"', 'id="cards"'])
     assert.ok(html.includes(piece), piece);
   const lab = html.match(/id="frame-lab"[\s\S]*?<\/div>/)[0];
   assert.equal((lab.match(/<button/g) || []).length, (lab.match(/<\/button>/g) || []).length, "tugmalar ochilib-yopilgan");

@@ -12,7 +12,7 @@ const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tari
 const K="framecheck.v1",base=JSON.parse($("#catalog-data").textContent),images=window.FRAME_ART||{};
 const prices=attachSteamPrices(STEAM_UZ);
 const order=[1815780,1222680,1551360,227300,690790,271590,2824660,2707900,2737300,3241660,635260,244210,2379780,813230,1643320];
-const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;let account=null,compare=null,deals=null,reports=null,upgrade=null,adminPanel=null,settingsPanel=null;
+const known=new Map(base.map(g=>[g.id,g]));let data={saved:[],history:[],games:{}};let storeOK=true;let account=null,compare=null,deals=null,reports=null,upgrade=null,adminPanel=null,settingsPanel=null,scorePanel=null;
 try {const v=JSON.parse(localStorage.getItem(K)||"null");if(v){data.saved=Array.isArray(v.saved)?v.saved.filter(Number.isInteger):[];data.history=Array.isArray(v.history)?v.history.filter(h=>Number.isInteger(h.id)&&h.at):[];data.games=v.games&&typeof v.games==="object"?v.games:{}}}catch{}
 function persist(){try{localStorage.setItem(K,JSON.stringify(data));storeOK=true;account?.touch()}catch{storeOK=false;notify(tr("Brauzer saqlashga ruxsat bermadi. Natija shu sahifada ko‘rinadi."))}}
 const autoInitial=browserProfile(navigator,document),overrideKey="framecheck.device.v2";
@@ -65,7 +65,7 @@ function render(){
  $("#results-summary").textContent=gameCount(filtered.length);$("#catalog-tools").hidden=(view==="saved"||view==="history")&&!ids.length;
  $("#cards").innerHTML=filtered.length?filtered.slice(0,limit).map(card).join(""):'<div class="empty">'+I(view==="history"?"history":view==="saved"?"bookmark":"search")+'<p>'+(!ids.length&&view==="saved"?tr("Saqlangan o‘yinlar shu yerda ko‘rinadi. Kartadagi xatcho‘pni bos."):!ids.length&&view==="history"?tr("Birinchi o‘yinni tekshirganingda natija shu yerga yoziladi."):tr("Bu filtrlarga mos o‘yin topilmadi."))+'</p><button class="subtle-btn" data-reset>'+(!ids.length?tr("O‘yinlarni ko‘rish"):tr("Filtrlarni tozalash"))+'</button></div>';
  prices.sync();
- compare?.syncButtons();deals?.update();
+ compare?.syncButtons();deals?.update();scorePanel?.update();
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
 }
 function route(){localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
@@ -225,6 +225,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  const shared={tr,E,$,I,show,notify,time,prices,fps,badge,locale,memorySize,hardwareText,genreLabel,labels,parts,
   game:id=>rawGame(id)?game(id):null,profile:()=>profile,profileName:()=>profileLabel(profile),settings:()=>settingsPanel.get()};
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
+ scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});
