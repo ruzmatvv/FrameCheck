@@ -25,7 +25,8 @@ export function attachSteamPrices(seed) {
   if(v&&stale){const date=document.createElement("small");date.className="price-last";date.textContent=tr("Oxirgi: {0}",new Date(v.checkedAt).toLocaleDateString(locale()));el.append(date)}
   el.title=tr("Steam · O‘zbekiston")+(v?.edition?" · "+v.edition:"")+(v?" · "+new Date(v.checkedAt).toLocaleString(locale()):"");
  }
- function repaint(){document.querySelectorAll("[data-steam-price]").forEach(paint)}
+ const listeners=new Set();
+ function repaint(){document.querySelectorAll("[data-steam-price]").forEach(paint);listeners.forEach(f=>f())}
  async function update(part){
   const requestGeneration=generation;
   part.forEach(id=>inFlight.add(id));
@@ -52,7 +53,13 @@ export function attachSteamPrices(seed) {
  window.addEventListener("framecheck:language",()=>{generation++;checked.clear();inFlight.clear();sync()});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
  if(!offline)setInterval(sync,60000);
- return {sync,slot};
+ // Fetch prices for games that have no price slot on screen (for example the saved list).
+ function load(ids){
+  if(offline||document.hidden)return;
+  const wanted=[...new Set(ids.map(Number))].filter(id=>Number.isSafeInteger(id)&&id>0&&!inFlight.has(id)&&!(checked.get(id)>Date.now())).sort((a,b)=>a-b);
+  for(let i=0;i<wanted.length;i+=25)update(wanted.slice(i,i+25));
+ }
+ return {sync,slot,load,offer:id=>offers.get(Number(id)),onChange:f=>listeners.add(f)};
 }
 
 

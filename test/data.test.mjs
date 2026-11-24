@@ -75,3 +75,12 @@ test("yig'ilgan sahifada buzilgan belgilar va xom plejholderlar yo'q", () => {
   for (const p of ["__HERO__", "/*__STYLE__*/", "/*__CATALOG__*/", "/*__CLIENT__*/"]) assert.ok(!html.includes(p), p);
   assert.ok(existsSync(new URL("../dist/server/index.js", import.meta.url)));
 });
+
+test("bosh sahifadagi asosiy tugmalar joyida (shablon buzilmagan)", () => {
+  const html = readFileSync(new URL("../src/index.html", import.meta.url), "utf8");
+  for (const piece of ['data-fps-demo="30"', "data-duel", "data-upgrade", 'id="deal-strip"', 'id="account-link"', 'id="account-pill"', "data-privacy", 'id="install-app"', 'rel="manifest"', 'id="cards"'])
+    assert.ok(html.includes(piece), piece);
+  const lab = html.match(/id="frame-lab"[\s\S]*?<\/div>/)[0];
+  assert.equal((lab.match(/<button/g) || []).length, (lab.match(/<\/button>/g) || []).length, "tugmalar ochilib-yopilgan");
+  assert.equal((lab.match(/<button/g) || []).length, 3);
+});

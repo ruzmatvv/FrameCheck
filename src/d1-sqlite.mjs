@@ -27,7 +27,11 @@ export function openDatabase(file, migrations) {
   const db = new DatabaseSync(file);
   db.exec("PRAGMA foreign_keys = ON");
   const dir = typeof migrations === "string" ? migrations : migrations.pathname.replace(/^\/([A-Za-z]:)/, "$1");
-  const applied = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'users'").get();
-  if (!applied) for (const f of readdirSync(dir).filter(n => n.endsWith(".sql")).sort()) db.exec(readFileSync(join(dir, f), "utf8"));
+  db.exec("CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY)");
+  const files = readdirSync(dir).filter(n => n.endsWith(".sql")).sort();
+  // A database made before migrations were tracked already has the first one.
+  if (!db.prepare("SELECT 1 FROM _migrations").get() && db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'users'").get()) db.prepare("INSERT INTO _migrations (name) VALUES (?)").run(files[0]);
+  const done = new Set(db.prepare("SELECT name FROM _migrations").all().map(r => r.name));
+  for (const f of files) if (!done.has(f)) { db.exec(readFileSync(join(dir, f), "utf8")); db.prepare("INSERT INTO _migrations (name) VALUES (?)").run(f); }
   return sqliteD1(db);
 }

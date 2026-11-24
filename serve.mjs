@@ -5,7 +5,7 @@ import {readFile} from "node:fs/promises";
 import app from "./dist/server/index.js";
 const port=Number(process.env.PORT||4672), homeURL="http://127.0.0.1:"+port;
 // Accounts need a database. Locally they are off unless FRAMECHECK_LOCAL_DB=1 (then a SQLite file in .data/ is used).
-const env={};
+const env={RESEND_API_KEY:process.env.RESEND_API_KEY,MAIL_FROM:process.env.MAIL_FROM}; // email for password recovery (optional)
 if(process.env.FRAMECHECK_LOCAL_DB==="1"){
  const {openDatabase}=await import("./src/d1-sqlite.mjs");
  env.DB=openDatabase(new URL("./.data/framecheck.sqlite",import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,"$1"),new URL("./migrations/",import.meta.url));

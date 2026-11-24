@@ -44,6 +44,33 @@ The site works without an account.
 - Without a database (file://, plain `npm start`) the account buttons are hidden.
 - Look at the data: `npx wrangler d1 execute framecheck-db --remote --command "SELECT username, created_at FROM users"`.
 
+### Admin panel
+Register an account on the site first, then make it an admin from your computer (the site itself can never grant this):
+
+```powershell
+npx wrangler d1 execute framecheck-db --remote --command "UPDATE users SET is_admin = 1 WHERE username = 'YOUR_LOGIN'"
+```
+
+Admins get an "Admin panel" button in the account dialog: totals, most checked/saved games, common devices, FPS report review,
+and for each user a one-time temporary password (for people locked out) or deletion. Passwords and emails are never shown.
+
+### Password recovery by email (optional, off by default)
+The link is sent through [Resend](https://resend.com). It needs a verified sending domain. Then:
+
+```powershell
+npx wrangler secret put RESEND_API_KEY
+```
+
+and add `MAIL_FROM` (for example `Framecheck <no-reply@your-domain>`) under `[vars]` in `wrangler.toml`. Until both exist the
+email field and the "Forgot password?" link stay hidden. Reset links last 30 minutes and work once.
+
+### FPS reports from users
+Signed-in users can send one FPS measurement per game. It appears for everyone only after an admin approves it.
+
+## Installable app
+`npm run build` also produces the manifest, icons and `sw.js`. The service worker serves the last copy of the page offline and
+caches covers; `/api` requests are never cached. The version inside `sw.js` follows the page, so every deploy refreshes it.
+
 ## Notes
 
 - Covers load from the Steam CDN. If that fails, other CDN hosts are tried, then `/img/<id>.jpg` on this server.
