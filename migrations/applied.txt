@@ -1,0 +1,9 @@
+# D1 migrations that are already applied to the live database (framecheck-db).
+# The automatic deploy does NOT change the database. For a new migration: ask the owner, run `npm run db:migrate`
+# on a computer signed in to Cloudflare, then add the file name here. test/migrations.test.mjs fails until then,
+# so code that needs a new table cannot reach the live site first.
+0001_accounts.sql
+0002_recovery_reports_admin.sql
+0003_cs2_prices.sql
+0004_drop_cs2_prices.sql
+0005_bot.sql

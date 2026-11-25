@@ -1,5 +1,8 @@
 # Framecheck
 
+FrameCheck — Gaming performance checker, PC compatibility analysis, FPS estimates and gaming tools.
+Live: https://framecheck.uk. Rules for AI assistants: [AGENTS.md](AGENTS.md). Managing from Claude, Codex or Antigravity: [AI-BOSHQARUV.md](AI-BOSHQARUV.md).
+
 Game requirements and FPS checker, tuned for an ASUS Vivobook (Core 7 150U, Intel Graphics, 8 GB RAM).
 Static page plus a small API (Cloudflare Worker compatible).
 

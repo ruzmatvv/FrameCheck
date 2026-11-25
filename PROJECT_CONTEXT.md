@@ -113,6 +113,12 @@ Asosiy fayllar:
 - `data-tmp/`, `.data/`, `*.tmp` git'da yo'q bo'lishi kerak.
 - **PowerShell 5.1 `Set-Content -Encoding utf8` fayl boshiga BOM qo'yadi**: `build.mjs` `^import` qatorlarini topolmay, Worker buziladi. Fayllarni `Edit` bilan o'zgartiring. PowerShell `-replace` katta-kichik harfni farqlamaydi (`-creplace` ishlating).
 
+## GitHub (2026-11-25 dan)
+- Repozitoriylar: `ruzmatvv/FrameCheck` (shu loyiha) va `ruzmatvv/FlameCheck` (mahalliy papka: shu papka yonidagi `FlameCheck`). Asosiy tarmoq `main` (oldingi `master`).
+- AI vositalari uchun qoidalar: `AGENTS.md` (Claude `CLAUDE.md` orqali o'qiydi). Qo'llanma: `AI-BOSHQARUV.md`.
+- Testlar GitHub'da o'zi ishlaydi (`.github/workflows/test.yml`). Yangi migratsiya `migrations/applied.txt` ga yozilmaguncha test o'tmaydi.
+- `flamecheck/` papkasi eski nusxa: FlameCheck endi o'z repozitoriyida. U yerni tahrirlang; eski papkani o'chirish egasining ruxsatini kutyapti.
+
 ## Telegram bot (@FrameCheckBot)
 - Kod: `src/bot-*.mjs` (matnlar `bot-text`, Telegram API `bot-tg`, statistika `bot-stats`, mantiq `bot-engine`, yangilanishlarni qayta ishlash `bot-core`, xabarnomalar/cron `bot-notify`). Jadvallar: `migrations/0005_bot.sql`. Webhook: `POST /api/bot/webhook` (`server.mjs`). Admin raqamlari: `GET /api/admin/bot` + admin oynasidagi "Telegram bot" bo'limi.
 - Worker to'plamiga katalog, CS2 skinlari va narx snapshot'i `build.mjs` orqali konstantalar sifatida kiradi (Node'da `bot-data.mjs`). Narx o'zgarish xabarlari faqat snapshot yangilanib qayta joylanganda ishlaydi.

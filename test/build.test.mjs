@@ -43,7 +43,8 @@ test("_headers: xavfsizlik va kesh qoidalari to'g'ri", () => {
 
 test("Worker faqat API va rasm proksisini biladi, sahifani o'zida saqlamaydi", () => {
   const worker = readFileSync(file("server/index.js"), "utf8");
-  // the Telegram bot lives in the Worker too (catalog, skins, prices): about 1.1 MB; the free plan allows 3 MB after compression`r`n  assert.ok(statSync(file("server/index.js")).size < 2_000_000, "Worker hajmi: " + statSync(file("server/index.js")).size);
+  // the Telegram bot lives in the Worker too (catalog, skins, prices): about 1.1 MB; the free plan allows 3 MB after compression
+  assert.ok(statSync(file("server/index.js")).size < 2_000_000, "Worker hajmi: " + statSync(file("server/index.js")).size);
   assert.match(worker, /export default \{fetch/);
   assert.match(worker, /const home=null;/);
   assert.doesNotMatch(worker, /<!doctype html>/i, "sahifa Worker ichida yo'q");

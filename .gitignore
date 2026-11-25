@@ -1,18 +1,45 @@
+# secrets: tokens, keys, passwords (Worker secrets live only in Cloudflare: `wrangler secret put`)
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+.secrets/
+credentials*.json
+client_secret*.json
+*oauth-token*
+*oauth_token*
+.npmrc
+.claude/settings.local.json
+CLAUDE.local.md
+
+# local data, caches and build output
 node_modules/
 dist/
 .wrangler/
-*.log
-.env
-.env.*
-*.pem
-*.key
+.wrangler-tmp/
 .data/
+data-tmp/
+*.sqlite
+*.sqlite-*
+*.db
+*.log
 *.tmp
-
 .playwright-mcp/
+Thumbs.db
+.DS_Store
+
+# backups and design drafts that stay on the owner's computer
+*.zip
+*.bundle
 mockups/
 logo/
-data-tmp/
+
 # copied from src/ by scripts/build-flamecheck.mjs
 flamecheck/public/cs2/logic.js
 flamecheck/public/cs2/names.js
