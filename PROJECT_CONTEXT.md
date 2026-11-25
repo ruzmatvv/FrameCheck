@@ -117,6 +117,7 @@ Asosiy fayllar:
 - Repozitoriylar: `ruzmatvv/FrameCheck` (shu loyiha) va `ruzmatvv/FlameCheck` (mahalliy papka: shu papka yonidagi `FlameCheck`). Asosiy tarmoq `main` (oldingi `master`).
 - AI vositalari uchun qoidalar: `AGENTS.md` (Claude `CLAUDE.md` orqali o'qiydi). Qo'llanma: `AI-BOSHQARUV.md`.
 - Testlar GitHub'da o'zi ishlaydi (`.github/workflows/test.yml`). Yangi migratsiya `migrations/applied.txt` ga yozilmaguncha test o'tmaydi.
+- Avtomatik deploy: Cloudflare Workers Builds (2026-11-25 da ulandi), ikkala Worker uchun `main` tarmog'i. Preview build o'chiq.
 - `flamecheck/` papkasi eski nusxa: FlameCheck endi o'z repozitoriyida. U yerni tahrirlang; eski papkani o'chirish egasining ruxsatini kutyapti.
 
 ## Telegram bot (@FrameCheckBot)

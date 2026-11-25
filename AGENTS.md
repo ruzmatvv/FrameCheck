@@ -7,6 +7,9 @@ Bu faylni Codex va Google Antigravity o'zi o'qiydi, Claude Code esa `CLAUDE.md` 
 - Batafsil tuzilma va tarix: `PROJECT_CONTEXT.md`. Umumiy ma'lumot: `README.md`.
 - Hamroh sayt https://flamecheck.bid alohida repozitoriyda: `ruzmatvv/FlameCheck`. Bu yerdagi `flamecheck/` papkasi eski nusxa: uni tahrirlamang.
 - Node versiyasi `.node-version` da. Tashqi paketlar yo'q; `wrangler` faqat `npx` orqali.
+- **Avtomatik deploy yoqilgan** (Cloudflare Workers Builds): `main` ga tushgan har commit jonli saytga chiqadi
+  (`npm test && npm run build`, keyin `npx wrangler@4.168.0 deploy`). Test o'tmasa deploy bo'lmaydi. Baza migratsiyasi avtomatik emas.
+- `npm run deploy:flamecheck` ni **ishlatmang**: u eski `flamecheck/` nusxasini jonli saytga yozib yuboradi.
 
 ## Buyruqlar
 | Buyruq | Vazifa |

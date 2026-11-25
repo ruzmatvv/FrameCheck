@@ -15,7 +15,8 @@ GitHub'ga ruxsat berayotganda faqat shu ikki repozitoriyni tanlang ("Only select
 ## Ish tartibi
 1. AI `ai/<vosita>/<mavzu>` tarmog'ida o'zgartiradi va pull request ochadi.
 2. GitHub testlarni o'zi ishga tushiradi (yashil belgi = o'tdi).
-3. Siz tekshirib, "Merge" bosasiz. Cloudflare avtomatik deploy ulangan bo'lsa, `main` ga tushgan kod jonli saytga chiqadi.
+3. Siz tekshirib, "Merge" bosasiz. `main` ga tushgan kod Cloudflare orqali bir necha daqiqada jonli saytga o'zi chiqadi
+   (natija: GitHub'da commit yonidagi belgi, yoki Cloudflare → Worker → Deployments).
 
 Bir vaqtning o'zida ikki vosita bitta fayllarni o'zgartirmasin. Ishni boshlashdan oldin `git pull` qiling.
 
