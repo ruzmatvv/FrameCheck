@@ -3,6 +3,9 @@
 import {API, PAGE_SIZE, esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, WATCH_MAX, FRAMECHECK} from "./logic.js";
 import {LANGS, translator, pickLanguage} from "./i18n.js";
 
+// on the real domain the page is only used over https (there is no server code here that could redirect)
+if (location.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) location.replace("https://" + location.host + location.pathname + location.search + location.hash);
+
 const $ = s => document.querySelector(s);
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };
 const write = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private window */ } };
