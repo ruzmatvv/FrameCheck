@@ -10,7 +10,7 @@ import {CS2_WEARS} from "./cs2-names.mjs";
 import {cs2HasWear} from "./cs2-logic.mjs";
 import {evaluateGame} from "./compat.mjs";
 import {applySettings, defaultSettings} from "./settings.mjs";
-import {titles, OFF_STEAM_ID} from "./core.mjs";
+import {titles, OFF_STEAM_ID, flameUrl} from "./core.mjs";
 import {tr} from "./i18n.mjs";
 import {BENCHMARKS} from "./data.mjs";
 
@@ -232,6 +232,7 @@ async function botGameCard(c, id, profileId = 0, view = "m") {
     [btn(view === "m" ? t("recShow") : t("recHide"), "g:" + id + ":" + row.id + ":" + (view === "m" ? "r" : "m"))],
     check.offSteam ? [btn(t("chOther"), "gd:" + id)] : [btn(t("chOther"), "gd:" + id), btn(watching ? t("chUnwatch") : t("chWatch"), "gw:" + id)],
     [urlBtn(t("chSite"), botGameUrl(check.game, c.lang)), btn(t("back"), "m:menu")],
+    ...(!check.offSteam && check.offer?.type !== "free" ? [[urlBtn(t("chDeals"), flameUrl(check.game.id, c.lang))]] : []),
     ...(check.offSteam && /^https:\/\//.test(check.game.storeUrl || "") ? [[urlBtn(check.game.store, check.game.storeUrl)]] : []),
   ]);
   return botShow(c, botGameText(check, profile, c.lang, view === "r" ? "rec" : "min"), keyboard);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import {readFileSync, readdirSync} from "node:fs";
 import {evaluateGame} from "../src/compat.mjs";
 import {BENCHMARKS} from "../src/data.mjs";
 import {isOffSteam, licenseLabel, OFF_STEAM_ID} from "../src/core.mjs";
@@ -42,6 +42,21 @@ test("litsenziya yozuvi: tekin / litsenziya narxi bilan / obuna", () => {
   assert.equal(licenseLabel({license: "paid", priceUsd: 29.99}), "Litsenziya kerak · $29.99");
   assert.equal(licenseLabel({license: "paid"}), "Litsenziya kerak");
   assert.equal(licenseLabel({license: "subscription", priceUsd: 14.99}), "Obuna kerak · $14.99/oy");
+});
+
+// a damaged character in a text (for example "?" instead of "·") leaves it without a translation: this catches it
+test("saytdagi har bir tr(\"...\") matnining ruscha va inglizcha tarjimasi bor", () => {
+  const dir = new URL("../src/", import.meta.url);
+  const ru = JSON.parse(readFileSync(new URL("data/ru.json", dir), "utf8")), en = JSON.parse(readFileSync(new URL("data/en.json", dir), "utf8"));
+  const missing = [];
+  for (const name of readdirSync(dir)) {
+    if (!/\.(js|mjs)$/.test(name) || name.startsWith("bot-")) continue;
+    for (const [, raw] of readFileSync(new URL(name, dir), "utf8").matchAll(/\btr\(\s*"((?:[^"\\]|\\.)*)"/g)) {
+      const key = JSON.parse('"' + raw + '"');
+      if (!(key in ru) || !(key in en)) missing.push(name + ": " + key);
+    }
+  }
+  assert.deepEqual(missing, []);
 });
 
 test("Steam'da yo'q o'yin sahifasi: sarlavha bor, muqova Steam'dan emas", async () => {

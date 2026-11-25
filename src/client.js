@@ -55,7 +55,8 @@ window.coverFallback=coverFallback;
 function figure(g){if(isOffSteam(g))return '<div class="art art-store"><div class="art-name">'+E(g.name)+'</div><span class="store-tag" title="'+E(tr("Steam’da yo‘q"))+'">'+E(g.store||"")+'</span></div>';return '<div class="art"><div class="art-name">'+E(g.name)+'</div><img loading="lazy" src="'+E(picture(g))+'" data-cover="'+Number(g.id)+'" alt="" onerror="coverFallback(this)||(this.hidden=true)"></div>'}
 function offSources(g){const link=(u,t)=>/^https:\/\//.test(u||"")?'<a class="source" href="'+E(u)+'" target="_blank" rel="noopener noreferrer">'+E(t)+'</a>':'';return link(g.storeUrl,g.store)+link(g.reqSource,tr("Talablar manbasi"))}
 function licenseHtml(g){
- if(!isOffSteam(g))return '<span class="license-label">'+E(tr("Litsenziya"))+':</span> '+prices.slot(g.id,true);
+ if(!isOffSteam(g))return '<span class="license-label">'+E(tr("Litsenziya"))+':</span> '+prices.slot(g.id,true)
+  +(prices.offer(g.id)?.type==="free"?'':'<br><a class="deal-link" href="'+E(flameUrl(g.id,language))+'" target="_blank" rel="noopener">🔥 '+E(tr("Eng arzon narxni topish — FlameCheck"))+' ↗</a>');
  const date=g.checkedOn?new Date(g.checkedOn).toLocaleDateString(locale()):"";
  return '<strong>'+E(licenseLabel(g,tr))+'</strong>'+(g.priceNote?' <small>'+E(tr(g.priceNote))+'</small>':'')
   +'<br><small class="hint">'+E(tr("Narx rasmiy sahifadan olingan{0}; do‘konda o‘zgargan bo‘lishi mumkin.",date?" ("+date+")":""))+'</small>'

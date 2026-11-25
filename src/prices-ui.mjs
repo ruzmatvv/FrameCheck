@@ -11,7 +11,7 @@ export function attachSteamPrices(seed) {
  const ttl=10*60*1000;
  const offline=location.protocol==="file:";
  // Games that are not on Steam show what the publisher asks (set by the page through prices.lookup); Steam games ask Steam.
- // long=true is the sentence in the game window: "Litsenziya kerak ? $9.99" / "Tekin".
+ // long=true is the sentence in the game window: "Litsenziya kerak · $9.99" / "Tekin".
  let lookup=()=>null;
  function slot(id,long=false){
   if(Number(id)>=OFF_STEAM_ID){const g=lookup(Number(id));return '<span class="steam-price other-price'+(g?.license==="free"?' is-free':'')+'" title="'+String(g?.store||"").replace(/[<>&"]/g,"")+'"><strong>'+(g?licenseLabel(g,tr).replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])):"")+'</strong></span>'}
@@ -22,8 +22,8 @@ export function attachSteamPrices(seed) {
   const expired=v?.until && v.until*1000<=Date.now();
   const stale=v && (offline||Date.now()-v.checkedAt>ttl);
   let label=!v?(inFlight.has(id)?tr("Narx yuklanmoqda…"):tr("Narx tekshirilmoqda…")):"";
-  if(v&&el.dataset.long&&!expired&&v.type==="free")label=tr("Litsenziya kerak emas ? tekin");
-  else if(v&&el.dataset.long&&!expired&&v.type==="paid")label=tr("Litsenziya kerak ? {0}",v.price);
+  if(v&&el.dataset.long&&!expired&&v.type==="free")label=tr("Litsenziya kerak emas · tekin");
+  else if(v&&el.dataset.long&&!expired&&v.type==="paid")label=tr("Litsenziya kerak · {0}",v.price);
   else if(v)label=expired?tr("Aksiya tugagan · Steam’da tekshiring"):v.type==="free"?tr("Tekin"):v.type==="temporaryFree"?tr("Vaqtincha tekin"):v.type==="paid"?v.price:v.type==="upcoming"?tr("Tez kunda"):v.type==="unavailable"?tr("Hududda mavjud emas"):tr("Alohida narx yo‘q");
   if (!v&&!inFlight.has(id)&&(offline||checked.has(id))) label=tr("Narxni Steam’da ko‘ring");
   el.replaceChildren();el.classList.toggle("is-free",v?.type==="free");

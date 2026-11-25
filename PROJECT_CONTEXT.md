@@ -121,6 +121,14 @@ Asosiy fayllar:
 - Cron: har 3 soatda (`wrangler.toml`), bitta Steam so'rovi va ko'pi bilan 30 xabar. Cheklovlar: xabar tezligi (5 soniyada 6, minutda 40), `update_id` takrori e'tiborga olinmaydi.
 - Mini App: bot `?src=tg&go=<sahifa>` bilan saytni ochadi; `client.js` Telegram skriptini faqat shunda yuklaydi. Telegram Web uchun `frame-ancestors https://web.telegram.org` ruxsat etilgan.
 
+## FlameCheck (flamecheck.bid): chegirmalar sayti
+- Papka `flamecheck/` (alohida statik sayt, Worker kodi va bazasi yo'q). Joylash: `npm run deploy:flamecheck` (faqat egasining ruxsati bilan). Sinov: `test/flamecheck.test.mjs`.
+- Narxlar brauzerdan to'g'ridan-to'g'ri CheapShark API'dan (kalitsiz). Shartlari: do'konga faqat `cheapshark.com/redirect?dealID=` orqali; ommaviy nusxalash yo'q; 429 + Retry-After. Narxlar USD.
+- Kuzatuv ro'yxati va til faqat brauzerda (`fl.watch`, `fl.lang`). CSP qat'iy (`_headers`): inline skript/uslub yozmang.
+- framecheck.uk bilan bog'lanish: `flameUrl()` (`core.mjs`) — o'yin oynasidagi tugma, yon menyu havolasi, bot tugmasi; FlameCheck'dan `framecheck.uk/<til>/o/<steam id>`.
+- Keyingi bosqichlar: bot orqali narx xabari, narx tarixini yig'ish va grafik.
+- PowerShell'da `-Encoding ascii` bilan skript yozmang: `·` va `’` buziladi (bir marta jonli saytda "Litsenziya kerak ? $X" chiqqan).
+
 ## 9. Keyingi vazifalar (ustuvorlik bo'yicha)
 **A. BAJARILDI (2026-11-24): "Ma'lumot yetarli emas" kamaytirildi.** Qaytish nuqtasi: tag `before-unknown-fix`.
    - Natija (215 o'yin, noma'lumlar soni oldin -> keyin): to'liq stol kompyuteri 47 -> 1; Ryzen noutbuk ("AMD Radeon Graphics") 168 -> 1; Intel umumiy grafika 168 -> 1;

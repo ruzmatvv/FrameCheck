@@ -607,3 +607,8 @@ dialog.cs2-detail *{box-sizing:border-box}
 .license-label{color:#b6bcb6;margin-right:.3em}
 .source.inline{margin:0 0 0 .4em;font-size:.78rem}
 .other-price strong{font-weight:700}
+/* Link to the sister deals site (flamecheck.bid) */
+.ext-nav{margin-top:6px}
+.ext-nav .flame{width:19px;text-align:center;flex:none}
+.deal-link{display:inline-block;margin-top:.55rem;padding:.5em .95em;border-radius:9px;border:1px solid rgba(255,138,42,.55);background:rgba(255,106,31,.12);color:#ffb878;font-weight:700;font-size:.86rem}
+.deal-link:hover{background:rgba(255,106,31,.22);color:#ffd0a6}
