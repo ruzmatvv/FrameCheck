@@ -19,6 +19,7 @@ export function createCs2(ctx) {
   const skinHash = skin => "#/skins/" + cs2SkinHash(skin).split("/")[1];
   const parseSkin = hash => String(hash).startsWith("#/skins/") ? cs2ParseSkinHash("cs2-skinlar/" + String(hash).slice(8)) : null;
   const STEAM_IMAGE = "https://community.akamai.steamstatic.com/economy/image/";
+  const otherServer = img => { if (!img.src.startsWith(STEAM_IMAGE)) return false; img.src = img.src.replace("community.akamai.", "community.fastly."); return true; };
   const CATEGORY_LABEL = {Pistols: "Pistoletlar", SMGs: "Avtomatlar (SMG)", Rifles: "Miltiqlar", Heavy: "Og‘ir qurollar", Knives: "Pichoqlar", Gloves: "Qo‘lqoplar", Equipment: "Jihozlar", Other: "Boshqa"};
   const reduced = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   const icon = {
@@ -245,7 +246,7 @@ export function createCs2(ctx) {
       else if (e.key === "ArrowRight" && !e.target.closest("input")) { e.preventDefault(); stepDetail(1); }
     });
     // a picture of the skin that does not load: the weapon's name instead of a broken image
-    d.addEventListener("error", e => { const img = e.target; if (img.matches?.(".cs2-d-art img")) { img.hidden = true; img.parentElement.querySelector(".cs2-miss").hidden = false; } }, true);
+    d.addEventListener("error", e => { const img = e.target; if (img.matches?.(".cs2-d-art img")) { if (otherServer(img)) return; img.hidden = true; img.parentElement.querySelector(".cs2-miss").hidden = false; } }, true);
     detail.dialog = d;
     return d;
   }
@@ -577,8 +578,8 @@ export function createCs2(ctx) {
     const row = t.closest("[data-place]"); if (row) { select(Number(row.dataset.place), false); return; }
     const zoom = t.closest("[data-zoom]"); if (zoom) { const n = size(); if (zoom.dataset.zoom === "reset") { maps.view = fitView(mapNow()); applyView(true); } else zoomAt(maps.view.scale * (zoom.dataset.zoom === "in" ? 1.5 : 1 / 1.5), n / 2, n / 2, true); }
   });
-  // a Steam picture that does not load: show the weapon name in its place instead of a broken image
-  root.addEventListener("error", e => { const img = e.target; if (img.matches?.(".cs2-art img")) { img.hidden = true; img.parentElement.querySelector(".cs2-miss").hidden = false; } }, true);
+  // a Steam picture that does not load: try Steam's other server, then show the weapon name in its place instead of a broken image
+  root.addEventListener("error", e => { const img = e.target; if (img.matches?.(".cs2-art img")) { if (otherServer(img)) return; img.hidden = true; img.parentElement.querySelector(".cs2-miss").hidden = false; } }, true);
   // only a change of width matters (phones fire "resize" when the address bar hides, which must not undo a zoom)
   let radarWidth = 0;
   window.addEventListener("resize", () => {

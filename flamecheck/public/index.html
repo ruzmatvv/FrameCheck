@@ -37,7 +37,8 @@
       <a href="#/watch" data-nav="watch"><span data-t="watch">Kuzatuvlarim</span> <i id="watch-count" hidden>0</i></a>
     </nav>
     <form id="search-form" role="search">
-      <input id="q" type="search" maxlength="80" autocomplete="off" placeholder="O‘yin qidiring…" aria-label="O‘yin qidirish">
+      <input id="q" type="search" maxlength="80" autocomplete="off" placeholder="O‘yin qidiring…" aria-label="O‘yin qidirish" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
+      <div id="suggest" class="suggest" role="listbox" hidden></div>
     </form>
     <div id="lang" class="lang" role="group" aria-label="Til">
       <button type="button" data-lang="uz">UZ</button><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button>

@@ -15,9 +15,19 @@ export function dealUrl(dealID) {
 }
 
 const appNumber = id => /^[1-9]\d{0,9}$/.test(String(id || "")) ? String(id) : "";
-// covers: only Steam's and CheapShark's own picture servers
-export const safeImage = url => typeof url === "string" && /^https:\/\/(?:[\w-]+\.)*(?:steamstatic\.com|cheapshark\.com)\//.test(url) ? url : "";
-export const cover = (steamAppID, thumb) => appNumber(steamAppID) ? "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" + appNumber(steamAppID) + "/header.jpg" : safeImage(thumb);
+// covers come from Steam and from the stores' own picture servers (many different ones): any https picture address is accepted
+export function safeImage(url) {
+  if (typeof url !== "string" || !url.startsWith("https://") || /[\s"'<>\\]/.test(url)) return "";
+  try { const u = new URL(url.replace(/&amp;/g, "&")); return u.username || u.password ? "" : u.href; } catch { return ""; }
+}
+// the addresses to try for one game's cover, best first: Steam's big picture from several of its servers, then CheapShark's small one
+export function coverSources(steamAppID, thumb) {
+  const id = appNumber(steamAppID), list = id ? ["https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" + id + "/header.jpg", "https://cdn.cloudflare.steamstatic.com/steam/apps/" + id + "/header.jpg", "https://cdn.akamai.steamstatic.com/steam/apps/" + id + "/header.jpg"] : [];
+  const small = safeImage(thumb);
+  if (small) list.push(small);
+  return list;
+}
+export const cover = (steamAppID, thumb) => coverSources(steamAppID, thumb)[0] || "";
 export const framecheckUrl = (steamAppID, lang) => appNumber(steamAppID) ? FRAMECHECK + (lang === "ru" || lang === "en" ? "/" + lang : "") + "/o/" + appNumber(steamAppID) : FRAMECHECK + "/";
 
 // where a visitor should be moved to, or null: plain http goes to https, www goes to flamecheck.bid (path, ?query and #page are kept)
@@ -73,6 +83,61 @@ export function sortOffers(offers, stores) {
   return (Array.isArray(offers) ? offers : []).filter(o => o?.dealID && stores?.[o.storeID]?.active !== false).sort((a, b) => Number(a.price) - Number(b.price));
 }
 export const storeTable = list => Object.fromEntries((Array.isArray(list) ? list : []).map(s => [s.storeID, {name: String(s.storeName), active: s.isActive === 1, icon: /^\/img\//.test(s.images?.icon || "") ? "https://www.cheapshark.com" + s.images.icon : ""}]));
+
+// ---- search: what people type is often short ("gta", "nfs", "гта"), the stores use the full names
+export const ALIASES = {
+  gta: "grand theft auto", "гта": "grand theft auto", nfs: "need for speed", "нфс": "need for speed", rdr: "red dead redemption", cod: "call of duty", cs: "counter-strike", "кс": "counter-strike",
+  bf: "battlefield", ac: "assassin's creed", gow: "god of war", mk: "mortal kombat", re: "resident evil", fh: "forza horizon", fifa: "ea sports fc", fc: "ea sports fc",
+  tlou: "the last of us", bg: "baldur's gate", civ: "civilization", ets: "euro truck simulator", ats: "american truck simulator", nba: "nba 2k", wwe: "wwe 2k", mgs: "metal gear solid", dmc: "devil may cry",
+  kcd: "kingdom come deliverance", l4d: "left 4 dead", hl: "half-life", r6: "rainbow six", tw: "total war", ds: "dark souls", fs: "farming simulator", pubg: "pubg battlegrounds", stalker: "s.t.a.l.k.e.r.", dbd: "dead by daylight", fnaf: "five nights at freddy's", mw: "modern warfare", sims: "the sims", "ведьмак": "witcher", "форза": "forza", "фар край": "far cry",
+};
+export const plain = text => String(text ?? "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/['’™®©]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+// the words to ask the price service for: what was typed, plus the full names a short form (or its beginning, "gt" -> gta) stands for
+export function searchTerms(query) {
+  const q = String(query ?? "").trim().slice(0, 80), key = plain(q), out = q ? [q] : [];
+  if (!key) return out;
+  const words = key.split(" "), first = words[0], rest = words.slice(1).join(" ");
+  const full = [];
+  if (ALIASES[key]) full.push(ALIASES[key]);
+  else if (ALIASES[first]) full.push(ALIASES[first] + (rest ? " " + rest : ""));
+  else if (key.length >= 2) for (const [short, name] of Object.entries(ALIASES)) if (short.length > key.length && short.startsWith(key)) full.push(name);
+  for (const name of full) if (!out.some(t => plain(t) === plain(name))) out.push(name);
+  return out.slice(0, 3);
+}
+const EXTRAS = /\b(soundtrack|artbook|art book|shark card|season pass|expansion pass|dlc|pack|skin|costume|credits|points|bundle)\b/;
+const initials = title => title.split(" ").map(w => w[0]).join("");
+// how well a title answers the search: smaller is better
+export function searchScore(title, terms) {
+  const t = plain(title), tight = t.replace(/ /g, ""), bare = t.replace(/^the /, "");     // "witcher" finds "The Witcher 3" as a beginning
+  let best = 90;
+  terms.forEach((term, i) => {
+    const q = plain(term); if (!q) return;
+    let s = 90;
+    if (t === q || bare === q) s = 0;
+    else if (t.startsWith(q + " ") || bare.startsWith(q + " ")) s = 10;      // whole words: "gta v" is before "Vice City"
+    else if (t.startsWith(q) || bare.startsWith(q)) s = 15;
+    else if ((" " + t).includes(" " + q)) s = 20;
+    else if (q.length >= 2 && initials(t).startsWith(q.replace(/ /g, ""))) s = 30;
+    else if (tight.includes(q.replace(/ /g, ""))) s = 40;
+    // a name a short form stands for ("grand theft auto" for "gt") is as good as the typed text itself, and better than a word hidden inside another
+    if (i > 0 && s < 90) s += 2;
+    best = Math.min(best, s);
+  });
+  return best + (EXTRAS.test(t) ? 25 : 0);
+}
+// the answers of several searches as one list: no game twice, best answers first
+export function mergeResults(lists, terms) {
+  const byId = new Map();
+  for (const list of lists) for (const g of Array.isArray(list) ? list : []) if (g?.gameID && g.external && !byId.has(g.gameID)) byId.set(g.gameID, g);
+  const sorted = [...byId.values()].map(g => ({g, s: searchScore(g.external, terms)})).sort((a, b) => a.s - b.s || a.g.external.length - b.g.external.length || a.g.external.localeCompare(b.g.external, "en")).map(x => x.g);
+  // an unfinished short form ("gt"): the person may mean "gta" or a game that begins with "gt", so both kinds take turns
+  const typed = plain(terms[0]), unfinished = terms.length > 1 && !ALIASES[typed] && !ALIASES[typed.split(" ")[0]];
+  if (!unfinished) return sorted;
+  const named = g => terms.slice(1).some(term => plain(g.external).startsWith(plain(term)));
+  const full = sorted.filter(named), other = sorted.filter(g => !named(g)), out = [];
+  for (let i = 0; i < Math.max(full.length, other.length); i++) { if (full[i]) out.push(full[i]); if (other[i]) out.push(other[i]); }
+  return out;
+}
 
 // ---- the watch list (kept only in the person's browser)
 export const WATCH_MAX = 25;

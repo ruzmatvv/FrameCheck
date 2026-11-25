@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync, existsSync} from "node:fs";
-import {esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX} from "../flamecheck/public/logic.js";
+import {esc, money, discount, dealUrl, cover, coverSources, searchTerms, searchScore, mergeResults, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX} from "../flamecheck/public/logic.js";
 import {TEXT, LANGS, translator, pickLanguage} from "../flamecheck/public/i18n.js";
 
 await import("../scripts/build-flamecheck.mjs");   // copies the shared CS2 files, as a deploy does
@@ -22,8 +22,13 @@ test("flamecheck: do'konga havola CheapShark orqali, kodlash ikki marta bo'lmayd
 
 test("flamecheck: rasm va FrameCheck havolalari faqat ruxsat etilgan manzillarga", () => {
   assert.match(cover("289070", ""), /steamstatic\.com\/.*\/289070\/header\.jpg$/);
-  assert.equal(cover(null, "https://evil.example/a.jpg"), "");
-  assert.equal(safeImage("javascript:alert(1)"), ""); assert.equal(safeImage("https://steamstatic.com.evil.example/a.jpg"), "");
+  // games without a Steam id use the store's own picture (this is why most covers were missing before)
+  assert.equal(cover(null, "https://sttc.gamersgate.com/images/product/x/cover-180.jpg"), "https://sttc.gamersgate.com/images/product/x/cover-180.jpg");
+  assert.equal(safeImage("https://store.ubisoft.com/a.jpg?sw=197&amp;sh=261"), "https://store.ubisoft.com/a.jpg?sw=197&sh=261");
+  for (const bad of ["javascript:alert(1)", "data:image/png;base64,AA", "http://a.example/x.jpg", "https://user:pw@a.example/x.jpg", 'https://a.example/x.jpg" onerror="1', "https://a.example/a b.jpg", null]) assert.equal(safeImage(bad), "", String(bad));
+  const sources = coverSources("289070", "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/289070/capsule_231x87.jpg");
+  assert.equal(sources.length, 4); assert.match(sources[1], /cdn\.cloudflare\.steamstatic\.com/); assert.match(sources[3], /capsule_231x87/);
+  assert.deepEqual(coverSources(null, ""), []);
   assert.equal(framecheckUrl("289070", "ru"), "https://framecheck.uk/ru/o/289070");
   assert.equal(framecheckUrl("289070", "uz"), "https://framecheck.uk/o/289070");
   assert.equal(framecheckUrl("../x", "en"), "https://framecheck.uk/");
@@ -86,7 +91,7 @@ test("flamecheck: uch tilda bir xil kalitlar, sahifadagi har bir yozuv tarjima q
 
 test("flamecheck: xavfsizlik sarlavhalari, inline skript/uslub yo'q, fayllar joyida", () => {
   const headers = read("_headers");
-  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "script-src 'self'", "connect-src 'self' https://www.cheapshark.com", "frame-ancestors https://web.telegram.org"]) assert.ok(headers.includes(needle), needle);
+  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "script-src 'self'", "connect-src 'self' https://www.cheapshark.com", "img-src 'self' https:", "frame-ancestors https://web.telegram.org"]) assert.ok(headers.includes(needle), needle);
   assert.doesNotMatch(headers, /unsafe/);
   const html = read("index.html");
   assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)|<style|\sstyle="|\son\w+="/);
@@ -109,4 +114,28 @@ test("flamecheck: CS2 sahifalari ko'chirilgan: manzillar, fayllar, tarjimalar, x
   assert.equal(cs2Translator("uz")("{0} ta skin topildi", 3), "3 ta skin topildi");
   assert.match(cs2Translator("ru")("{0} ta skin topildi", 3), /3/);
   assert.equal((await import("../flamecheck/public/cs2/page.js")).createCs2.name, "createCs2");
+});
+
+test("flamecheck: qisqa nomlar to'liq nomga aylanadi va natijalar to'g'ri tartiblanadi", () => {
+  assert.deepEqual(searchTerms("gta"), ["gta", "grand theft auto"]);
+  assert.deepEqual(searchTerms("gt"), ["gt", "grand theft auto"], "yarim yozilgan qisqartma");
+  assert.deepEqual(searchTerms("ГТА"), ["ГТА", "grand theft auto"]);
+  assert.deepEqual(searchTerms("nfs heat"), ["nfs heat", "need for speed heat"]);
+  assert.deepEqual(searchTerms("far cry"), ["far cry"]);
+  assert.deepEqual(searchTerms("  "), []);
+  assert.ok(searchTerms("c").length === 1, "bitta harf nom emas");
+  const g = (gameID, external) => ({gameID, external});
+  const names = (lists, q) => mergeResults(lists, searchTerms(q)).map(x => x.external);
+  const gta = [g("1", "Grand Theft Auto V"), g("2", "Grand Theft Auto: Vice City")], noise = [g("3", "RagTag"), g("4", "GT Legends"), g("5", "GTFO")];
+  assert.equal(names([noise, gta], "gta")[0], "Grand Theft Auto V");
+  assert.deepEqual(names([noise, gta], "gt").slice(0, 4), ["Grand Theft Auto V", "GT Legends", "Grand Theft Auto: Vice City", "GTFO"]);
+  assert.equal(names([[g("1", "Reigns: The Witcher"), g("2", "The Witcher 3: Wild Hunt")]], "witcher")[0], "The Witcher 3: Wild Hunt");
+  assert.deepEqual(names([[g("1", "A"), g("1", "A"), null]], "a"), ["A"], "takror yo'q");
+  assert.ok(searchScore("Elden Ring", ["elden"]) < searchScore("Elden Ring Soundtrack", ["elden"]), "qo'shimchalar pastroqda");
+});
+
+test("flamecheck: qidiruv taklifi va rasm zaxirasi sahifada ulangan", () => {
+  assert.match(read("index.html"), /role="combobox"[^>]*aria-controls="suggest"/);
+  const app = read("app.js");
+  assert.match(app, /addEventListener\("input", typed\)/); assert.match(app, /img\.dataset\.next/); assert.match(app, /referrerpolicy="no-referrer"/);
 });

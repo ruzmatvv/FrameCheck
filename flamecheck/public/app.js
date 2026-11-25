@@ -1,6 +1,6 @@
 // FlameCheck: the page. It runs entirely in the browser and asks CheapShark directly (that is what CheapShark recommends),
 // so the site needs no server code. The watch list and the language stay in the browser.
-import {API, PAGE_SIZE, esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX, FRAMECHECK} from "./logic.js";
+import {API, PAGE_SIZE, esc, money, discount, dealUrl, coverSources, safeImage, searchTerms, mergeResults, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX, FRAMECHECK} from "./logic.js";
 import {LANGS, translator, pickLanguage} from "./i18n.js";
 
 // one address for the site: https://flamecheck.bid (there is no server code here that could redirect)
@@ -44,11 +44,16 @@ const storeName = id => stores?.table?.[id]?.name || "—";
 const storeIcon = id => { const src = safeImage(stores?.table?.[id]?.icon); return src ? '<img class="sicon" src="' + esc(src) + '" alt="" width="16" height="16">' : ""; };
 
 // ---------------------------------------------------------------- pieces
-const picture = (appid, thumb, cls = "") => '<div class="pic ' + cls + '"><img src="' + esc(cover(appid, thumb)) + '" data-thumb="' + esc(safeImage(thumb)) + '" alt="" loading="lazy"></div>';
+// a cover: the game's name stays behind the picture, so a card is never an empty box
+function picture(appid, thumb, name = "", cls = "") {
+  const sources = coverSources(appid, thumb);
+  return '<div class="pic ' + cls + (appid ? "" : " contain") + '"><span class="pic-name" aria-hidden="true">' + esc(name) + "</span>"
+    + (sources.length ? '<img src="' + esc(sources[0]) + '" data-next="' + esc(sources.slice(1).join(" ")) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' : "") + "</div>";
+}
 const pct = (price, retail) => { const d = discount(price, retail); return d ? '<span class="pct">−' + d + "%</span>" : ""; };
 const watched = id => watch.some(w => w.id === String(id));
 const followButton = (id, title, appid, price, cls = "btn") => '<button type="button" class="' + cls + (watched(id) ? " on" : "") + '" data-follow="' + esc(id) + '" data-title="' + esc(title) + '" data-app="' + esc(appid || "") + '" data-price="' + esc(price) + '" aria-pressed="' + watched(id) + '">' + (watched(id) ? "♥ " + t("following") : "♡ " + t("follow")) + "</button>";
-const card = d => '<a class="card" href="#/o/' + esc(d.gameID) + '">' + picture(d.steamAppID, d.thumb) + '<div class="body"><h3>' + esc(d.title) + '</h3><p class="store">' + storeIcon(d.storeID) + esc(storeName(d.storeID)) + '</p><div class="row"><strong>' + (Number(d.salePrice) === 0 ? t("freeTitle") : money(d.salePrice)) + "</strong><del>" + money(d.normalPrice) + "</del>" + pct(d.salePrice, d.normalPrice) + "</div></div></a>";
+const card = d => '<a class="card" href="#/o/' + esc(d.gameID) + '">' + picture(d.steamAppID, d.thumb, d.title) + '<div class="body"><h3>' + esc(d.title) + '</h3><p class="store">' + storeIcon(d.storeID) + esc(storeName(d.storeID)) + '</p><div class="row"><strong>' + (Number(d.salePrice) === 0 ? t("freeTitle") : money(d.salePrice)) + "</strong><del>" + money(d.normalPrice) + "</del>" + pct(d.salePrice, d.normalPrice) + "</div></div></a>";
 const grid = list => '<div class="grid">' + list.map(card).join("") + "</div>";
 const skeleton = () => '<div class="grid" aria-hidden="true">' + '<div class="card ghost"></div>'.repeat(8) + '</div><p class="sr" role="status">' + t("loading") + "</p>";
 const message = (text, retry) => '<div class="empty" role="status"><p>' + esc(text) + "</p>" + (retry ? '<button type="button" class="btn" data-retry>' + t("retry") + "</button>" : "") + "</div>";
@@ -59,9 +64,61 @@ function toast(text) {
   clearTimeout(toast.timer); toast.timer = setTimeout(() => box.classList.remove("show"), 2600);
 }
 
+// ---------------------------------------------------------------- search
+// asks for what was typed and for the full names behind short forms ("gta"), and puts the answers in one ordered list
+async function findGames(q) {
+  const terms = searchTerms(q);
+  const answers = await Promise.allSettled(terms.map(term => api("games?limit=60&title=" + encodeURIComponent(term))));
+  if (answers.every(a => a.status === "rejected")) throw answers[0].reason;
+  return mergeResults(answers.map(a => a.status === "fulfilled" ? a.value.data : []), terms);
+}
+// suggestions under the search box while typing
+const suggest = {timer: 0, ticket: 0, items: [], at: -1};
+function closeSuggest() {
+  clearTimeout(suggest.timer); suggest.ticket++; suggest.items = []; suggest.at = -1;
+  const box = $("#suggest"); box.hidden = true; box.innerHTML = "";
+  $("#q").setAttribute("aria-expanded", "false"); $("#q").removeAttribute("aria-activedescendant");
+}
+function drawSuggest(q, state) {
+  const box = $("#suggest");
+  const rows = suggest.items.map((g, i) => '<a class="sug" role="option" id="sug-' + i + '" aria-selected="false" href="#/o/' + esc(g.gameID) + '">' + picture(g.steamAppID, g.thumb, "", "mini") + '<span class="sug-name">' + esc(g.external) + '</span><span class="sug-price">' + esc(t("from", money(g.cheapest))) + "</span></a>");
+  if (suggest.items.length) rows.push('<a class="sug all" role="option" id="sug-' + suggest.items.length + '" aria-selected="false" href="#/search/' + encodeURIComponent(q) + '">' + esc(t("allResults", q)) + " →</a>");
+  box.innerHTML = rows.join("") || '<p class="sug-state">' + esc(state) + "</p>";
+  box.hidden = false; $("#q").setAttribute("aria-expanded", "true");
+}
+function typed() {
+  const q = $("#q").value.trim();
+  clearTimeout(suggest.timer); const mine = ++suggest.ticket;
+  if (q.length < 2) { closeSuggest(); return; }
+  suggest.timer = setTimeout(async () => {
+    if (!suggest.items.length) drawSuggest(q, t("loading"));
+    try {
+      const list = await findGames(q);
+      if (mine !== suggest.ticket) return;
+      suggest.items = list.slice(0, 7); suggest.at = -1; drawSuggest(q, t("none"));
+    } catch (error) { if (mine !== suggest.ticket) return; suggest.items = []; drawSuggest(q, error instanceof RateError ? t("errRate", error.wait) : t("errNet")); }
+  }, 350);   // wait until the typing pauses: the price service limits how often it may be asked
+}
+function moveSuggest(step) {
+  const options = [...document.querySelectorAll("#suggest .sug")]; if (!options.length) return;
+  suggest.at = (suggest.at + step + options.length + (suggest.at < 0 && step < 0 ? 1 : 0)) % options.length;
+  options.forEach((o, i) => { o.classList.toggle("act", i === suggest.at); o.setAttribute("aria-selected", String(i === suggest.at)); });
+  $("#q").setAttribute("aria-activedescendant", options[suggest.at].id);
+  options[suggest.at].scrollIntoView({block: "nearest"});
+}
+$("#q").addEventListener("input", typed);
+$("#q").addEventListener("focus", () => { if ($("#q").value.trim().length >= 2 && $("#suggest").hidden) typed(); });
+$("#q").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if ($("#suggest").hidden) typed(); else moveSuggest(e.key === "ArrowDown" ? 1 : -1); }
+  else if (e.key === "Escape" && !$("#suggest").hidden) { e.preventDefault(); closeSuggest(); }
+  else if (e.key === "Enter" && suggest.at >= 0) { e.preventDefault(); const href = $("#sug-" + suggest.at)?.getAttribute("href"); closeSuggest(); $("#q").blur(); if (href) location.hash = href; }
+});
+document.addEventListener("pointerdown", e => { if (!e.target.closest("#search-form")) closeSuggest(); });
+$("#suggest").addEventListener("click", e => { if (e.target.closest(".sug")) { closeSuggest(); $("#q").blur(); } });
+
 // ---------------------------------------------------------------- pages
 function hero(d) {
-  return '<section class="hero">' + picture(d.steamAppID, d.thumb) + '<div class="info"><span class="kicker">' + t("today") + "</span><h1>" + esc(d.title) + '</h1><div class="price"><strong>' + money(d.salePrice) + "</strong><del>" + money(d.normalPrice) + "</del>" + pct(d.salePrice, d.normalPrice) + '</div><p class="muted">' + t("cheapestStore") + " <b>" + esc(storeName(d.storeID)) + '</b></p><div class="buttons"><a class="btn main" href="#/o/' + esc(d.gameID) + '">' + t("compare") + "</a>" + followButton(d.gameID, d.title, d.steamAppID, d.salePrice) + "</div></div></section>";
+  return '<section class="hero">' + picture(d.steamAppID, d.thumb, d.title) + '<div class="info"><span class="kicker">' + t("today") + "</span><h1>" + esc(d.title) + '</h1><div class="price"><strong>' + money(d.salePrice) + "</strong><del>" + money(d.normalPrice) + "</del>" + pct(d.salePrice, d.normalPrice) + '</div><p class="muted">' + t("cheapestStore") + " <b>" + esc(storeName(d.storeID)) + '</b></p><div class="buttons"><a class="btn main" href="#/o/' + esc(d.gameID) + '">' + t("compare") + "</a>" + followButton(d.gameID, d.title, d.steamAppID, d.salePrice) + "</div></div></section>";
 }
 function homeHtml(state = "") {
   const first = home.filter === "all" && home.sort === "rating" ? home.list.find(d => d.steamAppID && Number(d.salePrice) > 0) : null;
@@ -102,10 +159,9 @@ async function showSearch(mine, q) {
   const head = '<h1 class="page-title">' + esc(t("results", q)) + "</h1>";
   $("#main").innerHTML = head + skeleton();
   try {
-    const answer = await api("games?limit=48&title=" + encodeURIComponent(q));
+    const list = (await findGames(q)).slice(0, 60);
     if (mine !== ticket) return;
-    const list = Array.isArray(answer.data) ? answer.data : [];
-    $("#main").innerHTML = head + (list.length ? '<div class="grid">' + list.map(g => '<a class="card" href="#/o/' + esc(g.gameID) + '">' + picture(g.steamAppID, g.thumb) + '<div class="body"><h3>' + esc(g.external) + '</h3><div class="row"><strong>' + esc(t("from", money(g.cheapest))) + "</strong></div></div></a>").join("") + "</div>" : message(t("none")));
+    $("#main").innerHTML = head + (list.length ? '<div class="grid">' + list.map(g => '<a class="card" href="#/o/' + esc(g.gameID) + '">' + picture(g.steamAppID, g.thumb, g.external) + '<div class="body"><h3>' + esc(g.external) + '</h3><div class="row"><strong>' + esc(t("from", money(g.cheapest))) + "</strong></div></div></a>").join("") + "</div>" : message(t("none")));
   } catch (error) { if (mine === ticket) $("#main").innerHTML = head + failure(error); }
 }
 
@@ -120,7 +176,7 @@ async function showGame(mine, id) {
     const item = watch.find(w => w.id === id);
     const date = ever?.date ? new Date(ever.date * 1000).toLocaleDateString({uz: "uz-UZ", ru: "ru-RU", en: "en-GB"}[lang]) : "";
     document.title = info.title + " — FlameCheck";
-    $("#main").innerHTML = '<p class="crumb"><a href="#/">' + t("crumbs") + "</a> › " + esc(info.title) + '</p><section class="top">' + picture(info.steamAppID, info.thumb) + '<div class="info">'
+    $("#main").innerHTML = '<p class="crumb"><a href="#/">' + t("crumbs") + "</a> › " + esc(info.title) + '</p><section class="top">' + picture(info.steamAppID, info.thumb, info.title) + '<div class="info">'
       + (best ? '<span class="kicker">' + t("stores", offers.length) + "</span>" : "") + "<h1>" + esc(info.title) + "</h1>"
       + (best ? '<div class="price"><strong>' + money(best.price) + "</strong>" + (discount(best.price, best.retailPrice) ? "<del>" + money(best.retailPrice) + "</del>" : "") + pct(best.price, best.retailPrice) + '</div><div class="buttons"><a class="btn main" href="' + esc(dealUrl(best.dealID)) + '" target="_blank" rel="noopener">' + esc(t("openIn", storeName(best.storeID))) + " ↗</a>" + followButton(id, info.title, info.steamAppID, best.price) + "</div>" : '<p class="muted">' + t("noOffers") + "</p>")
       + "</div></section>"
@@ -155,7 +211,7 @@ async function showWatch(mine) {
     if (mine !== ticket) return;
     const rows = watch.map(item => {
       const game = data[item.id], best = sortOffers(game?.deals, stores.table)[0], price = best ? Number(best.price) : NaN, hit = reached(item, price);
-      return {hit, html: '<li class="wrow' + (hit ? " hit" : "") + '"><a href="#/o/' + esc(item.id) + '">' + picture(item.steamAppID, game?.info?.thumb, "small") + '</a><div class="wtext"><a href="#/o/' + esc(item.id) + '"><h3>' + esc(game?.info?.title || item.title) + "</h3></a><p>" + [item.target != null ? t("target", money(item.target)) : "", item.added != null ? t("addedAt", money(item.added)) : ""].filter(Boolean).map(esc).join(" · ") + "</p>" + (hit ? '<span class="pct">' + t("reachedBadge") + "</span>" : "") + '</div><div class="wprice"><small>' + t("now") + "</small><strong>" + money(price) + "</strong><span>" + (best ? esc(storeName(best.storeID)) : "") + '</span></div><button type="button" class="x" data-remove="' + esc(item.id) + '" aria-label="' + t("remove") + ": " + esc(item.title) + '">✕</button></li>'};
+      return {hit, html: '<li class="wrow' + (hit ? " hit" : "") + '"><a href="#/o/' + esc(item.id) + '">' + picture(item.steamAppID, game?.info?.thumb, "", "small") + '</a><div class="wtext"><a href="#/o/' + esc(item.id) + '"><h3>' + esc(game?.info?.title || item.title) + "</h3></a><p>" + [item.target != null ? t("target", money(item.target)) : "", item.added != null ? t("addedAt", money(item.added)) : ""].filter(Boolean).map(esc).join(" · ") + "</p>" + (hit ? '<span class="pct">' + t("reachedBadge") + "</span>" : "") + '</div><div class="wprice"><small>' + t("now") + "</small><strong>" + money(price) + "</strong><span>" + (best ? esc(storeName(best.storeID)) : "") + '</span></div><button type="button" class="x" data-remove="' + esc(item.id) + '" aria-label="' + t("remove") + ": " + esc(item.title) + '">✕</button></li>'};
     });
     $("#main").innerHTML = head + '<ul class="wlist">' + [...rows].sort((a, b) => b.hit - a.hit).map(r => r.html).join("") + "</ul>";
   } catch (error) { if (mine === ticket) $("#main").innerHTML = head + failure(error); }
@@ -202,6 +258,7 @@ function render() {
   document.querySelectorAll("#cs2-switch a").forEach(a => { const on = a.dataset.view === route.name; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   if (!isCs2) { cs2?.hide(); $("#cs2").hidden = true; $("#cs2").dataset.view = ""; }
   shown = route.name;
+  closeSuggest();
   document.querySelectorAll("[data-nav]").forEach(a => { const on = a.dataset.nav === active; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = route.name === "free" ? t("freeTitle") + " — FlameCheck" : route.name === "watch" ? t("watchTitle") + " — FlameCheck" : t("title");
   if (route.name !== "search") $("#q").value = "";
@@ -245,18 +302,18 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("submit", e => {
   e.preventDefault();
-  if (e.target.id === "search-form") { const q = $("#q").value.trim(); $("#q").blur(); location.hash = q ? "#/search/" + encodeURIComponent(q) : "#/"; return; }
+  if (e.target.id === "search-form") { const q = $("#q").value.trim(); closeSuggest(); $("#q").blur(); location.hash = q ? "#/search/" + encodeURIComponent(q) : "#/"; return; }
   if (e.target.id === "target-form") {
     watch = cleanWatch(watch.map(w => w.id === e.target.dataset.id ? {...w, target: $("#target").value} : w));
     write("fl.watch", watch); toast(t("saved"));
   }
 });
-// a cover that does not load: try CheapShark's small picture once, then show the plain background
+// a cover that does not load: try the next address; when none is left, the game's name behind it stays
 document.addEventListener("error", e => {
   const img = e.target;
-  if (!(img instanceof HTMLImageElement) || img.closest("#cs2, dialog")) return;      // CS2 pictures have their own fallback
-  if (img.dataset.thumb && img.getAttribute("src") !== img.dataset.thumb) { img.src = img.dataset.thumb; img.dataset.thumb = ""; }
-  else img.remove();
+  if (!(img instanceof HTMLImageElement) || img.closest("#cs2, dialog") || img.dataset.next === undefined) return;      // CS2 pictures have their own fallback
+  const rest = img.dataset.next.split(" ").filter(Boolean);
+  if (rest.length) { img.dataset.next = rest.slice(1).join(" "); img.src = rest[0]; } else img.remove();
 }, true);
 window.addEventListener("hashchange", () => { const before = shown; render(); if (shown !== before || shown !== "skins") window.scrollTo(0, 0); });
 window.addEventListener("storage", e => { if (e.key === "fl.watch") { watch = cleanWatch(read("fl.watch", [])); count(); } });
