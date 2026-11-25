@@ -20,6 +20,14 @@ export const safeImage = url => typeof url === "string" && /^https:\/\/(?:[\w-]+
 export const cover = (steamAppID, thumb) => appNumber(steamAppID) ? "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/" + appNumber(steamAppID) + "/header.jpg" : safeImage(thumb);
 export const framecheckUrl = (steamAppID, lang) => appNumber(steamAppID) ? FRAMECHECK + (lang === "ru" || lang === "en" ? "/" + lang : "") + "/o/" + appNumber(steamAppID) : FRAMECHECK + "/";
 
+// where a visitor should be moved to, or null: plain http goes to https, www goes to flamecheck.bid (path, ?query and #page are kept)
+export function canonicalAddress({protocol, hostname, host, pathname, search, hash}) {
+  if (["localhost", "127.0.0.1", "[::1]"].includes(hostname)) return null;
+  const www = hostname === "www.flamecheck.bid";
+  if (protocol !== "http:" && !(protocol === "https:" && www)) return null;
+  return "https://" + (www ? "flamecheck.bid" : host) + pathname + search + hash;
+}
+
 // the address after "#": home, one game (by CheapShark id or Steam id), search, free games, watch list, about
 export function parseRoute(hash) {
   const path = String(hash || "").replace(/^#\/?/, "");

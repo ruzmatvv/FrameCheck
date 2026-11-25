@@ -1,10 +1,11 @@
 // FlameCheck: the page. It runs entirely in the browser and asks CheapShark directly (that is what CheapShark recommends),
 // so the site needs no server code. The watch list and the language stay in the browser.
-import {API, PAGE_SIZE, esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, WATCH_MAX, FRAMECHECK} from "./logic.js";
+import {API, PAGE_SIZE, esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX, FRAMECHECK} from "./logic.js";
 import {LANGS, translator, pickLanguage} from "./i18n.js";
 
-// on the real domain the page is only used over https (there is no server code here that could redirect)
-if (location.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) location.replace("https://" + location.host + location.pathname + location.search + location.hash);
+// one address for the site: https://flamecheck.bid (there is no server code here that could redirect)
+const proper = canonicalAddress(location);
+if (proper) location.replace(proper);
 
 const $ = s => document.querySelector(s);
 const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } };

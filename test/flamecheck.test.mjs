@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync, existsSync} from "node:fs";
-import {esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, WATCH_MAX} from "../flamecheck/public/logic.js";
+import {esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX} from "../flamecheck/public/logic.js";
 import {TEXT, LANGS, translator, pickLanguage} from "../flamecheck/public/i18n.js";
 
 const file = name => new URL("../flamecheck/public/" + name, import.meta.url);
@@ -32,6 +32,16 @@ test("flamecheck: manzillar", () => {
   assert.deepEqual(parseRoute(""), {name: "home"}); assert.deepEqual(parseRoute("#/o/12"), {name: "game", id: "12"});
   assert.deepEqual(parseRoute("#/steam/289070"), {name: "steam", id: "289070"}); assert.deepEqual(parseRoute("#/search/gta%20v"), {name: "search", q: "gta v"});
   assert.deepEqual(parseRoute("#/free"), {name: "free"}); assert.deepEqual(parseRoute("#/o/abc"), {name: "home"}); assert.deepEqual(parseRoute("#/search/%E0%A4%A"), {name: "search", q: "%E0%A4%A"});
+});
+
+test("flamecheck: www va http bitta manzilga o'tadi", () => {
+  const at = url => { const u = new URL(url); return canonicalAddress({protocol: u.protocol, hostname: u.hostname, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash}); };
+  assert.equal(at("https://www.flamecheck.bid/?lang=ru#/o/5"), "https://flamecheck.bid/?lang=ru#/o/5");
+  assert.equal(at("http://www.flamecheck.bid/#/free"), "https://flamecheck.bid/#/free");
+  assert.equal(at("http://flamecheck.bid/"), "https://flamecheck.bid/");
+  assert.equal(at("https://flamecheck.bid/#/watch"), null);
+  assert.equal(at("http://127.0.0.1:4701/"), null);
+  assert.match(readFileSync(new URL("../flamecheck/wrangler.toml", import.meta.url), "utf8"), /pattern = "www\.flamecheck\.bid", custom_domain = true/);
 });
 
 test("flamecheck: filtrlar va bir o'yin bir marta", () => {
