@@ -26,7 +26,7 @@ const games = JSON.parse(read("src/catalog.json"));
 const css = read("src/ui.css").replace("__HERO__", () => img("hero.jpg"));
 
 // Client script: data first, then the modules in dependency order (import/export lines are stripped).
-const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "settings.mjs", "score.mjs", "routes.mjs", "cs2-names.mjs", "cs2-logic.mjs", "search.mjs", "dxdiag.mjs", "devices.mjs", "sync.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs", "device-picker.js", "settings-ui.js", "score-ui.js", "game-media.js", "palette.js", "cs2.js", "account.js", "privacy.js", "compare.js", "upgrade.js", "deals.js", "reports.js", "admin-ui.js"].map(n => "src/" + n);
+const modules = ["i18n.mjs", "core.mjs", "profile.mjs", "frames.mjs", "compat.mjs", "settings.mjs", "score.mjs", "routes.mjs", "search.mjs", "dxdiag.mjs", "devices.mjs", "sync.mjs", "suggest-ui.mjs", "fps-demo.js", "pc-duel.js", "prices-ui.mjs", "device-picker.js", "settings-ui.js", "score-ui.js", "game-media.js", "palette.js", "account.js", "privacy.js", "compare.js", "upgrade.js", "deals.js", "reports.js", "admin-ui.js"].map(n => "src/" + n);
 const data = "const ru=" + safeJSON(JSON.parse(read("src/data/ru.json"))) + ";\n"
   + "const en=" + safeJSON(JSON.parse(read("src/data/en.json"))) + ";\n"
   + "const STEAM_UZ=" + safeJSON(JSON.parse(read("src/data/steam-uz.json"))) + ";\n"
@@ -59,16 +59,8 @@ writeAtomic("dist/public/apple-touch-icon.png", Buffer.from(pwa.icons["apple-tou
 writeAtomic("dist/public/favicon.ico", makeIco(48));
 // The picture chat apps and search engines show next to a shared link.
 writeAtomic("dist/public/social.jpg", fs.readFileSync("src/social.jpg"));
-// Counter-Strike 2 pages: data files and schematic maps load only when those pages are opened (src/cs2.js).
-fs.mkdirSync("dist/public/data", {recursive: true});
-fs.mkdirSync("dist/public/maps", {recursive: true});
-fs.mkdirSync("dist/public/licenses", {recursive: true});
-writeAtomic("dist/public/data/cs2-skins.json", fs.readFileSync("src/data/cs2-skins.json"));
-writeAtomic("dist/public/data/cs2-maps.json", fs.readFileSync("src/data/cs2-maps.json"));
-writeAtomic("dist/public/data/cs2-prices.json", fs.readFileSync("src/data/cs2-prices.json"));
-writeAtomic("dist/public/data/cs2-skin-details.json", fs.readFileSync("src/data/cs2-skin-details.json"));
-for (const file of fs.readdirSync("src/cs2/maps")) writeAtomic("dist/public/maps/" + file, fs.readFileSync("src/cs2/maps/" + file));
-writeAtomic("dist/public/licenses/cs2-third-party.txt", fs.readFileSync("THIRD_PARTY_NOTICES.md"));
+// The Counter-Strike 2 pages moved to FlameCheck (flamecheck/): remove what an older build left here.
+for (const old of ["data", "maps", "licenses"]) fs.rmSync("dist/public/" + old, {recursive: true, force: true});
 
 // Worker bundle: sync rules + accounts + routes, in one file (import/export lines stripped). It only answers /api and /img.
 const gameNames = "const GAME_NAMES=" + safeJSON(Object.fromEntries(games.map(g => [g.id, g.name]))) + ";\n";

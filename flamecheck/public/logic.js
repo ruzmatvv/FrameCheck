@@ -28,10 +28,14 @@ export function canonicalAddress({protocol, hostname, host, pathname, search, ha
   return "https://" + (www ? "flamecheck.bid" : host) + pathname + search + hash;
 }
 
-// the address after "#": home, one game (by CheapShark id or Steam id), search, free games, watch list, about
-export function parseRoute(hash) {
+// the address after "#": home, one game (by CheapShark id or Steam id), search, free games, watch list, about, CS2 skins and maps.
+// Telegram puts its own data after "#", so the bot's buttons say the page with ?go=skins or ?go=maps instead.
+export function parseRoute(hash, go = "") {
+  if ((go === "skins" || go === "maps") && !String(hash || "").startsWith("#/")) return {name: go};
   const path = String(hash || "").replace(/^#\/?/, "");
   let m;
+  if (path === "maps") return {name: "maps"};
+  if (path === "skins" || /^skins\/[a-z0-9-]{1,120}$/.test(path)) return {name: "skins"};
   if ((m = /^o\/(\d{1,10})$/.exec(path))) return {name: "game", id: m[1]};
   if ((m = /^steam\/(\d{1,10})$/.exec(path))) return {name: "steam", id: m[1]};
   if ((m = /^search\/(.+)$/.exec(path))) {

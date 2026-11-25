@@ -4,6 +4,7 @@ import {readFileSync, existsSync} from "node:fs";
 import {esc, money, discount, dealUrl, cover, safeImage, framecheckUrl, parseRoute, dealsQuery, uniqueDeals, sortOffers, storeTable, cleanWatch, reached, canonicalAddress, WATCH_MAX} from "../flamecheck/public/logic.js";
 import {TEXT, LANGS, translator, pickLanguage} from "../flamecheck/public/i18n.js";
 
+await import("../scripts/build-flamecheck.mjs");   // copies the shared CS2 files, as a deploy does
 const file = name => new URL("../flamecheck/public/" + name, import.meta.url);
 const read = name => readFileSync(file(name), "utf8");
 
@@ -85,7 +86,7 @@ test("flamecheck: uch tilda bir xil kalitlar, sahifadagi har bir yozuv tarjima q
 
 test("flamecheck: xavfsizlik sarlavhalari, inline skript/uslub yo'q, fayllar joyida", () => {
   const headers = read("_headers");
-  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "script-src 'self'", "connect-src https://www.cheapshark.com", "frame-ancestors 'none'"]) assert.ok(headers.includes(needle), needle);
+  for (const needle of ["Strict-Transport-Security", "X-Frame-Options: DENY", "script-src 'self'", "connect-src 'self' https://www.cheapshark.com", "frame-ancestors https://web.telegram.org"]) assert.ok(headers.includes(needle), needle);
   assert.doesNotMatch(headers, /unsafe/);
   const html = read("index.html");
   assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)|<style|\sstyle="|\son\w+="/);
@@ -93,4 +94,19 @@ test("flamecheck: xavfsizlik sarlavhalari, inline skript/uslub yo'q, fayllar joy
   for (const name of ["favicon.ico", "favicon.svg", "icon-48.png", "icon-180.png", "icon-192.png", "social.png", "robots.txt", "sitemap.xml"]) assert.ok(existsSync(file(name)), name);
   const toml = readFileSync(new URL("../flamecheck/wrangler.toml", import.meta.url), "utf8");
   assert.match(toml, /pattern = "flamecheck\.bid"/); assert.doesNotMatch(toml, /^main\s*=/m);
+});
+
+test("flamecheck: CS2 sahifalari ko'chirilgan: manzillar, fayllar, tarjimalar, xavfsizlik", async () => {
+  assert.deepEqual(parseRoute("#/skins"), {name: "skins"}); assert.deepEqual(parseRoute("#/skins/ak-47-redline-91a429af4a60"), {name: "skins"}); assert.deepEqual(parseRoute("#/maps"), {name: "maps"});
+  assert.deepEqual(parseRoute("#tgWebAppData=x", "maps"), {name: "maps"}, "Telegram ichida ?go= ishlaydi");
+  assert.deepEqual(parseRoute("#/free", "maps"), {name: "free"}); assert.deepEqual(parseRoute("", "xato"), {name: "home"});
+  for (const name of ["cs2/page.js", "cs2/strings.js", "cs2/cs2.css", "cs2/logic.js", "cs2/names.js", "cs2/licenses.txt", "cs2/data/cs2-skins.json", "cs2/data/cs2-prices.json", "cs2/data/cs2-skin-details.json", "cs2/data/cs2-maps.json"]) assert.ok(existsSync(file(name)), name);
+  for (const map of JSON.parse(read("cs2/data/cs2-maps.json")).maps) assert.ok(existsSync(file("cs2/maps/" + map.image)), map.image);
+  const page = read("cs2/page.js");
+  assert.doesNotMatch(page, /style="|Framecheck|framecheck:language|"\/data\/|subtle-btn/);
+  const {CS2_TEXT, cs2Translator} = await import("../flamecheck/public/cs2/strings.js");
+  for (const [, raw] of page.matchAll(/\btr\(\s*"((?:[^"\\]|\\.)*)"/g)) { const key = JSON.parse('"' + raw + '"'); assert.ok(CS2_TEXT[key]?.[0] && CS2_TEXT[key]?.[1], "tarjima yo'q: " + key); }
+  assert.equal(cs2Translator("uz")("{0} ta skin topildi", 3), "3 ta skin topildi");
+  assert.match(cs2Translator("ru")("{0} ta skin topildi", 3), /3/);
+  assert.equal((await import("../flamecheck/public/cs2/page.js")).createCs2.name, "createCs2");
 });

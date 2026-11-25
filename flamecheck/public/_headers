@@ -4,7 +4,13 @@
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.steamstatic.com https://www.cheapshark.com; connect-src https://www.cheapshark.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.steamstatic.com https://www.cheapshark.com; connect-src 'self' https://www.cheapshark.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors https://web.telegram.org
 
 /icon-*
   Cache-Control: public, max-age=604800
+
+/cs2/data/*
+  Cache-Control: public, max-age=3600
+
+/cs2/maps/*
+  Cache-Control: public, max-age=86400

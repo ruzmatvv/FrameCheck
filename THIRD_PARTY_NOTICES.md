@@ -1,7 +1,7 @@
 # Third-party notices (Counter-Strike 2 pages)
 
-Framecheck is an independent fan project. **Counter-Strike, Counter-Strike 2, Steam, and the names of its weapons, skins, maps
-and places are trademarks or property of Valve Corporation. Framecheck is not affiliated with, endorsed or sponsored by Valve.**
+Framecheck and FlameCheck (flamecheck.bid, which shows the Counter-Strike 2 pages) are independent fan projects. **Counter-Strike, Counter-Strike 2, Steam, and the names of its weapons, skins, maps
+and places are trademarks or property of Valve Corporation. Neither is affiliated with, endorsed or sponsored by Valve.**
 Item pictures are loaded from Steam's own content servers; the small Counter-Strike 2 icon in the menu is loaded from Steam's
 community servers. Nothing from Valve's games is copied into this repository.
 

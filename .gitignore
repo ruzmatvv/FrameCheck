@@ -13,3 +13,9 @@ dist/
 mockups/
 logo/
 data-tmp/
+# copied from src/ by scripts/build-flamecheck.mjs
+flamecheck/public/cs2/logic.js
+flamecheck/public/cs2/names.js
+flamecheck/public/cs2/data/
+flamecheck/public/cs2/maps/
+flamecheck/public/cs2/licenses.txt

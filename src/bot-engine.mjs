@@ -3,7 +3,7 @@
 // Nothing here invents numbers: FPS comes from the site's own estimate (and says so), prices from the Skinport snapshot.
 import {CATALOG, CS2_SKINS, CS2_PRICES} from "./bot-data.mjs";
 import {BENCHMARKS} from "./data.mjs";
-import {titles, buildGame, combineGame, lookup, isDirectMatch, steamId, clean, isOffSteam, licenseLabel} from "./core.mjs";
+import {titles, buildGame, combineGame, lookup, isDirectMatch, steamId, clean, isOffSteam, licenseLabel, flameCs2Url} from "./core.mjs";
 import {evaluateGame, cpuClass, gpuClass} from "./compat.mjs";
 import {applySettings, defaultSettings} from "./settings.mjs";
 import {steamPriceBatch} from "./frames.mjs";
@@ -124,7 +124,9 @@ const botPrefix = lang => lang === "ru" ? "/ru" : lang === "en" ? "/en" : "";
 export const botHomeUrl = (lang, query = "") => BOT_SITE + botPrefix(lang) + "/" + query;
 export const botGameUrl = (game, lang) => BOT_SITE + gamePath(game.id, game.name, lang);
 export const botAppUrl = (lang, goto = "") => BOT_SITE + botPrefix(lang) + "/?src=tg" + (goto ? "&go=" + goto : "");
-export const botSkinUrl = (skin, lang) => BOT_SITE + botPrefix(lang) + "/#" + cs2SkinHash(skin);
+export const botSkinUrl = (skin, lang) => flameCs2Url("#" + cs2SkinHash(skin), lang);   // the skin pages are on FlameCheck
+// a FlameCheck page opened inside Telegram: ?go= says which page (Telegram uses the "#" part itself)
+export const botFlameAppUrl = (lang, goto) => "https://flamecheck.bid/?lang=" + (lang === "ru" || lang === "en" ? lang : "uz") + "&go=" + goto;
 
 // ---- a game against a device
 const BOT_ICON = {play: "✅", adjust: "⚠️", avoid: "❌", unknown: "❔"};

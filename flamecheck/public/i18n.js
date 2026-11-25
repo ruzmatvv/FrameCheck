@@ -4,7 +4,7 @@ export const TEXT = {
   uz: {
     title: "FlameCheck — o‘yin chegirmalari va eng arzon narx",
     description: "PC o‘yinlari chegirmalari: Steam, Epic Games, GOG va boshqa do‘konlar narxini solishtiring, eng arzonini toping.",
-    skip: "Asosiy qismga o‘tish", deals: "Chegirmalar", free: "Tekin o‘yinlar", skins: "CS2 skinlar", watch: "Kuzatuvlarim", about: "Sayt haqida",
+    skip: "Asosiy qismga o‘tish", deals: "Chegirmalar", free: "Tekin o‘yinlar", skins: "CS2 skinlar", maps: "CS2 xaritalar", watch: "Kuzatuvlarim", about: "Sayt haqida",
     search: "O‘yin qidiring…", searchLabel: "O‘yin qidirish", language: "Til",
     today: "Eng yaxshi taklif", cheapestStore: "Eng arzon do‘kon:", compare: "Narxlarni solishtirish",
     follow: "Kuzatish", following: "Kuzatilmoqda", best: "Eng yaxshi chegirmalar",
@@ -33,7 +33,7 @@ export const TEXT = {
   ru: {
     title: "FlameCheck — скидки на игры и самая низкая цена",
     description: "Скидки на PC-игры: сравните цены Steam, Epic Games, GOG и других магазинов и найдите самую низкую.",
-    skip: "Перейти к содержимому", deals: "Скидки", free: "Бесплатные игры", skins: "Скины CS2", watch: "Отслеживаемые", about: "О сайте",
+    skip: "Перейти к содержимому", deals: "Скидки", free: "Бесплатные игры", skins: "Скины CS2", maps: "Карты CS2", watch: "Отслеживаемые", about: "О сайте",
     search: "Найти игру…", searchLabel: "Поиск игры", language: "Язык",
     today: "Лучшее предложение", cheapestStore: "Дешевле всего:", compare: "Сравнить цены",
     follow: "Отслеживать", following: "Отслеживается", best: "Лучшие скидки",
@@ -62,7 +62,7 @@ export const TEXT = {
   en: {
     title: "FlameCheck — game deals and the lowest price",
     description: "PC game deals: compare prices across Steam, Epic Games, GOG and other stores and find the cheapest one.",
-    skip: "Skip to content", deals: "Deals", free: "Free games", skins: "CS2 skins", watch: "Watchlist", about: "About",
+    skip: "Skip to content", deals: "Deals", free: "Free games", skins: "CS2 skins", maps: "CS2 maps", watch: "Watchlist", about: "About",
     search: "Search a game…", searchLabel: "Search a game", language: "Language",
     today: "Top deal", cheapestStore: "Cheapest at:", compare: "Compare prices",
     follow: "Watch", following: "Watching", best: "Best deals",

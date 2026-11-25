@@ -4,7 +4,7 @@ import {bt, botLangOf, BOT_LANGS, BOT_LANG_NAMES} from "./bot-text.mjs";
 import {botCall, botSend, botEdit, botPhoto, botEditCaption, botAnswerCallback, btn, urlBtn, appBtn, kb, botEscape, botCut} from "./bot-tg.mjs";
 import {botEvent, botSearchLog, botError, botStats} from "./bot-stats.mjs";
 import {BOT_SITE, botGames, botSkinById, botSteamGame, botSteamSearch, botSteamPrices, botFindCatalog, botSteamLink, botFindSkins, botProfileOf, botDeviceLine, botKnownModel, botModelSuggestions,
-  botParseDevice, botRamChoices, botOsChoices, botCheckGame, botGameText, botHomeUrl, botGameUrl, botAppUrl, botSkinUrl, botSkinImage, botSkinThumb, botSkinCaption, botSkinMarket, botSkinportLink,
+  botParseDevice, botRamChoices, botOsChoices, botCheckGame, botGameText, botHomeUrl, botGameUrl, botAppUrl, botFlameAppUrl, botSkinUrl, botSkinImage, botSkinThumb, botSkinCaption, botSkinMarket, botSkinportLink,
   botSkinPrice, botMoney, botSkinVariants, botSkinDefaultWear, botPrices, botPriceDate, withLang, botRequirementLines} from "./bot-engine.mjs";
 import {CS2_WEARS} from "./cs2-names.mjs";
 import {cs2HasWear} from "./cs2-logic.mjs";
@@ -380,7 +380,7 @@ function botSite(c) {
   const t = c.t;
   return botShow(c, t("siteText"), kb([
     [appBtn(t("siteOpen"), botAppUrl(c.lang))],
-    [appBtn(t("siteSkins"), botAppUrl(c.lang, "cs2-skinlar")), appBtn(t("siteMaps"), botAppUrl(c.lang, "cs2-xaritalar"))],
+    [appBtn(t("siteSkins"), botFlameAppUrl(c.lang, "skins")), appBtn(t("siteMaps"), botFlameAppUrl(c.lang, "maps"))],
     [urlBtn(t("siteBrowser"), botHomeUrl(c.lang))],
     botBackRow(c),
   ]));

@@ -19,9 +19,8 @@ const paths={scan:'<path d="M8 3H4v4m12-4h4v4M4 17v4h4m12-4v4h-4"/><path d="M6 1
 const I=k=>'<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">'+(paths[k]||"")+'</svg>';
 document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=I(e.dataset.i));
 const $=s=>document.querySelector(s),E=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const texts={home:"O‘yin tekshiruvi",catalog:"O‘yinlar katalogi",saved:"Saqlanganlar",history:"Tekshiruv tarixi",cs2skins:"Skinlar katalogi",cs2maps:"Xaritalar"};
-const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tarix",cs2skins:"cs2-skinlar",cs2maps:"cs2-xaritalar"};
-const isHub=v=>v==="cs2skins"||v==="cs2maps"; // the Counter-Strike 2 pages (src/cs2.js)
+const texts={home:"O‘yin tekshiruvi",catalog:"O‘yinlar katalogi",saved:"Saqlanganlar",history:"Tekshiruv tarixi"};
+const routes={home:"tekshiruv",catalog:"katalog",saved:"saqlangan",history:"tarix"};
 const K="framecheck.v1",base=JSON.parse($("#catalog-data").textContent),images=window.FRAME_ART||{};
 const prices=attachSteamPrices(STEAM_UZ);prices.setLookup(id=>game(id));
 const order=[1815780,1222680,1551360,227300,690790,271590,2824660,2707900,2737300,3241660,635260,244210,2379780,813230,1643320];
@@ -34,11 +33,9 @@ try {storedSettings=JSON.parse(localStorage.getItem(overrideKey)||"null")}catch{
 let profile=activeProfile(automatic,readOverrides(storedSettings,automatic));
 const rawGame=id=>data.games[id]||known.get(id);
 const game=id=>applySettings(evaluateGame(rawGame(id),profile,BENCHMARKS),settingsPanel?settingsPanel.get():undefined);
-let gameMedia=null,cs2=null;
+let gameMedia=null;
 let localQuery="",view="home",filter=new Set(),verdict="",limit=6,detailId=null,generation=0,toastId,searchSerial=0;
 function notify(s){$("#toast").textContent=s;clearTimeout(toastId);toastId=setTimeout(()=>$("#toast").textContent="",3300)}
-// the sidebar group of Counter-Strike 2 pages opens and closes; the choice is remembered
-function setHub(open,save=true){const t=$("#hub-toggle");if(!t)return;t.setAttribute("aria-expanded",String(open));$("#hub-sub").hidden=!open;if(save)try{localStorage.setItem("framecheck.hub.cs2",open?"open":"closed")}catch{}}
 function setMenu(open){$(".side").classList.toggle("open",open);$("#scrim").hidden=!open;$("#nav-toggle").setAttribute("aria-expanded",String(open))}
 function time(t){return new Intl.DateTimeFormat(locale(),{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date(t))}
 function picture(g){return images[g.id]||g.image||"https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/"+g.id+"/header.jpg"}
@@ -70,18 +67,10 @@ function card(g){const h=data.history.find(x=>x.id===g.id);return '<article clas
 // or the English / Russian one on /en/ and /ru/) until the person changes the language.
 const serverTitle=document.title;let titleFromServer=parseHomePath(location.pathname)!==null&&routeLanguage(location.pathname)!==null;
 window.addEventListener("framecheck:language",()=>{titleFromServer=false});
-function pageTitle(){return view==="home"?(titleFromServer?serverTitle:tr("Framecheck — O‘yin tekshiruvi")):isHub(view)?tr(texts[view])+" · CS2 · Framecheck":tr(texts[view])+" · Framecheck"}
+function pageTitle(){return view==="home"?(titleFromServer?serverTitle:tr("Framecheck — O‘yin tekshiruvi")):tr(texts[view])+" · Framecheck"}
 function syncNav(){document.querySelectorAll("[data-nav]").forEach(n=>{const yes=n.dataset.nav===view;n.classList.toggle("active",yes);if(yes)n.setAttribute("aria-current","page");else n.removeAttribute("aria-current")})}
-function hubRender(){
- syncNav();
- $("#crumb").textContent="CS2 / "+tr(texts[view]);document.title=pageTitle();
- for(const id of ["hero","rig","score-panel","settings-panel","frame-lab","collection"])$("#"+id).hidden=true;
- $("#savedCount").textContent=data.saved.length||"";
- cs2?.show(view);
-}
 function render(){
- if(isHub(view)){hubRender();return}
- $("#collection").hidden=false;cs2?.hide();
+ $("#collection").hidden=false;
  const ids=view==="saved"?data.saved:view==="history"?data.history.map(x=>x.id):[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])];
  const recent=new Date().getFullYear()-4;
  const queryIds=localQuery.trim()?new Set([...lookup(localQuery,ids.map(rawGame).filter(Boolean)),...suggestions(localQuery,ids.map(rawGame).filter(Boolean),ids.length)].map(g=>g.id)):null;
@@ -108,7 +97,7 @@ function render(){
  compare?.syncButtons();deals?.update();scorePanel?.update();
  $("#more-row").innerHTML=filtered.length>limit?'<button id="more" class="subtle-btn more">'+tr("Yana {0} ta o‘yin",Math.min(view==="home"?6:30,filtered.length-limit))+'</button>':'';
 }
-function route(){const before=view;localQuery="";view=cs2ParseSkinHash(location.hash)?"cs2skins":Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";if(isHub(view))setHub(true,false);filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();if(!(isHub(view)&&before===view))window.scrollTo(0,0)}
+function route(){if(/^#cs2-(skinlar|xaritalar)/.test(location.hash)){location.replace(flameCs2Url(location.hash,language));return}localQuery="";view=Object.keys(routes).find(k=>routes[k]===location.hash.slice(1))||"home";filter.clear();verdict="";limit=view==="home"?6:30;setMenu(false);render();window.scrollTo(0,0)}
 // A game's window has its own address (/o/<id>-<name>): the back button closes it and the link can be shared.
 function syncGameUrl(g){if(location.protocol==="file:")return;const path=gamePath(g.id,g.name,language);if(location.pathname===path)return;try{if(parseGamePath(location.pathname)!==null)history.replaceState({game:g.id},"",path+location.search+location.hash);else history.pushState({game:g.id},"",path+location.search+location.hash)}catch{}}
 function leaveGameUrl(){if(location.protocol==="file:"||parseGamePath(location.pathname)===null)return;try{if(history.state?.game)history.back();else history.replaceState(null,"",(routeLanguage(location.pathname)?homePath(language):"/")+location.search+location.hash)}catch{}}
@@ -274,12 +263,9 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenu(false)});win
  settingsPanel=createSettingsPanel({tr,E,$,onChange:()=>{render();if($("#modal").open&&detailId)detail(game(detailId),false)}});
  scorePanel=createScorePanel({...shared,ids:()=>[...known.keys()],lang:()=>language,view:()=>view});
  gameMedia=createGameMedia({tr,E,$,api});
- cs2=createCs2({tr,E,$,notify,title:()=>pageTitle()});
- {let saved="open";try{saved=localStorage.getItem("framecheck.hub.cs2")||"open"}catch{}setHub(saved!=="closed",false)}
- $("#hub-toggle").addEventListener("click",()=>setHub($("#hub-toggle").getAttribute("aria-expanded")!=="true"));
  createPalette({tr,E,$,open:id=>readGame(id),find:q=>lookup(q,allTitles()),
   recent:()=>{const byId=new Map(allTitles().map(g=>[g.id,g]));return data.history.map(h=>byId.get(h.id)).filter(Boolean)},
-  actions:()=>[...Object.keys(routes).map(k=>({label:isHub(k)?"CS2 · "+texts[k]:texts[k],run:()=>{location.hash=routes[k]}})),{label:"Qurilmam",run:()=>device()}]});
+  actions:()=>[...Object.keys(routes).map(k=>({label:texts[k],run:()=>{location.hash=routes[k]}})),{label:"Qurilmam",run:()=>device()}]});
  compare=createCompare(shared);
  upgrade=createUpgrade({...shared,ids:()=>[...new Set([...order,...known.keys(),...Object.keys(data.games).map(Number)])],raw:id=>rawGame(id)});
  deals=createDeals({...shared,view:()=>view,saved:()=>data.saved,fresh:ids=>ids.every(id=>prices.offer(id)&&Date.now()-prices.offer(id).checkedAt<10*60*1000)});

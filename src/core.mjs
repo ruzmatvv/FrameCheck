@@ -14,6 +14,11 @@ export function licenseLabel(g, tr = s => s) {
 }
 // The sister site that compares store prices of a Steam game (flamecheck/ in this repository). Opens in the same language.
 export const flameUrl = (id, lang) => "https://flamecheck.bid/?lang=" + (lang === "ru" || lang === "en" ? lang : "uz") + "#/steam/" + Number(id);
+// The Counter-Strike 2 pages moved to FlameCheck: old FrameCheck addresses (#cs2-skinlar, #cs2-skinlar/<skin>, #cs2-xaritalar) lead there.
+export const flameCs2Url = (hash, lang) => {
+ const skin = /^#?cs2-skinlar\/([a-z0-9-]{1,120})$/.exec(String(hash || ""));
+ return "https://flamecheck.bid/?lang=" + (lang === "ru" || lang === "en" ? lang : "uz") + "#/" + (/^#?cs2-xaritalar/.test(String(hash || "")) ? "maps" : "skins" + (skin ? "/" + skin[1] : ""));
+};
 export const clean = s => String(s ?? "").replace(/[™®©]/g,"").replace(/&amp;/gi,"&").replace(/&nbsp;|&#160;/gi," ").replace(/&#39;|&apos;/gi,"'").replace(/&quot;/gi,'"').replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/\s+/g," ").trim();
 export const norm = s => clean(s).toLowerCase().replace(/[’‘']/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim();
 export function steamId(input) {

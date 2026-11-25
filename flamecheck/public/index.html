@@ -33,7 +33,7 @@
     <nav>
       <a href="#/" data-nav="home" data-t="deals">Chegirmalar</a>
       <a href="#/free" data-nav="free" data-t="free">Tekin o‘yinlar</a>
-      <a href="https://framecheck.uk/#cs2-skinlar" id="skins-link"><span data-t="skins">CS2 skinlar</span> ↗</a>
+      <a href="#/skins" data-nav="skins" data-t="skins">CS2 skinlar</a>
       <a href="#/watch" data-nav="watch"><span data-t="watch">Kuzatuvlarim</span> <i id="watch-count" hidden>0</i></a>
     </nav>
     <form id="search-form" role="search">
@@ -44,11 +44,15 @@
     </div>
   </div>
 </header>
+<nav id="cs2-switch" class="cs2-switch" aria-label="Counter-Strike 2" hidden>
+  <a href="#/skins" data-view="skins" data-t="skins">CS2 skinlar</a><a href="#/maps" data-view="maps" data-t="maps">Xaritalar</a>
+</nav>
+<section id="cs2" class="cs2" hidden></section>
 <main id="main" class="wrap" tabindex="-1">
   <noscript><p>FlameCheck uchun JavaScript kerak. / Для FlameCheck нужен JavaScript. / FlameCheck needs JavaScript.</p></noscript>
 </main>
 <footer class="wrap">
-  <p data-t="disclaimer"></p>
+  <p id="price-note" data-t="disclaimer"></p>
   <p data-t="rights"></p>
   <p class="links"><a href="#/about" data-nav="about" data-t="about">Sayt haqida</a><a href="https://framecheck.uk/">framecheck.uk</a><a href="https://www.cheapshark.com/" target="_blank" rel="noopener">CheapShark</a></p>
 </footer>

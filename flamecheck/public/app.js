@@ -17,6 +17,8 @@ let watch = cleanWatch(read("fl.watch", []));
 let stores = read("fl.stores", null);
 const home = {filter: "all", sort: "rating", page: 0, list: [], seen: new Set(), pages: 1};
 let ticket = 0;
+let shown = "";            // the page that is on screen (moving between the skin list and one skin must not jump to the top)
+let cs2 = null;            // the CS2 pages, loaded when first opened
 
 // ---------------------------------------------------------------- asking CheapShark
 const cache = new Map();
@@ -171,17 +173,39 @@ function chrome() {
   $("#lang").setAttribute("aria-label", t("language"));
   document.querySelectorAll("#lang button").forEach(b => { b.classList.toggle("on", b.dataset.lang === lang); b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
   $('meta[name="description"]').content = t("description");
-  $("#skins-link").href = FRAMECHECK + (lang === "uz" ? "" : "/" + lang) + "/#cs2-skinlar";
   count();
 }
 function count() { const el = $("#watch-count"); el.textContent = watch.length; el.hidden = !watch.length; }
 
+// the CS2 pages live in their own files: they are loaded the first time somebody opens them
+async function showCs2(mine, view) {
+  if (!cs2) {
+    $("#cs2").hidden = false;
+    $("#cs2").innerHTML = '<p class="empty" role="status">' + t("loading") + "</p>";
+    try {
+      const sheet = new Promise(done => { const link = document.createElement("link"); link.rel = "stylesheet"; link.href = "/cs2/cs2.css"; link.onload = link.onerror = done; document.head.append(link); });
+      const [page, strings] = await Promise.all([import("./cs2/page.js"), import("./cs2/strings.js"), sheet]);
+      if (!cs2) {
+        const text = {}; const tr = (...a) => (text[lang] ||= strings.cs2Translator(lang))(...a);
+        cs2 = page.createCs2({tr, E: esc, $, lang: () => lang, notify: toast, title: () => document.title});
+      }
+    } catch { if (mine === ticket) $("#cs2").innerHTML = message(t("errNet"), true); return; }
+  }
+  if (mine === ticket) cs2.show(view);
+}
+
 function render() {
-  const route = parseRoute(location.hash), mine = ++ticket;
-  const active = {home: "home", free: "free", watch: "watch", about: "about"}[route.name] || "";
+  const route = parseRoute(location.hash, new URLSearchParams(location.search).get("go")), mine = ++ticket;
+  const isCs2 = route.name === "skins" || route.name === "maps";
+  const active = {home: "home", free: "free", watch: "watch", about: "about", skins: "skins", maps: "skins"}[route.name] || "";
+  $("#main").hidden = isCs2; $("#cs2-switch").hidden = !isCs2; $("#price-note").hidden = isCs2;
+  document.querySelectorAll("#cs2-switch a").forEach(a => { const on = a.dataset.view === route.name; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  if (!isCs2) { cs2?.hide(); $("#cs2").hidden = true; $("#cs2").dataset.view = ""; }
+  shown = route.name;
   document.querySelectorAll("[data-nav]").forEach(a => { const on = a.dataset.nav === active; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = route.name === "free" ? t("freeTitle") + " — FlameCheck" : route.name === "watch" ? t("watchTitle") + " — FlameCheck" : t("title");
   if (route.name !== "search") $("#q").value = "";
+  if (isCs2) { document.title = t(route.name === "maps" ? "maps" : "skins") + " — FlameCheck"; return showCs2(mine, route.name === "maps" ? "cs2maps" : "cs2skins"); }
   if (route.name === "game") return showGame(mine, route.id);
   if (route.name === "steam") return showSteam(mine, route.id);
   if (route.name === "search") { $("#q").value = route.q; return showSearch(mine, route.q); }
@@ -206,7 +230,7 @@ function toggleFollow(button) {
 
 document.addEventListener("click", e => {
   const el = e.target.closest("button");
-  if (!el) return;
+  if (!el || el.closest("#cs2, dialog")) return;      // the CS2 pages handle their own buttons
   if (el.dataset.follow) toggleFollow(el);
   else if (el.dataset.filter) { home.filter = el.dataset.filter; showHome(++ticket); }
   else if (el.dataset.sort) { home.sort = el.dataset.sort; showHome(++ticket); }
@@ -216,7 +240,7 @@ document.addEventListener("click", e => {
   else if (el.dataset.lang && LANGS.includes(el.dataset.lang)) {
     lang = el.dataset.lang; t = translator(lang); write("fl.lang", lang);
     const url = new URL(location.href); url.searchParams.delete("lang"); history.replaceState(null, "", url);
-    chrome(); render();
+    chrome(); render(); cs2?.relang();
   }
 });
 document.addEventListener("submit", e => {
@@ -230,11 +254,11 @@ document.addEventListener("submit", e => {
 // a cover that does not load: try CheapShark's small picture once, then show the plain background
 document.addEventListener("error", e => {
   const img = e.target;
-  if (!(img instanceof HTMLImageElement)) return;
+  if (!(img instanceof HTMLImageElement) || img.closest("#cs2, dialog")) return;      // CS2 pictures have their own fallback
   if (img.dataset.thumb && img.getAttribute("src") !== img.dataset.thumb) { img.src = img.dataset.thumb; img.dataset.thumb = ""; }
   else img.remove();
 }, true);
-window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+window.addEventListener("hashchange", () => { const before = shown; render(); if (shown !== before || shown !== "skins") window.scrollTo(0, 0); });
 window.addEventListener("storage", e => { if (e.key === "fl.watch") { watch = cleanWatch(read("fl.watch", [])); count(); } });
 
 chrome();

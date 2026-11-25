@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync, existsSync} from "node:fs";
 import {CS2_WEARS, cs2MarketName, cs2MarketUrl, cs2SkinportSlug, cs2SkinportUrl} from "../src/cs2-names.mjs";
 import {cs2Decode, cs2Filter, cs2Slice, cs2Pages, cs2PageWindow, cs2DefaultWear, cs2HasWear, cs2ClampView, cs2RarityRank, cs2Price, cs2SortPrice, cs2SnapshotAge, cs2SkinHash, cs2ParseSkinHash, cs2WearsOfRange, cs2Details, CS2_FLOAT_ZONES, CS2_PAGE_SIZE, CS2_PRICE_BANDS} from "../src/cs2-logic.mjs";
+import {flameCs2Url} from "../src/core.mjs";
 
 const read = name => JSON.parse(readFileSync(new URL("../" + name, import.meta.url), "utf8"));
 const detailsFile = read("src/data/cs2-skin-details.json"), skinsFile = read("src/data/cs2-skins.json"), mapsFile = read("src/data/cs2-maps.json"), pricesFile = read("src/data/cs2-prices.json");
@@ -251,13 +252,17 @@ test("the radar view stays in range", () => {
   assert.ok(cs2ClampView({scale: 1, x: 500, y: 0}, 800).x <= 80);
 });
 
-// ---- the page itself
-test("the page has the sidebar group and the section, and no server list yet", () => {
-  const html = readFileSync(new URL("../src/index.html", import.meta.url), "utf8");
-  assert.match(html, /id="hub-toggle"/); assert.match(html, /href="#cs2-skinlar" data-nav="cs2skins"/); assert.match(html, /href="#cs2-xaritalar" data-nav="cs2maps"/);
-  assert.match(html, /id="cs2"/);
-  assert.doesNotMatch(html, /cs2-serverlar/);
-  assert.match(html, /apps\/730\//); // Steam's own icon
+// ---- the pages moved to FlameCheck
+test("FrameCheck no longer carries the CS2 pages, and old addresses lead to FlameCheck", () => {
+  const html = readFileSync(new URL("../src/index.html", import.meta.url), "utf8"), client = readFileSync(new URL("../src/client.js", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /hub-toggle|cs2-skinlar|cs2-xaritalar|id="cs2"/);
+  assert.match(html, /href="https:\/\/flamecheck\.bid\/"/);
+  assert.match(client, /location\.replace\(flameCs2Url\(location\.hash,language\)\)/);
+  assert.equal(existsSync(new URL("../src/cs2.js", import.meta.url)), false);
+  assert.equal(flameCs2Url("#cs2-skinlar", "uz"), "https://flamecheck.bid/?lang=uz#/skins");
+  assert.equal(flameCs2Url("#cs2-skinlar/ak-47-redline-91a429af4a60", "ru"), "https://flamecheck.bid/?lang=ru#/skins/ak-47-redline-91a429af4a60");
+  assert.equal(flameCs2Url("#cs2-xaritalar", "en"), "https://flamecheck.bid/?lang=en#/maps");
+  assert.equal(flameCs2Url("#cs2-skinlar/<script>", "de"), "https://flamecheck.bid/?lang=uz#/skins");
 });
 
 test("the Worker does not talk to Steam's market (Steam answers it with 429)", () => {
